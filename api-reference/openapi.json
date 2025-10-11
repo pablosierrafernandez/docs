@@ -1,94 +1,68 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
-    "license": {
-      "name": "MIT"
-    },
+    "title": "Heify API",
+    "description": "API for audio and video processing, transcription, and analysis.",
     "version": "1.0.0"
   },
   "servers": [
     {
-      "url": "http://sandbox.mintlify.com"
+      "url": "https://api.heify.com"
     }
   ],
   "security": [
     {
-      "bearerAuth": []
+      "apiKeyAuth": []
     }
   ],
   "paths": {
-    "/plants": {
-      "get": {
-        "description": "Returns all plants from the system that the user has access to",
-        "parameters": [
+    "/request-upload-url": {
+      "post": {
+        "summary": "Submit from local file (1/2)",
+        "description": "Generates a secure, pre-signed S3 URL for uploading a local audio file. This is the first step in the two-step local file upload process. The URL is valid for 5 minutes.",
+        "security": [
           {
-            "name": "limit",
-            "in": "query",
-            "description": "The maximum number of results to return",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
+            "apiKeyAuth": []
           }
         ],
-        "responses": {
-          "200": {
-            "description": "Plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestUploadUrlBody"
+              },
+              "examples": {
+                "StandardRequest": {
+                  "summary": "Request URL for a transcription",
+                  "value": {
+                    "configuration_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+                    "name": "My First Transcription"
                   }
                 }
               }
             }
-          },
-          "400": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
           }
-        }
-      },
-      "post": {
-        "description": "Creates a new plant in the store",
-        "requestBody": {
-          "description": "Plant to add to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
-          },
-          "required": true
         },
         "responses": {
           "200": {
-            "description": "plant response",
+            "description": "Pre-signed URL generated successfully. Use the returned values to perform the PUT upload.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Plant"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "$ref": "#/components/schemas/RequestUploadUrlResponse"
+                },
+                "examples": {
+                  "SuccessResponse": {
+                    "value": {
+                      "data": {
+                        "upload_url": "https://your-bucket.s3.amazonaws.com/upload/client-123/1a2b3c4d-5e6f-7890-1234-567890abcdef?AWSAccessKeyId=...",
+                        "transcription_id": "1a2b3c4d-e5f6-7890-1234-567890abcdef",
+                        "configuration_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+                        "name": "My First Transcription"
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -96,121 +70,1486 @@
         }
       }
     },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
-        "parameters": [
+    "/submit": {
+      "post": {
+        "summary": "Submit from public URL",
+        "description": "Submits an audio file for processing and transcription using a specified configuration. The audio can be provided either by uploading a file directly (`multipart/form-data`) or by pointing to a publicly accessible URL (`application/json`). Upon success, a transcription job is created and starts processing asynchronously.",
+        "security": [
           {
-            "name": "id",
-            "in": "path",
-            "description": "ID of plant to delete",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
+            "apiKeyAuth": []
           }
         ],
+        "requestBody": {
+          "description": "The audio source and transcription parameters.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitUrlRequest"
+              },
+              "examples": {
+                "SubmitViaUrl": {
+                  "summary": "Submit audio from a URL",
+                  "value": {
+                    "source_url": "https://s3.amazonaws.com/my-public-bucket/interviews/quarterly-review.mp3",
+                    "configuration_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+                    "name": "Quarterly Sales Review"
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitFileRequest"
+              }
+            }
+          }
+        },
         "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
-          },
-          "400": {
-            "description": "unexpected error",
+          "201": {
+            "description": "Transcription job created successfully. The process has been initiated.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "$ref": "#/components/schemas/SubmitResponse"
+                },
+                "examples": {
+                  "SuccessResponse": {
+                    "value": {
+                      "message": "Transcription created successfully",
+                      "transcription_id": "quarterly-review"
+                    }
+                  }
                 }
               }
             }
           }
         }
       }
-    }
-  },
-  "webhooks": {
-    "/plant/webhook": {
+    },
+    "/create-configuration": {
       "post": {
-        "description": "Information about a new plant added to the store",
+        "summary": "Create a Configuration",
+        "description": "Creates a new, reusable configuration template that specifies settings for processing audio/video files.",
         "requestBody": {
-          "description": "Plant added to the store",
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewPlant"
+                "$ref": "#/components/schemas/NewConfiguration"
+              },
+              "examples": {
+                "SalesCallExample": {
+                  "summary": "Customer Support - Technical Issues",
+                  "value": {
+                    "tag": "Customer Support - Technical Issues",
+                    "vocabulary": [
+                      "firewall",
+                      "VPN",
+                      "authentication"
+                    ],
+                    "extraction_fields": [
+                      {
+                        "name": "ticket_id",
+                        "type": "string",
+                        "description": "The support ticket number mentioned in the conversation"
+                      },
+                      {
+                        "name": "issue_resolved",
+                        "type": "boolean",
+                        "description": "Whether the technical issue was resolved during the call"
+                      }
+                    ],
+                    "webhooks": {
+                      "success_url": "https://myservice.com/webhooks/transcription/success",
+                      "error_url": "https://myservice.com/webhooks/transcription/error"
+                    },
+                    "summary": true,
+                    "summary_language": "en"
+                  }
+                }
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Return a 200 status to indicate that the data was received successfully"
+            "description": "Configuration created successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateConfigurationResponse"
+                },
+                "examples": {
+                  "SuccessResponse": {
+                    "value": {
+                      "message": "Configuration created successfully",
+                      "configuration_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+                    }
+                  }
+                }
+              }
+            }
           }
+        }
+      }
+    },
+    "/get-configurations": {
+      "post": {
+        "summary": "Get Configurations",
+        "description": "Retrieves either a single configuration by its ID or a list of all available configurations for the client.",
+        "requestBody": {
+          "description": "To retrieve a specific configuration, provide its `configuration_id`. To retrieve all configurations, send an empty JSON object: `{}`.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetConfigurationRequest"
+              },
+              "examples": {
+                "GetSingle": {
+                  "summary": "Request a Single Configuration",
+                  "value": {
+                    "configuration_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+                  }
+                },
+                "GetAll": {
+                  "summary": "Request All Configurations",
+                  "value": {}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved configuration(s). The response structure depends on whether a single configuration or all of them were requested.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/GetSingleConfigurationResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/GetAllConfigurationsResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "SingleConfigResponse": {
+                    "summary": "Response for a single configuration",
+                    "value": {
+                      "configuration": {
+                        "client_id": "client-12345",
+                        "configuration_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+                        "tag": "Customer Support - Technical Issues",
+                        "vocabulary": [
+                          "firewall",
+                          "VPN"
+                        ],
+                        "extraction_fields": [
+                          {
+                            "name": "ticket_id",
+                            "type": "string",
+                            "description": "The support ticket number mentioned."
+                          }
+                        ],
+                        "webhooks": {
+                          "success_url": "https://myservice.com/webhooks/success",
+                          "error_url": "https://myservice.com/webhooks/error"
+                        },
+                        "summary": true,
+                        "summary_language": "en",
+                        "analytics_language": "en",
+                        "created_at": "2023-10-27T10:00:00Z"
+                      }
+                    }
+                  },
+                  "AllConfigsResponse": {
+                    "summary": "Response for all configurations",
+                    "value": {
+                      "total_configurations": 2,
+                      "configurations": [
+                        {
+                          "client_id": "client-12345",
+                          "configuration_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+                          "tag": "Customer Support - Technical Issues",
+                          "vocabulary": [],
+                          "extraction_fields": [],
+                          "webhooks": null,
+                          "summary": false,
+                          "summary_language": "df",
+                          "analytics_language": "df",
+                          "created_at": "2023-10-27T10:00:00Z"
+                        },
+                        {
+                          "client_id": "client-12345",
+                          "configuration_id": "f0e9d8c7-b6a5-4321-fedc-ba9876543210",
+                          "tag": "Sales Call Analysis",
+                          "vocabulary": [
+                            "ROI",
+                            "pricing"
+                          ],
+                          "extraction_fields": [],
+                          "webhooks": null,
+                          "summary": true,
+                          "summary_language": "en",
+                          "analytics_language": "en",
+                          "created_at": "2023-10-26T15:30:00Z"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/delete-configuration": {
+      "post": {
+        "summary": "Delete a Configuration",
+        "description": "Delete a specific configuration.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteConfigurationRequest"
+              },
+              "examples": {
+                "DeleteExample": {
+                  "summary": "Example delete request",
+                  "value": {
+                    "configuration_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Configuration deleted successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteConfigurationResponse"
+                },
+                "examples": {
+                  "Success": {
+                    "value": {
+                      "message": "Configuration deleted successfully."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/details": {
+      "post": {
+        "summary": "Get Transcription Details",
+        "description": "Retrieves details for a specific transcription, or lists all transcriptions for the client.",
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DetailsRequest"
+              },
+              "examples": {
+                "GetSingleTranscription": {
+                  "summary": "Request details for a single transcription",
+                  "value": {
+                    "transcription_id": "1a2b3c4d-e5f6-7890-1234-567890abcdef"
+                  }
+                },
+                "GetAllTranscriptions": {
+                  "summary": "Request all transcriptions for the client",
+                  "value": {}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved transcription details or a list of transcriptions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetailsEndpointResponse"
+                },
+                "examples": {
+                  "SingleTranscriptionCompleted": {
+                    "summary": "Example response for a single completed transcription",
+                    "value": {
+                      "transcription_id": "1a2b3c4d-e5f6-7890-1234-567890abcdef",
+                      "status": "COMPLETED",
+                      "configuration_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+                      "configuration_tag": "Sales Call Analysis",
+                      "duration": 360,
+                      "group": "Q4-2023",
+                      "name": "Quarterly Review Call",
+                      "details": {
+                        "language": "en",
+                        "num_speakers": 2,
+                        "conversation": {
+                          "segments": [
+                            {
+                              "text": "Hello",
+                              "speaker": "SPEAKER_00"
+                            }
+                          ]
+                        },
+                        "summary": {
+                          "summary": "Call summary..."
+                        },
+                        "fields": {
+                          "fields": [
+                            {
+                              "name": "ROI",
+                              "value": "15%"
+                            }
+                          ]
+                        },
+                        "created_at": "2023-10-27T10:00:00Z",
+                        "completed_at": "2023-10-27T10:10:00Z"
+                      }
+                    }
+                  },
+                  "SingleTranscriptionInProgress": {
+                    "summary": "Example response for a single in-progress transcription",
+                    "value": {
+                      "transcription_id": "a0b1c2d3-e4f5-6789-0123-456789abcdef",
+                      "status": "IN_PROGRESS",
+                      "configuration_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+                      "configuration_tag": "Customer Support - Technical Issues",
+                      "duration": 120,
+                      "group": null,
+                      "name": "Support Call #123"
+                    }
+                  },
+                  "AllTranscriptionsSuccess": {
+                    "summary": "Example response for all client transcriptions",
+                    "value": {
+                      "total_transcriptions": 2,
+                      "statistics": {
+                        "completed": 1,
+                        "failed": 1,
+                        "in_progress": 0
+                      },
+                      "transcriptions": [
+                        {
+                          "transcription_id": "1a2b3c4d-e5f6-7890-1234-567890abcdef",
+                          "status": "COMPLETED",
+                          "configuration_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+                          "configuration_tag": "Sales Call Analysis",
+                          "duration": 360,
+                          "group": "Q4-2023",
+                          "name": "Quarterly Review Call",
+                          "details": {
+                            "language": "en",
+                            "num_speakers": 2,
+                            "created_at": "2023-10-27T10:00:00Z",
+                            "completed_at": "2023-10-27T10:10:00Z"
+                          }
+                        },
+                        {
+                          "transcription_id": "f0e9d8c7-b6a5-4321-fedc-ba9876543210",
+                          "status": "FAILED",
+                          "details": {
+                            "message": "Audio file not found.",
+                            "code": 404,
+                            "failed_at": "2023-10-27T10:05:00Z"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/delete-transcription": {
+      "post": {
+        "summary": "Delete a Transcription",
+        "description": "Delete a specific transcription.",
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteTranscriptionRequest"
+              },
+              "examples": {
+                "DeleteExample": {
+                  "summary": "Example delete transcription request",
+                  "value": {
+                    "transcription_id": "1a2b3c4d-e5f6-7890-1234-567890abcdef"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transcription deleted successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteTranscriptionResponse"
+                },
+                "examples": {
+                  "Success": {
+                    "value": {
+                      "message": "Transcription deleted successfully."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/update-transcription-group": {
+      "post": {
+        "summary": "Update Transcription Group",
+        "description": "Updates the `group` classification for a specific transcription.",
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTranscriptionGroupRequest"
+              },
+              "examples": {
+                "SetGroup": {
+                  "summary": "Set a transcription's group",
+                  "value": {
+                    "transcription_id": "1a2b3c4d-e5f6-7890-1234-567890abcdef",
+                    "group": "PENDING_REVIEW"
+                  }
+                },
+                "ClearGroup": {
+                  "summary": "Clear a transcription's group",
+                  "value": {
+                    "transcription_id": "1a2b3c4d-e5f6-7890-1234-567890abcdef",
+                    "group": ""
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The transcription group was updated successfully. The full, updated transcription object is returned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateTranscriptionGroupResponse"
+                },
+                "examples": {
+                  "SuccessResponse": {
+                    "value": {
+                      "message": "Transcription group updated successfully.",
+                      "transcription": {
+                        "transcription_id": "1a2b3c4d-e5f6-7890-1234-567890abcdef",
+                        "status": "COMPLETED",
+                        "configuration_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+                        "configuration_tag": "Sales Call Analysis",
+                        "duration": 360,
+                        "group": "PENDING_REVIEW",
+                        "name": "Quarterly Review Call",
+                        "details": {
+                          "language": "en",
+                          "num_speakers": 2,
+                          "conversation": {
+                            "segments": [
+                              {
+                                "text": "...",
+                                "speaker": "..."
+                              }
+                            ]
+                          },
+                          "summary": {
+                            "summary": "..."
+                          },
+                          "fields": {
+                            "fields": [
+                              {
+                                "name": "...",
+                                "value": "..."
+                              }
+                            ]
+                          },
+                          "created_at": "2023-10-27T10:00:00Z",
+                          "completed_at": "2023-10-27T10:10:00Z"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+         
         }
       }
     }
   },
   "components": {
+    "securitySchemes": {
+      "apiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key"
+      }
+    },
     "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
+      "Configuration": {
         "type": "object",
         "properties": {
-          "name": {
-            "description": "The name of the plant",
-            "type": "string"
+          "client_id": {
+            "type": "string",
+            "description": "The client identifier associated with the configuration."
+          },
+          "configuration_id": {
+            "type": "string",
+            "description": "The unique identifier for the configuration."
           },
           "tag": {
-            "description": "Tag to specify the type",
+            "type": "string",
+            "description": "A descriptive name for the configuration."
+          },
+          "vocabulary": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "An array of custom words or phrases."
+          },
+          "extraction_fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExtractionField"
+            }
+          },
+          "webhooks": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Webhooks"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "summary": {
+            "type": "boolean"
+          },
+          "summary_language": {
             "type": "string"
+          },
+          "analytics_language": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The timestamp of when the configuration was created."
           }
         }
       },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
+      "ConversationContent": {
+        "type": "object",
+        "description": "The conversation transcript with speaker-separated segments.",
+        "properties": {
+          "segments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConversationSegment"
+            },
+            "description": "An array of conversation segments."
+          }
+        },
+        "required": [
+          "segments"
+        ]
+      },
+      "ConversationSegment": {
+        "type": "object",
+        "description": "A single segment of a conversation.",
+        "properties": {
+          "text": {
+            "type": "string",
+            "description": "The transcribed text for this segment."
           },
+          "speaker": {
+            "type": "string",
+            "description": "The identifier for the speaker (e.g., 'SPEAKER_00', 'SPEAKER_01')."
+          }
+        },
+        "required": [
+          "text",
+          "speaker"
+        ]
+      },
+      "CreateConfigurationResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "A confirmation message indicating success."
+          },
+          "configuration_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The unique identifier (UUID) for the created configuration."
+          }
+        }
+      },
+      "DeleteConfigurationRequest": {
+        "type": "object",
+        "properties": {
+          "configuration_id": {
+            "type": "string",
+            "description": "The unique identifier of the configuration to be deleted."
+          }
+        },
+        "required": [
+          "configuration_id"
+        ]
+      },
+      "DeleteConfigurationResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Configuration deleted successfully."
+          }
+        }
+      },
+      "DeleteTranscriptionRequest": {
+        "type": "object",
+        "properties": {
+          "transcription_id": {
+            "type": "string",
+            "description": "The unique identifier of the transcription to be deleted."
+          }
+        },
+        "required": [
+          "transcription_id"
+        ]
+      },
+      "DeleteTranscriptionResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Transcription deleted successfully."
+          }
+        }
+      },
+      "DetailsEndpointResponse": {
+        "title": "DetailsEndpointResponse",
+        "description": "Response can be either a single transcription's details or a list of all client transcriptions with statistics, depending on the request.",
+        "oneOf": [
           {
-            "required": [
-              "id"
-            ],
-            "type": "object",
-            "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
-              }
-            }
+            "$ref": "#/components/schemas/GetSingleTranscriptionResponse"
           }
         ]
       },
-      "Error": {
-        "required": [
-          "error",
-          "message"
-        ],
+      "DetailsRequest": {
         "type": "object",
         "properties": {
-          "error": {
-            "type": "integer",
-            "format": "int32"
-          },
+          "transcription_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The unique identifier of the transcription to retrieve. If not provided, all transcriptions will be returned."
+          }
+        },
+        "description": "Request body for retrieving transcription details. Provide a `transcription_id` for a specific transcription, or an empty object `{}` to retrieve all transcriptions for the client."
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
           "message": {
             "type": "string"
           }
         }
-      }
-    },
-    "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer"
+      },
+      "ExtractionField": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The identifier for the field (e.g., \"customer_id\").",
+            "maxLength": 50
+          },
+          "type": {
+            "type": "string",
+            "description": "The expected data type.",
+            "enum": [
+              "string",
+              "number",
+              "boolean",
+              "array"
+            ]
+          },
+          "description": {
+            "type": "string",
+            "description": "A clear, detailed description to guide the AI on what to extract. For example, to classify sentiment, use: 'Classify the overall sentiment. Must be one of: POSITIVE, NEGATIVE, or NEUTRAL'.",
+            "maxLength": 1000
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "type",
+          "description"
+        ]
+      },
+      "ExtractedFieldItem": {
+        "type": "object",
+        "description": "A single extracted field with its name and value.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the extracted field."
+          },
+          "value": {
+            "description": "The value of the extracted field. Its type depends on the configured extraction field type (string, number, boolean, array)."
+          }
+        },
+        "required": [
+          "name",
+          "value"
+        ]
+      },
+      "FieldsContent": {
+        "type": "object",
+        "description": "The object containing extracted structured data.",
+        "properties": {
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExtractedFieldItem"
+            },
+            "description": "An array of extracted fields."
+          }
+        },
+        "required": [
+          "fields"
+        ]
+      },
+      "GetAllConfigurationsResponse": {
+        "type": "object",
+        "properties": {
+          "total_configurations": {
+            "type": "integer",
+            "description": "The total number of configurations returned."
+          },
+          "configurations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Configuration"
+            }
+          }
+        }
+      },
+      "GetAllTranscriptionsResponse": {
+        "type": "object",
+        "properties": {
+          "total_transcriptions": {
+            "type": "integer",
+            "description": "The total number of transcriptions found for the client."
+          },
+          "statistics": {
+            "type": "object",
+            "properties": {
+              "completed": {
+                "type": "integer",
+                "description": "Number of completed transcriptions."
+              },
+              "failed": {
+                "type": "integer",
+                "description": "Number of failed transcriptions."
+              },
+              "in_progress": {
+                "type": "integer",
+                "description": "Number of in-progress transcriptions."
+              }
+            },
+            "required": [
+              "completed",
+              "failed",
+              "in_progress"
+            ]
+          },
+          "transcriptions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TranscriptionListItem"
+            },
+            "description": "A list of transcription summaries."
+          }
+        },
+        "required": [
+          "total_transcriptions",
+          "statistics",
+          "transcriptions"
+        ],
+        "description": "Response containing all transcriptions for a client along with statistics."
+      },
+      "GetConfigurationRequest": {
+        "type": "object",
+        "properties": {
+          "configuration_id": {
+            "type": "string",
+            "description": "The unique identifier of the configuration to retrieve. Omit to retrieve all configurations."
+          }
+        }
+      },
+      "GetSingleConfigurationResponse": {
+        "type": "object",
+        "properties": {
+          "configuration": {
+            "$ref": "#/components/schemas/Configuration"
+          }
+        }
+      },
+      "GetSingleTranscriptionResponse": {
+        "title": "GetSingleTranscriptionResponse",
+        "oneOf": [
+          {
+            "type": "object",
+            "description": "Full details for a completed transcription.",
+            "properties": {
+              "transcription_id": {
+                "type": "string",
+                "format": "uuid",
+                "description": "Unique identifier for the transcription."
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "COMPLETED"
+                ],
+                "description": "The current status of the transcription job."
+              },
+              "configuration_id": {
+                "type": "string",
+                "format": "uuid",
+                "nullable": true,
+                "description": "ID of the configuration used for this transcription."
+              },
+              "configuration_tag": {
+                "type": "string",
+                "nullable": true,
+                "description": "Tag of the configuration used for this transcription."
+              },
+              "duration": {
+                "type": "number",
+                "nullable": true,
+                "description": "Media duration in seconds."
+              },
+              "group": {
+                "type": "string",
+                "nullable": true,
+                "enum": [
+                  "PENDING_REVIEW",
+                  "UNDER_REVIEW",
+                  "ARCHIVED",
+                  null
+                ],
+                "description": "Categorization of the transcription, e.g., 'PENDING_REVIEW', 'UNDER_REVIEW', 'ARCHIVED'."
+              },
+              "name": {
+                "type": "string",
+                "nullable": true,
+                "description": "Custom name for the transcription."
+              },
+              "details": {
+                "$ref": "#/components/schemas/TranscriptionFullSuccessDetails",
+                "description": "Full transcription results, available only if status is COMPLETED."
+              }
+            },
+            "required": [
+              "transcription_id",
+              "status",
+              "details"
+            ]
+          },
+          {
+            "type": "object",
+            "description": "Full details for a failed transcription.",
+            "properties": {
+              "transcription_id": {
+                "type": "string",
+                "format": "uuid",
+                "description": "Unique identifier for the transcription."
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "FAILED"
+                ],
+                "description": "The current status of the transcription job."
+              },
+              "details": {
+                "$ref": "#/components/schemas/TranscriptionErrorDetails",
+                "description": "Error information, available only if status is FAILED."
+              }
+            },
+            "required": [
+              "transcription_id",
+              "status",
+              "details"
+            ]
+          },
+          {
+            "type": "object",
+            "description": "Basic details for a transcription in other statuses (e.g., PENDING, IN_PROGRESS).",
+            "properties": {
+              "transcription_id": {
+                "type": "string",
+                "format": "uuid",
+                "description": "Unique identifier for the transcription."
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "PENDING",
+                  "IN_PROGRESS"
+                ],
+                "description": "The current status of the transcription job."
+              },
+              "configuration_id": {
+                "type": "string",
+                "format": "uuid",
+                "nullable": true,
+                "description": "ID of the configuration used for this transcription."
+              },
+              "configuration_tag": {
+                "type": "string",
+                "nullable": true,
+                "description": "Tag of the configuration used for this transcription."
+              },
+              "duration": {
+                "type": "number",
+                "nullable": true,
+                "description": "Media duration in seconds."
+              },
+              "group": {
+                "type": "string",
+                "nullable": true,
+                "enum": [
+                  "PENDING_REVIEW",
+                  "UNDER_REVIEW",
+                  "ARCHIVED",
+                  null
+                ],
+                "description": "Categorization of the transcription, e.g., 'PENDING_REVIEW', 'UNDER_REVIEW', 'ARCHIVED'."
+              },
+              "name": {
+                "type": "string",
+                "nullable": true,
+                "description": "Custom name for the transcription."
+              }
+            },
+            "required": [
+              "transcription_id",
+              "status"
+            ]
+          }
+        ],
+        "description": "Response containing details for a single transcription, structure varies by status."
+      },
+      "NewConfiguration": {
+        "type": "object",
+        "properties": {
+          "tag": {
+            "type": "string",
+            "description": "A descriptive name for the configuration (e.g., \"Sales Call Analysis\").",
+            "maxLength": 255
+          },
+          "vocabulary": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "An array of custom words, phrases, or proper nouns to improve recognition accuracy."
+          },
+          "extraction_fields": {
+            "type": "array",
+            "description": "A list of structured data fields for the AI to extract from the transcript. A maximum of 20 fields can be defined.",
+            "maxItems": 20,
+            "items": {
+              "$ref": "#/components/schemas/ExtractionField"
+            }
+          },
+          "webhooks": {
+            "$ref": "#/components/schemas/Webhooks"
+          },
+          "summary": {
+            "type": "boolean",
+            "default": false,
+            "description": "If `true`, a summary of the transcription will be generated."
+          },
+          "summary_language": {
+            "type": "string",
+            "default": "df",
+            "description": "The language for the generated summary. Use `\"df\"` for auto-detect. See documentation for supported languages."
+          },
+          "analytics_language": {
+            "type": "string",
+            "default": "df",
+            "description": "The language for analytics processing. Use `\"df\"` for auto-detect. See documentation for supported languages."
+          }
+        },
+        "required": [
+          "tag"
+        ]
+      },
+      "RequestUploadUrlBody": {
+        "type": "object",
+        "properties": {
+          "configuration_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The unique identifier of the configuration to be used for the transcription."
+          },
+          "name": {
+            "type": "string",
+            "description": "An optional, user-defined name for the transcription job."
+          }
+        },
+        "required": [
+          "configuration_id"
+        ]
+      },
+      "RequestUploadUrlResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "upload_url": {
+                "type": "string",
+                "format": "uri",
+                "description": "The pre-signed S3 URL to which the audio file should be sent via a PUT request."
+              },
+              "transcription_id": {
+                "type": "string",
+                "format": "uuid",
+                "description": "The unique identifier generated for this transcription job."
+              },
+              "configuration_id": {
+                "type": "string",
+                "format": "uuid",
+                "description": "The configuration ID that will be associated with the upload."
+              },
+              "name": {
+                "type": "string",
+                "nullable": true,
+                "description": "The name that will be associated with the upload. Will be null if not provided in the request."
+              }
+            }
+          }
+        }
+      },
+      "SubmitFileRequest": {
+        "type": "object",
+        "description": "Schema for submitting a transcription job by uploading an audio file.",
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "description": "The audio file to be transcribed."
+          },
+          "configuration_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The unique identifier of the configuration to use for processing."
+          },
+          "name": {
+            "type": "string",
+            "description": "An optional, user-defined name for the transcription job."
+          }
+        },
+        "required": [
+          "file",
+          "configuration_id"
+        ]
+      },
+      "SubmitResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "A confirmation message indicating success."
+          },
+          "transcription_id": {
+            "type": "string",
+            "description": "The unique identifier for the newly created transcription job. This is derived from the original file name."
+          }
+        }
+      },
+      "SubmitUrlRequest": {
+        "type": "object",
+        "description": "Schema for submitting a transcription job via a public URL.",
+        "properties": {
+          "source_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "A publicly accessible URL to the audio file."
+          },
+          "configuration_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The unique identifier of the configuration to use for processing."
+          },
+          "name": {
+            "type": "string",
+            "description": "An optional, user-defined name for the transcription job."
+          }
+        },
+        "required": [
+          "source_url",
+          "configuration_id"
+        ]
+      },
+      "SummaryContent": {
+        "type": "object",
+        "description": "The generated summary of the transcription.",
+        "properties": {
+          "summary": {
+            "type": "string",
+            "description": "The text content of the summary."
+          }
+        },
+        "required": [
+          "summary"
+        ]
+      },
+      "TranscriptionErrorDetails": {
+        "type": "object",
+        "description": "Contains details about why a transcription failed.",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "A descriptive error message."
+          },
+          "code": {
+            "type": "integer",
+            "description": "An error code corresponding to the message."
+          },
+          "failed_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The timestamp when the transcription failed."
+          }
+        },
+        "required": [
+          "message",
+          "code"
+        ]
+      },
+      "TranscriptionFullSuccessDetails": {
+        "type": "object",
+        "properties": {
+          "language": {
+            "type": "string",
+            "nullable": true,
+            "description": "Detected language of the media."
+          },
+          "num_speakers": {
+            "type": "number",
+            "nullable": true,
+            "description": "Number of unique speakers identified."
+          },
+          "conversation": {
+            "$ref": "#/components/schemas/ConversationContent",
+            "nullable": true,
+            "description": "The full conversation transcript object."
+          },
+          "summary": {
+            "$ref": "#/components/schemas/SummaryContent",
+            "nullable": true,
+            "description": "The generated summary object, if enabled."
+          },
+          "fields": {
+            "$ref": "#/components/schemas/FieldsContent",
+            "nullable": true,
+            "description": "The extracted fields object, if configured."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when transcription started."
+          },
+          "completed_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Timestamp when transcription finished."
+          }
+        },
+        "required": [
+          "created_at"
+        ],
+        "description": "Full details for a successfully completed transcription."
+      },
+      "TranscriptionListItem": {
+        "title": "TranscriptionListItem",
+        "oneOf": [
+          {
+            "type": "object",
+            "description": "Representation of a completed transcription in a list.",
+            "properties": {
+              "transcription_id": {
+                "type": "string",
+                "format": "uuid",
+                "description": "Unique identifier for the transcription."
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "COMPLETED"
+                ],
+                "description": "The current status of the transcription job."
+              },
+              "configuration_id": {
+                "type": "string",
+                "format": "uuid",
+                "nullable": true,
+                "description": "ID of the configuration used for this transcription."
+              },
+              "configuration_tag": {
+                "type": "string",
+                "nullable": true,
+                "description": "Tag of the configuration used for this transcription."
+              },
+              "duration": {
+                "type": "number",
+                "nullable": true,
+                "description": "Media duration in seconds."
+              },
+              "group": {
+                "type": "string",
+                "nullable": true,
+                "enum": [
+                  "PENDING_REVIEW",
+                  "UNDER_REVIEW",
+                  "ARCHIVED",
+                  null
+                ],
+                "description": "Categorization of the transcription, e.g., 'PENDING_REVIEW', 'UNDER_REVIEW', 'ARCHIVED'."
+              },
+              "name": {
+                "type": "string",
+                "nullable": true,
+                "description": "Custom name for the transcription."
+              },
+              "details": {
+                "$ref": "#/components/schemas/TranscriptionMinimalSuccessDetails",
+                "description": "Minimal transcription results for a completed job, suitable for listings."
+              }
+            },
+            "required": [
+              "transcription_id",
+              "status",
+              "details"
+            ]
+          },
+          {
+            "type": "object",
+            "description": "Representation of a failed transcription in a list.",
+            "properties": {
+              "transcription_id": {
+                "type": "string",
+                "format": "uuid",
+                "description": "Unique identifier for the transcription."
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "FAILED"
+                ],
+                "description": "The current status of the transcription job."
+              },
+              "details": {
+                "$ref": "#/components/schemas/TranscriptionErrorDetails",
+                "description": "Error information for a failed job, suitable for listings."
+              }
+            },
+            "required": [
+              "transcription_id",
+              "status",
+              "details"
+            ]
+          },
+          {
+            "type": "object",
+            "description": "Representation of a transcription in other statuses (e.g., PENDING, IN_PROGRESS) in a list.",
+            "properties": {
+              "transcription_id": {
+                "type": "string",
+                "format": "uuid",
+                "description": "Unique identifier for the transcription."
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "PENDING",
+                  "IN_PROGRESS"
+                ],
+                "description": "The current status of the transcription job."
+              },
+              "configuration_id": {
+                "type": "string",
+                "format": "uuid",
+                "nullable": true,
+                "description": "ID of the configuration used for this transcription."
+              },
+              "configuration_tag": {
+                "type": "string",
+                "nullable": true,
+                "description": "Tag of the configuration used for this transcription."
+              },
+              "duration": {
+                "type": "number",
+                "nullable": true,
+                "description": "Media duration in seconds."
+              },
+              "group": {
+                "type": "string",
+                "nullable": true,
+                "enum": [
+                  "PENDING_REVIEW",
+                  "UNDER_REVIEW",
+                  "ARCHIVED",
+                  null
+                ],
+                "description": "Categorization of the transcription, e.g., 'PENDING_REVIEW', 'UNDER_REVIEW', 'ARCHIVED'."
+              },
+              "name": {
+                "type": "string",
+                "nullable": true,
+                "description": "Custom name for the transcription."
+              }
+            },
+            "required": [
+              "transcription_id",
+              "status"
+            ]
+          }
+        ]
+      },
+      "TranscriptionMinimalSuccessDetails": {
+        "type": "object",
+        "properties": {
+          "language": {
+            "type": "string",
+            "nullable": true,
+            "description": "Detected language of the media."
+          },
+          "num_speakers": {
+            "type": "number",
+            "nullable": true,
+            "description": "Number of unique speakers identified."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when transcription started."
+          },
+          "completed_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Timestamp when transcription finished."
+          }
+        },
+        "required": [
+          "created_at"
+        ],
+        "description": "Minimal details for a successfully completed transcription in a list context."
+      },
+      "UpdateTranscriptionGroupRequest": {
+        "type": "object",
+        "properties": {
+          "transcription_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The unique identifier of the transcription to update."
+          },
+          "group": {
+            "type": "string",
+            "description": "The new group for the transcription. Valid values are 'PENDING_REVIEW', 'UNDER_REVIEW', 'ARCHIVED'. To remove the transcription from a group, provide an empty string (\"\").",
+            "example": "PENDING_REVIEW"
+          }
+        },
+        "required": [
+          "transcription_id",
+          "group"
+        ]
+      },
+      "UpdateTranscriptionGroupResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Transcription group updated successfully."
+          },
+          "transcription": {
+            "$ref": "#/components/schemas/GetSingleTranscriptionResponse"
+          }
+        }
+      },
+      "Webhooks": {
+        "type": "object",
+        "description": "A set of URLs for receiving success or error notifications. Both URLs must be valid HTTPS URLs.",
+        "properties": {
+          "success_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "The URL to which a POST notification will be sent upon successful job completion."
+          },
+          "error_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "The URL to which a POST notification will be sent if the job fails."
+          }
+        },
+        "additionalProperties": false
       }
     }
   }

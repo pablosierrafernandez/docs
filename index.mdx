@@ -1,97 +1,186 @@
 ---
 title: "Introduction"
-description: "Welcome to the new home for your documentation"
+description: "Welcome to Heify - powerful audio/video transcription with AI-powered data extraction"
 ---
 
-## Setting up
+# Heify Documentation
 
-Get your documentation site up and running in minutes.
+Welcome to the official Heify documentation. Heify is a powerful transcription platform that converts audio and video files into accurate transcripts with AI-powered data extraction and analysis.
 
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
+## What is Heify?
 
-## Make it yours
+Heify offers two ways to access powerful transcription capabilities:
 
-Design a docs site that looks great and empowers your users.
+### Heify API
 
-<Columns cols={2}>
+A REST API for developers to integrate transcription into their applications programmatically.
+
+**Key capabilities:**
+- **Transcribe audio/video files** with high accuracy in multiple languages
+- **Extract structured data** from conversations using AI
+- **Generate summaries** automatically
+- **Identify speakers** with automatic diarization
+- **Webhook notifications** for real-time updates
+
+### Heify Sandbox
+
+A visual, browser-based interface for testing and managing transcriptions without writing code.
+
+**Key features:**
+- **No-code testing environment** for configurations
+- **Visual analytics dashboard** with AI-powered insights
+- **Workflow management** to organize transcriptions
+- **API key management** in one place
+- **Real-time previews** of transcription results
+
+## Key Features
+
+<CardGroup cols={2}>
   <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
+    title="High Accuracy Transcription"
+    icon="microphone"
   >
-    Edit your docs locally and preview them in real time.
+    State-of-the-art speech recognition with support for 11+ audio formats
   </Card>
   <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
+    title="Data Extraction"
+    icon="database"
   >
-    Customize the design and colors of your site to match your brand.
-  </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+    Extract structured fields from conversations using AI-powered analysis
   </Card>
   <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
+    title="Multi-speaker Detection"
+    icon="users"
   >
-    Auto-generate API documentation from OpenAPI specifications.
-  </Card>
-</Columns>
-
-## Create beautiful pages
-
-Everything you need to create world-class documentation.
-
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
+    Automatic speaker identification and diarization
   </Card>
   <Card
-    title="Code samples"
+    title="Webhook Notifications"
+    icon="bell"
+  >
+    Real-time notifications when transcriptions complete or fail
+  </Card>
+</CardGroup>
+
+## Choose Your Path
+
+<CardGroup cols={2}>
+  <Card
+    title="API Documentation"
     icon="code"
-    href="/essentials/code"
+    href="/quickstart"
   >
-    Add sample code to demonstrate how to use your product.
+    **For Developers**: Integrate Heify programmatically with our REST API
   </Card>
   <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
+    title="Sandbox Guide"
+    icon="flask"
+    href="/sandbox"
   >
-    Display images and other media.
+    **Visual Interface**: Test configurations and manage transcriptions in your browser
+  </Card>
+</CardGroup>
+
+---
+
+## API Overview
+
+The Heify API is organized around REST principles:
+
+- **JSON-based**: All requests and responses use JSON format
+- **HTTP methods**: Standard POST methods for all endpoints
+- **API Key authentication**: Secure access with API keys
+- **Rate limiting**: Fair usage policies to ensure service stability
+
+<Note>
+  **Base URL**: `https://api.heify.com`
+</Note>
+
+## Getting Started
+
+<CardGroup cols={2}>
+  <Card
+    title="Quickstart Guide"
+    icon="rocket"
+    href="/quickstart"
+  >
+    Get up and running with your first transcription in minutes
   </Card>
   <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
+    title="Authentication"
+    icon="key"
+    href="/authentication"
   >
-    Write once and reuse across your docs.
+    Learn how to authenticate your API requests
   </Card>
-</Columns>
+  <Card
+    title="Core Objects"
+    icon="cube"
+    href="/core/objects"
+  >
+    Understand Configurations and Transcriptions
+  </Card>
+  <Card
+    title="Common Workflows"
+    icon="diagram-project"
+    href="/core/workflows"
+  >
+    Learn common integration patterns
+  </Card>
+</CardGroup>
 
-## Need inspiration?
+## API Reference
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+Explore our comprehensive API endpoint documentation:
+
+<CardGroup cols={2}>
+  <Card
+    title="Configuration Endpoints"
+    icon="gear"
+    href="/api-reference/configuration/create"
+  >
+    Create and manage reusable transcription templates
+  </Card>
+  <Card
+    title="Transcription Endpoints"
+    icon="file-audio"
+    href="/api-reference/transcription/submit"
+  >
+    Submit audio files and retrieve transcription results
+  </Card>
+</CardGroup>
+
+## Supported Media Formats
+
+Heify supports both audio and video files in the following formats:
+
+**Audio formats:** `aac`, `aiff`, `amr`, `asf`, `flac`, `mp3`, `ogg`, `wav`, `webm`, `m4a`
+
+**Video formats:** `mp4`, `webm`
+
+<Info>
+  **Max file size**: 200 MB | **Max duration**: 2 hours (7200 seconds)
+</Info>
+
+<Tip>
+  For video files, only the audio track is processed for transcription.
+</Tip>
+
+## Need Help?
+
+<CardGroup cols={2}>
+  <Card
+    title="Support"
+    icon="headset"
+    href="mailto:hola@heify.com"
+  >
+    Contact our support team for assistance
+  </Card>
+  <Card
+    title="Sandbox Dashboard"
+    icon="chart-line"
+    href="/sandbox"
+  >
+    Access the Sandbox to manage API keys and test configurations
+  </Card>
+</CardGroup>

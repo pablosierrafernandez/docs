@@ -1,0 +1,303 @@
+---
+title: "Error Handling"
+description: "Understanding and handling API errors"
+icon: "triangle-exclamation"
+---
+
+# Error Handling
+
+The Heify API uses standard HTTP status codes to indicate the success or failure of requests. This guide explains how to handle errors effectively.
+
+## HTTP Status Codes
+
+| Status Code | Meaning | Description |
+| :--- | :--- | :--- |
+| `200 OK` | Success | Request completed successfully |
+| `201 Created` | Resource Created | New resource created successfully (e.g., configuration) |
+| `400 Bad Request` | Client Error | Invalid request format or parameters |
+| `403 Forbidden` | Authentication Failed | Invalid or missing API key |
+| `404 Not Found` | Resource Not Found | Requested resource doesn't exist |
+| `429 Too Many Requests` | Rate Limit Exceeded | Too many requests in a short period |
+| `500 Internal Server Error` | Server Error | Unexpected error on Heify servers |
+
+---
+
+## Error Response Format
+
+All error responses follow a consistent JSON structure:
+
+```json
+{
+  "message": "Descriptive error message explaining what went wrong"
+}
+```
+
+### Example Error Response
+
+```json
+{
+  "message": "Configuration not found or does not belong to your account"
+}
+```
+
+---
+
+## Common Errors by Status Code
+
+### 400 Bad Request
+
+The most common error type. Occurs when the request is malformed or contains invalid parameters.
+
+#### Common Causes
+
+<AccordionGroup>
+  <Accordion title="Missing required fields" icon="exclamation">
+    **Error**: `"Missing required field: configuration_id"`
+    
+    **Solution**: Ensure all required parameters are included in the request body.
+    
+    ```json
+    {
+      "configuration_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Invalid JSON format" icon="code">
+    **Error**: `"Invalid JSON format"`
+    
+    **Solution**: Validate your JSON before sending. Common issues:
+    - Missing commas between fields
+    - Trailing commas
+    - Unescaped quotes in strings
+    
+    Use a JSON validator or library to ensure correctness.
+  </Accordion>
+
+  <Accordion title="Resource not found" icon="search">
+    **Error**: `"Configuration not found"`
+    
+    **Solution**: Verify the resource ID exists and belongs to your account:
+    
+    <CodeGroup>
+    ```bash cURL
+    curl -X POST https://api.heify.com/get-configurations \
+      -H "Content-Type: application/json" \
+      -H "x-api-key: YOUR_API_KEY" \
+      -d '{}'
+    ```
+    
+    ```python Python
+    # List all configurations to verify ID
+    response = requests.post(
+        "https://api.heify.com/get-configurations",
+        headers={"x-api-key": "YOUR_API_KEY"},
+        json={}
+    )
+    configs = response.json()["data"]["configurations"]
+    for config in configs:
+        print(config["configuration_id"])
+    ```
+    </CodeGroup>
+  </Accordion>
+
+  <Accordion title="Invalid audio format" icon="file-audio">
+    **Error**: `"Unsupported audio format"`
+    
+    **Solution**: Ensure your audio file is in a supported format:
+    - Supported: `aac`, `aiff`, `amr`, `asf`, `flac`, `mp3`, `ogg`, `wav`, `webm`, `m4a`, `mp4`
+    - Max size: 200 MB
+    - Max duration: 2 hours (7200 seconds)
+  </Accordion>
+
+  <Accordion title="Invalid group value" icon="layer-group">
+    **Error**: `"Invalid group value"`
+    
+    **Solution**: Use only allowed group values:
+    - `PENDING_REVIEW`
+    - `UNDER_REVIEW`
+    - `ARCHIVED`
+    - `""` (empty string to remove group)
+  </Accordion>
+
+  <Accordion title="Exceeded configuration limit" icon="limit">
+    **Error**: `"Maximum of 20 configurations per client exceeded"`
+    
+    **Solution**: Delete unused configurations before creating new ones:
+    
+    <CodeGroup>
+    ```bash cURL
+    curl -X POST https://api.heify.com/delete-configuration \
+      -H "Content-Type: application/json" \
+      -H "x-api-key: YOUR_API_KEY" \
+      -d '{
+        "configuration_id": "old-config-id"
+      }'
+    ```
+    
+    ```python Python
+    response = requests.post(
+        "https://api.heify.com/delete-configuration",
+        headers={"x-api-key": "YOUR_API_KEY"},
+        json={"configuration_id": "old-config-id"}
+    )
+    ```
+    </CodeGroup>
+  </Accordion>
+</AccordionGroup>
+
+---
+
+#### Solutions
+
+<Steps>
+  <Step title="Verify account status">
+    Check your account status and available resources in your Heify Dashboard
+  </Step>
+  <Step title="Contact support">
+    If you believe this is an error, contact Heify [support](https://www.heify.com/contact.html) for assistance
+  </Step>
+</Steps>
+
+---
+
+### 403 Forbidden
+
+Authentication failed. Your API key is invalid, missing, or inactive.
+
+#### Common Causes
+
+| Cause | Solution |
+| :--- | :--- |
+| Missing `x-api-key` header | Add the header to your request |
+| Invalid API key | Verify the key in your dashboard |
+| Deactivated API key | Generate a new key |
+| Wrong header name | Use `x-api-key`, not `Authorization` |
+
+#### Example Fix
+
+<CodeGroup>
+
+```bash cURL (Wrong)
+curl -X POST https://api.heify.com/details \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_KEY"  # Wrong header
+```
+
+```bash cURL (Correct)
+curl -X POST https://api.heify.com/details \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_API_KEY"  # Correct header
+```
+
+</CodeGroup>
+
+---
+
+### 404 Not Found
+
+The requested resource doesn't exist or the endpoint URL is incorrect.
+
+#### Error Example
+
+```json
+{
+  "message": "Endpoint not found"
+}
+```
+
+#### Common Causes
+
+- Typo in endpoint URL
+- Using GET instead of POST
+- Incorrect base URL
+
+#### Solution
+
+Verify the endpoint:
+
+| Correct | Incorrect |
+| :--- | :--- |
+| `POST https://api.heify.com/details` | `GET https://api.heify.com/details` |
+| `POST https://api.heify.com/submit` | `POST https://api.heify.com/submits` |
+
+---
+
+### 429 Too Many Requests
+
+You've exceeded the rate limit for the endpoint.
+
+#### Solutions
+
+<AccordionGroup>
+  <Accordion title="Implement exponential backoff" icon="clock">
+    ```python Python
+    import time
+    
+    def request_with_retry(func, max_retries=3):
+        for attempt in range(max_retries):
+            try:
+                response = func()
+                
+                if response.status_code == 429:
+                    # Exponential backoff
+                    wait_time = (2 ** attempt) * 5  # 5, 10, 20 seconds
+                    print(f"Rate limited. Waiting {wait_time} seconds...")
+                    time.sleep(wait_time)
+                    continue
+                
+                return response
+                
+            except Exception as e:
+                if attempt == max_retries - 1:
+                    raise
+                time.sleep(5)
+        
+        raise Exception("Max retries exceeded")
+    ```
+  </Accordion>
+
+  <Accordion title="Respect rate limits" icon="gauge">
+    See the [Rate Limits](/core/limits) documentation for endpoint-specific limits.
+  </Accordion>
+
+</AccordionGroup>
+
+---
+
+### 500 Internal Server Error
+
+An unexpected error occurred on Heify's servers.
+
+#### What to Do
+
+<Steps>
+  <Step title="Retry the request">
+    The error may be temporary. Wait a few seconds and try again.
+  </Step>
+  
+  <Step title="Contact support">
+    If the issue persists, contact [hola@heify.com](mailto:hola@heify.com) or in the [contact page](https://www.heify.com/contact.html).
+  </Step>
+</Steps>
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Authentication"
+    icon="key"
+    href="/core/authentication"
+  >
+    Learn how to authenticate your API requests
+  </Card>
+  <Card
+    title="API Reference"
+    icon="code"
+    href="/api-reference/configuration/create"
+  >
+    Explore endpoint documentation
+  </Card>
+</CardGroup>

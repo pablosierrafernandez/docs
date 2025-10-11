@@ -1,68 +1,101 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mint Starter Kit",
-  "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+  "name": "Heify Docs",
+  "api": {
+    "mdx": {
+      "server": "https://tu-dominio-api.com/api/v1",
+      "auth": {
+        "method": "key",
+        "name": "x-api-key"
+      }
+    },
+    "playground": {
+      "display": "interactive"
+    }
   },
-  "favicon": "/favicon.svg",
+  "colors": {
+    "primary": "#3B82F6",
+    "light": "#60A5FA",
+    "dark": "#2563EB"
+  },
+  "favicon": "/favicon.png",
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Documentation",
+        "icon": "book",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Getting Started",
             "pages": [
               "index",
               "quickstart",
-              "development"
+              "authentication"
             ]
           },
           {
-            "group": "Customization",
+            "group": "Core Concepts",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
-            ]
-          },
-          {
-            "group": "Writing content",
-            "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
-            ]
-          },
-          {
-            "group": "AI tools",
-            "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              "core/objects",
+              "core/errors",
+              "core/limits"
             ]
           }
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "API Reference",
+        "icon": "code",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "Configuration Endpoints",
+            "icon": "gear",
             "pages": [
-              "api-reference/introduction"
+              "api-reference/configuration/create",
+              "api-reference/configuration/get",
+              "api-reference/configuration/delete"
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "Transcription Endpoints",
+            "icon": "microphone",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              {
+                "group": "Submit Transcription",
+              "tag": "2",
+                "pages": [
+                  "api-reference/transcription/submit",
+                  "api-reference/transcription/request-upload-url"
+                  
+                ]
+              },
+              "api-reference/transcription/details",
+              "api-reference/transcription/delete",
+              "api-reference/transcription/update-group"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Sandbox",
+        "icon": "flask",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "sandbox/index",
+              "sandbox/authentication"
+            ]
+          },
+          {
+            "group": "Platform Features",
+            "pages": [
+              "sandbox/api-keys",
+              "sandbox/configurations",
+              "sandbox/transcribe",
+              "sandbox/transcriptions",
+              "sandbox/analytics"
             ]
           }
         ]
@@ -71,14 +104,14 @@
     "global": {
       "anchors": [
         {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
+          "anchor": "Dashboard",
+          "href": "https://sandbox.heify.com",
+          "icon": "chart-line"
         },
         {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
+          "anchor": "Support",
+          "href": "https://www.heify.com/contact.html",
+          "icon": "headset"
         }
       ]
     }
@@ -90,33 +123,31 @@
   "navbar": {
     "links": [
       {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "label": "Contact",
+        "href": "https://www.heify.com/contact.html"
       }
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
+      "label": "Get API Key",
+      "href": "https://sandbox.heify.com/sandbox/api-keys"
     }
   },
   "contextual": {
     "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "mcp",
+      "cursor",
+      "vscode"
+    ]
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "linkedin": "https://linkedin.com/company/heify"
     }
   }
 }

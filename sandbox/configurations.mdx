@@ -1,0 +1,214 @@
+---
+title: "Configurations"
+description: "Create and manage reusable Configurations"
+icon: "gear"
+---
+<Card
+  title="Configurations"
+  icon="key"
+  href="https://sandbox.heify.com/sandbox/configurations"
+>
+  Access to Configurations at: **https://sandbox.heify.com/sandbox/configurations**
+</Card>
+
+
+On the [Configurations page](https://sandbox.heify.com/sandbox/configurations), you can view, create, and manage all your transcription configuration templates. 
+This guide walks you through creating a configuration using the user interface. 
+
+A **Configuration** is a reusable template that defines how your audio/video files should be processed. 
+
+For a detailed technical breakdown of the `Configuration` object and all its attributes, please see the [Configuration Object Reference](/core/objects#configuration-object).
+
+
+<Info>
+  You can create up to **20 configurations**. Each configuration is reusable across unlimited transcriptions.
+</Info>
+
+---
+
+## Configuration List
+
+On this page, you can see the list of your configurations. Each configuration shows its main features. You can filter and search for Configurations. You can also view the details of each one and delete the Configuration.
+
+---
+
+## Creating a New Configuration
+
+Click **"+ New Configuration"** to open the configuration builder.
+
+### Configuration Builder Interface
+
+The central panel contains all the settings to define your transcription and analysis workflow.
+
+#### 1. Configuration Details
+
+These fields define the basic identification and functionality of your configuration.
+
+| Field | Required | Description |
+| :--- | :--- | :--- |
+| **Identification Tag** | Yes | A descriptive name for the configuration (max 255 characters). |
+| **Summary** | No | Enable to have the AI automatically generate a summary (default: `false`). |
+| **Summary Language** | No | The language for the summary (default: auto-detect). See [Supported Languages](#). |
+| **Analytics Language** | No | Language for the Executive and Qualitative Analysis Report (default: auto-detect). See [Supported Languages](#). |
+
+<Tip>
+  Use specific, descriptive tags like "Customer Support - Complaints" or "Sales Calls - Q4" instead of generic names like "Config 1". This makes them easier to manage.
+</Tip>
+
+#### 2. Custom Vocabulary
+
+Improve transcription accuracy by adding an array of domain-specific words, phrases, or technical terms.
+
+Examples:
+- **Product names:** "Kubernetes", "OAuth2", "PostgreSQL"
+- **Industry jargon:** "blockchain", "NFT", "API Gateway"
+- **Company terms:** "Heify", "TranscriptionBot", "CloudSync"
+- **Acronyms:** "GDPR", "SaaS", "B2B"
+
+<Note>
+  A well-defined vocabulary significantly reduces transcription errors for terms that are key to your business.
+</Note>
+
+#### 3. Webhook Notifications
+
+Configure URLs to receive real-time notifications about transcription status. Both fields are optional.
+
+| Field | Description |
+| :--- | :--- |
+| **Success URL** | Receives a `POST` request when transcription completes successfully. |
+| **Error URL** | Receives a `POST` request if transcription fails. |
+
+
+**Example Success Payload:**
+```json
+{
+  "transcription_id": "f0e9d8c7-b6a5-4321-fedc-ba9876543210",
+  "status": "COMPLETED",
+  "configuration_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+  "duration": 125.5,
+  "completed_at": "2025-10-03T10:02:15.456Z"
+}
+```
+
+**Example Error Payload:**
+```json
+{
+  "transcription_id": "f0e9d8c7-b6a5-4321-fedc-ba9876543210",
+  "status": "FAILED",
+  "error": {
+    "message": "Unsupported audio format",
+    "code": 400
+  }
+}
+```
+
+#### 4. Extraction Fields
+
+Define structured data fields you want the AI to extract from your transcriptions. 
+
+Learn more about [Best Practices for Data Extraction](#best-practices-for-data-extraction) for improve the quality of the extracted data.
+
+**How to add fields:**
+- Click **"Create My First Field"** or **"Add Field"**.
+- Fill in the field definition form:
+  - **Name**: A unique identifier for the field (e.g., `customer_id`, `sentiment`).
+  - **Type**: The data type: `string`, `number`, `boolean`, or `array`.
+  - **Description**: Detailed instructions for the AI.
+
+<Note>
+You can add a maximum of 20 extraction fields per configuration.
+</Note>
+
+Alternatively, use the **Quick Actions** panel on the right to add pre-built extraction field templates with a single click.
+
+<Tip>
+After adding a quick action template, you can customize its name, type, and description to fit your exact needs.
+
+[Learn more about extraction fields →](/core/objects#extraction-fields)
+</Tip>
+
+---
+
+#### Best Practices for Data Extraction
+
+To ensure accurate and consistent results, follow these guidelines when writing your field descriptions.
+
+**1. Use Bounded Responses**
+Define a specific, limited set of possible values. This guides the AI and standardizes the output, making the data easier to process.
+
+*   **Good description:**
+    ```
+    "Classify the overall sentiment of the conversation. Must be one of: POSITIVE, NEGATIVE, or NEUTRAL."
+    ```
+*   **Poor description:**
+    ```
+    "What is the sentiment?"
+    ```
+
+**2. Provide Detailed Context and Examples**
+The clearer your instructions, the better the results. Give the AI context and show it exactly what you're looking for.
+
+*   **Good description:**
+    ```
+    "Extract the customer's order number. It's usually a 6-8 digit code 
+    starting with 'ORD-' or '#'. Examples: ORD-123456, #7894561."
+    ```
+*   **Poor description:**
+    ```
+    "Get the order number."
+    ```
+
+<Note>
+  Once created, a configuration **cannot be edited**. To make changes, you must create a new configuration with the desired settings and delete the old one if needed.
+</Note>
+
+---
+
+## General Best Practices
+
+<AccordionGroup>
+  <Accordion title="Reuse Configurations" icon="recycle">
+    Create configurations for **common use cases** and reuse them across many transcriptions and create a new one when the extraction needs are different.
+  </Accordion>
+
+  <Accordion title="Start Simple, Then Iterate" icon="list-check">
+    Begin with 1-2 key extraction fields. Verify the quality of the results and refine their descriptions. Once you are satisfied, progressively add more fields to build complexity.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+
+  <Accordion title="Extraction Fields Not Working" icon="list-check">
+    *   **Issue**: Fields consistently return `null` or incorrect values.
+    *   **Common Causes & Fixes**:
+        *   **Vague Description**: Make your instructions more explicit. Instead of "Get the name," use "Extract the customer's full name as mentioned in the conversation."
+        *   **No Examples**: Add concrete examples of the format you expect in the field's description.
+        *   **Wrong Data Type**: Ensure the selected data type (`string`, `number`, `boolean`, `array`) matches the information you are trying to extract.
+    *   **Overly Complex Field**: If you are trying to extract multiple pieces of information in one field, break it down into several simpler fields.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Need Help?
+
+<CardGroup cols={2}>
+  <Card
+    title="Support"
+    icon="life-ring"
+    href="https://www.heify.com/contact.html"
+  >
+    Contact with us
+  </Card>
+  <Card
+    title="Documentation"
+    icon="book"
+    href="/sandbox"
+  >
+    Explore the Sandbox guide
+  </Card>
+</CardGroup>

@@ -1,0 +1,160 @@
+---
+title: "Transcribe Audio"
+description: "Upload and process audio files for transcription"
+icon: "microphone"
+---
+
+<Card
+  title="Transcribe Audio Files"
+  icon="microphone"
+  href="https://sandbox.heify.com/sandbox/create-transcription"
+>
+  Access to Transcribe Audio Files at: **https://sandbox.heify.com/sandbox/create-transcription**
+</Card>
+
+# Transcribe Audio Files
+
+The [Transcribe page](https://sandbox.heify.com/sandbox/create-transcription) is where you upload audio or video files and initiate the transcription process. Whether you have local files or public URLs, this interface makes it simple to start processing.
+
+For a detailed technical breakdown of the `Transcription` object and all its attributes, please see the [Transcription Object Reference](/core/objects#transcription-object).
+
+---
+
+## How It Works
+
+<Steps>
+  <Step title="Select a Configuration">
+    Choose which transcription template to apply to your files.
+    <Info>
+  Don't have a Configuration yet? [Create one first →](/sandbox/configurations)
+</Info>
+  </Step>
+  
+  <Step title="Provide Audio Files">
+    Upload local files or enter public URLs.
+      <Warning>
+      If enter public URL, make sure the URL is publicly accessible **at the time of processing**. If the file becomes unavailable later, the transcription will fail.
+    </Warning>
+  </Step>
+  
+  <Step title="Process">
+    Click the button to start transcription.
+  </Step>
+  
+</Steps>
+
+---
+
+## Supported Formats
+    
+    | Audio Formats | Video Formats |
+    | :--- | :--- |
+    | `aac` | `mp4` |
+    | `aiff` | `webm` |
+    | `amr` | |
+    | `asf` | |
+    | `flac` | |
+    | `mp3` | |
+    | `ogg` | |
+    | `wav` | |
+    | `m4a` | |
+    
+    
+    ## File Limits
+    
+    | Limit | Value |
+    | :--- | :--- |
+    | **Max file size** | 200 MB |
+    | **Max duration** | 7200 seconds (2 hours) |
+    
+    [View all limits →](/core/limits)
+    
+
+---
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Audio Quality Tips" icon="volume">
+    Better audio quality = better transcription accuracy.
+    
+    **Optimize your audio:**
+    
+    - **Clear recording** - Minimize background noise
+    - **Good microphone** - Use quality recording equipment
+    - **Proper levels** - Not too quiet, not too loud
+    - **Mono or stereo** - Either works, mono is smaller
+    - **16kHz+ sample rate** - Higher is better for quality
+    
+    **Avoid:**
+    - Heavy background music
+    - Multiple overlapping speakers
+    - Very low bitrate compression
+    - Heavily processed audio (lots of effects)
+  </Accordion>
+  
+</AccordionGroup>
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="File Upload Fails" icon="cloud-exclamation">
+    **Issue**: Upload progress stops or shows an error.
+    
+    **Common Causes:**
+    
+    **1. File Too Large**
+    - Max size is 200 MB
+    - Compress the audio file
+    - Use a lower bitrate
+    
+    **2. Unsupported Format**
+    - Convert to a supported format (MP3, WAV, etc.)
+    - Check the file extension matches the actual format
+    
+  </Accordion>
+  
+  <Accordion title="URL Not Recognized" icon="link-slash">
+    **Issue**: Public URL shows as invalid.
+    
+    **Checklist:**
+    
+    - URL is **publicly accessible** (try opening in incognito mode)
+    - URL is a **direct link** to the file, not a player page
+    - File format is **supported**
+    - URL uses **HTTPS** (or HTTP)
+    - No **authentication** required
+    - **CORS headers** allow external access (for some platforms)
+    
+    **Test the URL:**
+    ```bash
+    curl -I https://your-url.com/audio.mp3
+    ```
+    
+    Should return `200 OK` and `Content-Type: audio/...`
+  </Accordion>
+
+
+</AccordionGroup>
+
+---
+## Need Help?
+
+<CardGroup cols={2}>
+  <Card
+    title="Support"
+    icon="life-ring"
+    href="https://www.heify.com/contact.html"
+  >
+    Contact with us
+  </Card>
+  <Card
+    title="Documentation"
+    icon="book"
+    href="/sandbox"
+  >
+    Explore the Sandbox guide
+  </Card>
+</CardGroup>

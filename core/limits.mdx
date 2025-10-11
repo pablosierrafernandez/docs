@@ -1,0 +1,142 @@
+---
+title: "Rate Limits & Quotas"
+description: "Understanding API rate limits and resource quotas"
+icon: "gauge"
+---
+
+# Rate Limits & Quotas
+
+To ensure service stability and fair usage, Heify enforces rate limits and resource quotas. This guide explains these limits and how to work within them.
+
+---
+
+## Rate Limits by Endpoint
+
+Rate limits are applied per **account** and are measured in requests per minute with burst capacity.
+
+### Configuration Endpoints
+
+| Endpoint | Requests/Minute | Burst Capacity |
+| :--- | :--- | :--- |
+| `POST /create-configuration` | 10 | 2 |
+| `POST /get-configurations` | 50 | 3 |
+| `POST /delete-configuration` | 50 | 3 |
+
+<Info>
+  Configuration endpoints have lower limits since they're typically used for setup operations, not high-frequency requests.
+</Info>
+
+### Transcription Endpoints
+
+| Endpoint | Requests/Minute | Burst Capacity |
+| :--- | :--- | :--- |
+| `POST /request-upload-url` | 500 | 17 |
+| `POST /submit` | 500 | 17 |
+| `POST /details` | 500 | 17 |
+| `POST /delete-transcription` | 500 | 17 |
+| `POST /update-transcription-group` | 500 | 17 |
+
+<Tip> Transcription endpoints support high-frequency operations to accommodate bulk processing and real-time applications. </Tip><Info> For example, if you have a 500 requests per minute limit (approximately 8.3 per second), a "burst" of 17 means that at any given point in time you can make up to 17 requests in rapid succession (in a burst) before the normal strict limit is applied. </Info>
+
+---
+
+## Resource Quotas
+
+In addition to rate limits, Heify enforces quotas on resources.
+
+### Account Limits
+
+| Resource | Limit |
+| :--- | :--- |
+| **Configurations per Client** | 20 |
+| **Max Audio Duration** | 2 hours (7200 seconds) |
+| **Max Audio File Size** | 200 MB |
+| **Transcriptions in Queue** | 100 |
+| **Concurrent Processing** | 25 |
+
+### Supported Audio Formats
+
+| Format | Extension | Notes |
+| :--- | :--- | :--- |
+| AAC | `.aac` | Advanced Audio Coding |
+| AIFF | `.aiff` | Audio Interchange File Format |
+| AMR | `.amr` | Adaptive Multi-Rate |
+| ASF | `.asf` | Advanced Systems Format |
+| FLAC | `.flac` | Free Lossless Audio Codec |
+| MP3 | `.mp3` | MPEG Audio Layer 3 |
+| OGG | `.ogg` | Ogg Vorbis |
+| WAV | `.wav` | Waveform Audio File Format |
+| WebM | `.webm` | WebM Audio |
+| M4A | `.m4a` | MPEG-4 Audio |
+| MP4 | `.mp4` | MPEG-4 Audio Container |
+
+---
+
+## Testing Rate Limits
+
+During development, you can test your rate limit handling:
+
+```python Python
+import requests
+import time
+
+def test_rate_limiting():
+    """Test rate limit handling by making rapid requests"""
+    url = "https://api.heify.com/get-configurations"
+    headers = {"x-api-key": "YOUR_API_KEY"}
+    
+    for i in range(100):
+        response = requests.post(url, headers=headers, json={})
+        
+        print(f"Request {i+1}: {response.status_code}")
+        
+        if response.status_code == 429:
+            print("Rate limited! Testing backoff...")
+            time.sleep(5)
+            
+            # Retry
+            retry = requests.post(url, headers=headers, json={})
+            print(f"Retry: {retry.status_code}")
+            break
+        
+        # Small delay between requests
+        time.sleep(0.1)
+
+test_rate_limiting()
+```
+
+---
+
+## Increasing Limits
+
+If your application requires higher limits, contact our sales team:
+
+<Card
+  title="Contact Sales"
+  icon="envelope"
+  href="mailto:sales@heify.com"
+>
+  Discuss enterprise plans with custom rate limits and quotas
+</Card>
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+  
+  <Card
+    title="API Reference"
+    icon="code"
+    href="/api-reference/configuration/create"
+  >
+    Explore endpoint documentation
+  </Card>
+  <Card
+    title="Sandbox"
+    icon="flask"
+    href="/sandbox"
+  >
+    Visual platform for testing, managing configurations, and analyzing transcriptions
+  </Card>
+</CardGroup>

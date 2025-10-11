@@ -1,0 +1,133 @@
+---
+title: "Authentication"
+description: "Learn how to authenticate your API requests with Heify"
+icon: "key"
+---
+
+# Authentication
+
+All requests to the Heify API must be authenticated using an **API Key**. This key identifies your account and ensures secure access to your transcription resources.
+
+## Obtaining Your API Key
+
+You can generate and manage your API Keys from the [Sandbox](/sandbox/api-keys) or your Heify Dashboard.
+
+<Steps>
+  <Step title="Access the Sandbox">
+    Navigate to the Sandbox and authenticate with your credentials
+  </Step>
+  <Step title="Go to API Keys section">
+    Access the [API Keys & Sandbox](/sandbox/api-keys) page
+  </Step>
+  <Step title="Generate a new key">
+    Click "Create New API Key" and give it a descriptive name
+  </Step>
+  <Step title="Save your key securely">
+    Copy the key immediately - it will only be shown once
+  </Step>
+</Steps>
+
+<Warning>
+  **Keep your API key secure!** Never share it publicly or commit it to version control. Treat it like a password.
+</Warning>
+
+## Using Your API Key
+
+Include your API key in the `x-api-key` header with every API request:
+
+### Header Format
+
+| Header | Value |
+| :--- | :--- |
+| `x-api-key` | `YOUR_API_KEY` |
+| `Content-Type` | `application/json` |
+
+## Example Requests
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://api.heify.com/get-configurations \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  -d '{}'
+```
+
+```python Python
+import requests
+
+url = "https://api.heify.com/get-configurations"
+headers = {
+    "Content-Type": "application/json",
+    "x-api-key": "YOUR_API_KEY"
+}
+
+response = requests.post(url, headers=headers, json={})
+print(response.json())
+```
+
+
+</CodeGroup>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Use environment variables" icon="file-shield">
+    Store your API key in environment variables, not in your source code.
+    
+    ```bash
+    export HEIFY_API_KEY="your_actual_key_here"
+    ```
+    
+    Then reference it in your code:
+    
+    ```python
+    import os
+    api_key = os.environ.get('HEIFY_API_KEY')
+    ```
+  </Accordion>
+
+  <Accordion title="Create separate keys for different environments" icon="layer-group">
+    Use different API keys for development, staging, and production environments. This allows you to rotate keys without affecting all environments.
+  </Accordion>
+
+  <Accordion title="Rotate keys regularly" icon="rotate">
+    For enhanced security, periodically generate new API keys and deactivate old ones from your dashboard.
+  </Accordion>
+</AccordionGroup>
+
+## Authentication Errors
+
+If authentication fails, you'll receive a `403 Forbidden` response.
+
+Common causes of authentication errors:
+
+- **Missing header**: The `x-api-key` header was not included in the request
+- **Invalid key**: The API key is incorrect or has been deactivated
+- **Expired key**: The API key has been deleted from your account
+
+<Tip>
+  If you receive authentication errors, verify that:
+  1. The API key is correct and active in your dashboard
+  2. The `x-api-key` header is properly formatted
+  3. There are no extra spaces or special characters in the key
+</Tip>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Quickstart Guide"
+    icon="rocket"
+    href="/quickstart"
+  >
+    Make your first API call
+  </Card>
+  <Card
+    title="API Reference"
+    icon="code"
+    href="/api-reference/configuration/create"
+  >
+    Explore available endpoints
+  </Card>
+</CardGroup>

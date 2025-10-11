@@ -1,0 +1,118 @@
+---
+title: "Transcriptions"
+description: "View, search, and manage your transcription jobs"
+icon: "file-lines"
+---
+<Card
+  title="Transcriptions"
+  icon="file-lines"
+  href="https://sandbox.heify.com/sandbox/transcriptions"
+>
+  Access to Transcriptions at: **https://sandbox.heify.com/sandbox/transcriptions**
+</Card>
+
+The [Transcriptions page](https://sandbox.heify.com/sandbox/transcriptions) provides a comprehensive view of all your transcription jobs. Search, filter, organize, and access detailed results for every audio file you've processed.
+
+For a detailed technical breakdown of the `Transcription` object and all its attributes, please see the [Transcription Object Reference](/core/objects#transcription-object).
+
+---
+
+## Transcriptions List
+On this page, you can see the list of your transcriptions. Each transcription shows its main features. You can filter and search for Transcriptions. You can view the details of each one, change its group, or delete the transcription.
+
+At the top of the page, you'll find tools to manage your transcriptions like *Export, Filters, and + New Transcription*.
+
+For more specific searches, click the **"Filters"** button to reveal advanced options like *Search Bar, Status Filter, Configuration Filter, Date Range*.
+
+---
+
+## Transcription Detail
+
+When you click "View details" on a transcription card, you'll see the full transcription interface. You can:
+
+- View the full transcript
+- Search within the transcript
+- Identify speakers
+- View conversation segments
+- Change the group
+- Export the transcript
+- Delete the transcription
+- High-level overview of the Configuration
+- AI Summary
+
+---
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Workflow Organization" icon="diagram-project">
+    Use groups to organize your transcription workflow:
+    
+    **Suggested Groups:**
+    
+    1. **No Group** (Default)
+       - New transcriptions start here
+       - Initial processing complete
+    
+    2. **PENDING_REVIEW**
+       - Needs manual verification
+       - Quality check required
+       - Data validation needed
+    
+    3. **UNDER_REVIEW**
+       - Currently being reviewed
+       - Team member assigned
+       - In progress
+    
+    4. **ARCHIVED**
+       - Review complete
+       - Data extracted and used
+       - No further action needed
+    
+    **Benefits:**
+    - Clear visibility of work status
+    - Easy handoffs between team members
+    - Track progress over time
+  </Accordion>
+  
+  <Accordion title="Regular Cleanup" icon="broom">
+    Maintain a clean transcription list:
+    
+    **Schedule:**
+    - **Weekly**: Archive completed work
+    - **Monthly**: Delete unnecessary transcriptions
+    - **Quarterly**: Export important data for backup
+    
+    **What to delete:**
+    - Test transcriptions
+    - Failed jobs (after investigating)
+    - Duplicate uploads
+    - Outdated data
+    
+    **What to keep:**
+    - Recent work
+    - Reference transcriptions
+    - Ongoing projects
+  </Accordion>
+  
+</AccordionGroup>
+
+---
+## Need Help?
+
+<CardGroup cols={2}>
+  <Card
+    title="Support"
+    icon="life-ring"
+    href="https://www.heify.com/contact.html"
+  >
+    Contact with us
+  </Card>
+  <Card
+    title="Documentation"
+    icon="book"
+    href="/sandbox"
+  >
+    Explore the Sandbox guide
+  </Card>
+</CardGroup>

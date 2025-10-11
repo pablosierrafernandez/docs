@@ -1,0 +1,112 @@
+---
+title: "Submit from local file"
+description: "Submit audio or video files from local files"
+openapi: 'POST /request-upload-url'
+---
+
+For files on your computer, use the **two-step upload process**:
+
+<Steps>
+  <Step title="Request an upload URL">
+    First, request a secure, pre-signed URL to upload your file.
+
+    <CodeGroup>
+
+```bash cURL
+curl -X POST https://api.heify.com/request-upload-url \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  -d '{
+    "configuration_id": "YOUR_CONFIGURATION_ID",
+    "name": "My First Transcription"
+  }'
+```
+
+```python Python
+import requests
+
+url = "https://api.heify.com/request-upload-url"
+headers = {
+    "Content-Type": "application/json",
+    "x-api-key": "YOUR_API_KEY"
+}
+payload = {
+    "configuration_id": "YOUR_CONFIGURATION_ID",
+    "name": "My First Transcription"
+}
+
+response = requests.post(url, headers=headers, json=payload)
+data = response.json()
+
+# Extract data needed for the next step
+upload_data = data["data"]
+upload_url = upload_data["upload_url"]
+transcription_id = upload_data["transcription_id"]
+meta_config_id = upload_data["configuration_id"]
+meta_name = upload_data.get("name")
+```
+
+</CodeGroup>
+    
+    **Response:**
+    
+    The API will return the pre-signed `upload_url` and the metadata needed for the upload headers.
+    
+    ```json
+    {
+      "data": {
+        "upload_url": "https://s3.amazonaws.com/...",
+        "transcription_id": "1a2b3c4d...",
+        "configuration_id": "a1b2c3d4...",
+        "name": "My First Transcription"
+      }
+    }
+    ```
+    
+    <Note>
+      Save all the values from the `data` object for the next step.
+    </Note>
+
+  </Step>
+
+  <Step title="Upload your audio file">
+    Now, use the `upload_url` and metadata from the previous response to upload the file with a PUT request.
+
+    <CodeGroup>
+
+```bash cURL
+# Use the 'upload_url', 'configuration_id', and 'name' from the Step 1 response
+curl -X PUT --upload-file "path/to/audio.mp3" \
+  -H "x-amz-meta-configuration_id: YOUR_CONFIGURATION_ID" \
+  -H "x-amz-meta-name: My First Transcription" \
+  "https://s3.amazonaws.com/..."
+```
+
+```python Python
+import requests
+
+# Use the variables extracted in the previous step
+upload_headers = {
+    'x-amz-meta-configuration_id': meta_config_id
+}
+if meta_name:
+    upload_headers['x-amz-meta-name'] = meta_name
+
+# Upload the file
+with open("path/to/audio.mp3", "rb") as audio_file:
+    response = requests.put(upload_url, data=audio_file, headers=upload_headers)
+
+if response.status_code == 200:
+    print(f"Upload successful! Transcription ID: {transcription_id}")
+else:
+    print(f"Upload failed: {response.text}")
+```
+
+</CodeGroup>
+  </Step>
+</Steps>
+
+**Response (after a successful upload):**
+
+A successful `PUT` request will return an HTTP `200 OK` status with an empty body. The transcription process has now started.
+

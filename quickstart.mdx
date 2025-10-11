@@ -1,80 +1,337 @@
 ---
 title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+description: "Get started with Heify API in minutes"
+icon: "rocket"
 ---
 
-## Get started in three steps
+# Quickstart Guide
 
-Get your documentation site running locally and make your first customization.
+This guide will walk you through making your first transcription request with the Heify API. In just a few minutes, you'll be able to transcribe audio files and retrieve results.
 
-### Step 1: Set up your local environment
+## Prerequisites
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+Before you begin, you'll need:
 
-### Step 2: Deploy your changes
+- **An audio or video file** to transcribe (see [supported formats](/index#supported-media-formats))
+- **A Heify API key** ([manage keys here](/sandbox/api-keys))
+- **A configuration ID** (you can create one in the Sandbox or via the API)
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+<CodeGroup>
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+```bash cURL
+curl -X POST https://api.heify.com/create-configuration \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  -d '{
+    "tag": "My First Configuration",
+    "summary": true,
+    "summary_language": "en"
+  }'
+```
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+```python Python
+import requests
 
-### Step 3: Go live
+url = "https://api.heify.com/create-configuration"
+headers = {
+    "Content-Type": "application/json",
+    "x-api-key": "YOUR_API_KEY"
+}
+payload = {
+    "tag": "My First Configuration",
+    "summary": True,
+    "summary_language": "en"
+}
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+response = requests.post(url, headers=headers, json=payload)
+data = response.json()
+configuration_id = data["data"]["configuration_id"]
+print(f"Configuration created: {configuration_id}")
+```
 
-## Next steps
+</CodeGroup>
 
-Now that you have your docs running, explore these key features:
+**Response:**
 
-<CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
-</CardGroup>
+```json
+{
+  "data": {
+    "message": "Configuration created successfully",
+    "configuration_id": "a1b2c3d4..."
+  }
+}
+```
 
 <Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
+  Save the `configuration_id` - you'll need it for the next step!
 </Note>
+
+## Step 2: Submit Audio for Transcription
+
+Now submit an audio file using one of two methods:
+
+### Option A: From a Public URL
+
+If your audio is already hosted online:
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://api.heify.com/submit \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  -d '{
+    "configuration_id": "YOUR_CONFIGURATION_ID",
+    "url": "https://example.com/audio.mp3",
+    "name": "My First Transcription"
+  }'
+```
+
+```python Python
+import requests
+
+url = "https://api.heify.com/submit"
+headers = {
+    "Content-Type": "application/json",
+    "x-api-key": "YOUR_API_KEY"
+}
+payload = {
+    "configuration_id": "YOUR_CONFIGURATION_ID",
+    "url": "https://example.com/audio.mp3",
+    "name": "My First Transcription"
+}
+
+response = requests.post(url, headers=headers, json=payload)
+data = response.json()
+transcription_id = data["data"]["transcription_id"]
+print(f"Transcription started: {transcription_id}")
+```
+
+</CodeGroup>
+
+### Option B: Upload a Local File
+
+For files on your computer, use the two-step upload process:
+
+<Steps>
+  <Step title="Request an upload URL">
+    First, request a secure, pre-signed URL to upload your file.
+
+    <CodeGroup>
+
+```bash cURL
+curl -X POST https://api.heify.com/request-upload-url \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  -d '{
+    "configuration_id": "YOUR_CONFIGURATION_ID",
+    "name": "My First Transcription"
+  }'
+```
+
+```python Python
+import requests
+
+url = "https://api.heify.com/request-upload-url"
+headers = {
+    "Content-Type": "application/json",
+    "x-api-key": "YOUR_API_KEY"
+}
+payload = {
+    "configuration_id": "YOUR_CONFIGURATION_ID",
+    "name": "My First Transcription"
+}
+
+response = requests.post(url, headers=headers, json=payload)
+data = response.json()
+
+# Extract data needed for the next step
+upload_data = data["data"]
+upload_url = upload_data["upload_url"]
+transcription_id = upload_data["transcription_id"]
+meta_config_id = upload_data["configuration_id"]
+meta_name = upload_data.get("name")
+```
+
+</CodeGroup>
+    
+    **Response:**
+    
+    The API will return the pre-signed `upload_url` and the metadata needed for the upload headers.
+    
+    ```json
+    {
+      "data": {
+        "upload_url": "https://s3.amazonaws.com/...",
+        "transcription_id": "1a2b3c4d...",
+        "configuration_id": "a1b2c3d4...",
+        "name": "My First Transcription"
+      }
+    }
+    ```
+    
+    <Note>
+      Save all the values from the `data` object for the next step.
+    </Note>
+
+  </Step>
+
+  <Step title="Upload your audio file">
+    Now, use the `upload_url` and metadata from the previous response to upload the file with a PUT request.
+
+    <CodeGroup>
+
+```bash cURL
+# Use the 'upload_url', 'configuration_id', and 'name' from the Step 1 response
+curl -X PUT --upload-file "path/to/audio.mp3" \
+  -H "x-amz-meta-configuration_id: YOUR_CONFIGURATION_ID" \
+  -H "x-amz-meta-name: My First Transcription" \
+  "https://s3.amazonaws.com/..."
+```
+
+```python Python
+import requests
+
+# Use the variables extracted in the previous step
+upload_headers = {
+    'x-amz-meta-configuration_id': meta_config_id
+}
+if meta_name:
+    upload_headers['x-amz-meta-name'] = meta_name
+
+# Upload the file
+with open("path/to/audio.mp3", "rb") as audio_file:
+    response = requests.put(upload_url, data=audio_file, headers=upload_headers)
+
+if response.status_code == 200:
+    print(f"Upload successful! Transcription ID: {transcription_id}")
+else:
+    print(f"Upload failed: {response.text}")
+```
+
+</CodeGroup>
+  </Step>
+</Steps>
+
+**Response (after a successful upload):**
+
+A successful `PUT` request will return an HTTP `200 OK` status with an empty body. The transcription process has now started.
+
+## Step 3: Check the Status
+
+Monitor your transcription progress:
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://api.heify.com/details \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  -d '{
+    "transcription_id": "YOUR_TRANSCRIPTION_ID"
+  }'
+```
+
+```python Python
+import requests
+import time
+
+url = "https://api.heify.com/details"
+headers = {
+    "Content-Type": "application/json",
+    "x-api-key": "YOUR_API_KEY"
+}
+payload = {
+    # Use the transcription_id from either submission method
+    "transcription_id": "YOUR_TRANSCRIPTION_ID"
+}
+
+# Poll until complete
+while True:
+    response = requests.post(url, headers=headers, json=payload)
+    data = response.json()
+    status = data["data"]["status"]
+    
+    print(f"Status: {status}")
+    
+    if status == "COMPLETED":
+        print("Transcription complete!")
+        print(data) # Print the full response data
+        break
+    elif status == "FAILED":
+        print("Transcription failed:", data["data"]["error"])
+        break
+    
+    time.sleep(5)  # Wait 5 seconds before checking again
+```
+
+</CodeGroup>
+
+## Step 4: Retrieve Results
+
+Once the status is `COMPLETED`, the response includes full transcription details:
+
+```json
+{
+  "data": {
+    "transcription_id": "1a2b3c4d...",
+    "status": "COMPLETED",
+    "configuration_id": "a1b2c3d4...",
+    "configuration_tag": "My First Configuration",
+    "name": "My First Transcription",
+    "group": null,
+    "duration": 98.89,
+    "details": {
+      "language": "en",
+      "num_speakers": 2,
+      "created_at": "2025-10-04T22:23:05.611Z",
+      "completed_at": "2025-10-04T22:23:19.363Z",
+      "conversation": {
+        "segments": [
+          {
+            "text": "Hello, Lorena. Are you going to Hugo's birthday party? He called me yesterday to invite me, but now I'm having second thoughts.",
+            "speaker": "SPEAKER_00"
+          },
+          {
+            "text": "Why is that? What doubts can you have about going to a party? You just go, period.",
+            "speaker": "SPEAKER_01"
+          }
+        ]
+      },
+      "summary": {
+        "summary": "The conversation is between two friends. One is hesitant to attend a birthday party because they believe the host, Hugo, brings them bad luck, recounting several past unfortunate incidents."
+      },
+      "fields": null
+    }
+  }
+}
+```
+
+## 🎉 Success!
+
+You've successfully transcribed your first audio file with Heify! 
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Core Objects"
+    icon="cube"
+    href="/core/objects"
+  >
+    Learn about Configurations and Transcriptions
+  </Card>
+  
+  <Card
+    title="Data Extraction"
+    icon="database"
+    href="/core/objects#extraction-fields"
+  >
+    Extract structured data from conversations
+  </Card>
+ 
+</CardGroup>
+
+<Tip>
+  **Pro tip**: Use webhooks to get notified automatically when transcriptions complete, instead of polling the status endpoint.
+</Tip>

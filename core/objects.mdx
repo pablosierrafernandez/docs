@@ -1,0 +1,433 @@
+---
+title: "Core Objects"
+description: "Understanding Configuration and Transcription objects"
+icon: "cube"
+---
+
+# Core Objects
+
+Heify revolves around two main objects: **Configurations** and **Transcriptions**. Understanding these objects is essential for working with the API effectively.
+
+## Configuration Object
+
+A **Configuration** is a reusable template that defines how audio/video files should be processed. Think of it as a preset that you can apply to multiple transcription jobs.
+
+### Configuration Structure
+
+| Attribute | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `configuration_id` | `string` | Auto-generated | Unique identifier for the configuration (UUID format) |
+| `client_id` | `string` | Auto-assigned | Your client identifier (linked to your API key) |
+| `tag` | `string` | **Yes** | Descriptive name for the configuration (max 255 characters) |
+| `vocabulary` | `array<string>` | No | Custom words/phrases to improve recognition accuracy |
+| `extraction_fields` | `array<object>` | No | Structured data fields to extract (max 20 fields) |
+| `webhooks` | `object` | No | [URLs for success/error notifications](#webhooks) |
+| `summary` | `boolean` | No | Generate a summary of the transcription (default: `false`) |
+| `summary_language` | `string` | No | Language for summary generation (default: `"df"` - auto-detect). See [Supported Languages](#supported-languages). |
+| `analytics_language` | `string` | No | Language for the Executive and Qualitative Analysis Report (default: `"df"` - auto-detect). See [Supported Languages](#supported-languages). |
+| `created_at` | `string` | Auto-generated | ISO 8601 timestamp of creation |
+
+### Example Configuration
+
+```json
+{
+  "configuration_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+  "client_id": "client-uuid",
+  "tag": "Sales Call Analysis Q4",
+  "vocabulary": ["blockchain", "cryptocurrency", "NFT"],
+  "extraction_fields": [
+    {
+      "name": "customer_id",
+      "type": "string",
+      "description": "The customer ID mentioned in the conversation"
+    },
+    {
+      "name": "purchase_amount",
+      "type": "number",
+      "description": "The total purchase amount discussed"
+    }
+  ],
+  "webhooks": {
+    "success_url": "https://mysandbox.com/webhooks/success",
+    "error_url": "https://mysandbox.com/webhooks/error"
+  },
+  "summary": true,
+  "summary_language": "en",
+  "analytics_language": "en",
+  "created_at": "2025-10-03T22:25:00.123456+00:00"
+}
+```
+
+### Extraction Fields
+
+Define structured data to extract from transcriptions using AI.
+
+| Attribute | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `name` | `string` | **Yes** | Field identifier (e.g., `"ticket_id"`, `"customer_name"`) |
+| `type` | `string` | **Yes** | Data type: `string`, `number`, `boolean`, `array` |
+| `description` | `string` | **Yes** | Detailed description to guide the AI extraction |
+
+#### Best Practices for Extraction Fields
+
+<AccordionGroup>
+  <Accordion title="Use bounded responses" icon="list-check">
+    Define a clear, limited set of possible values to improve consistency and accuracy.
+    
+    **Example:**
+    ```json
+    {
+      "name": "sentiment",
+      "type": "string",
+      "description": "Classify the overall sentiment of the conversation. Must be one of: POSITIVE, NEGATIVE, or NEUTRAL"
+    }
+    ```
+    
+    This approach ensures the AI returns predictable, standardized values instead of varied descriptions.
+  </Accordion>
+  
+  <Accordion title="Provide specific context" icon="message-lines">
+    Give clear descriptions and specific examples to guide the AI for more accurate results.
+    
+    **Poor description:**
+    ```json
+    {
+      "name": "classification",
+      "type": "string",
+      "description": "Classifies the conversation"
+    }
+    ```
+    
+    **Good description:**
+    ```json
+    {
+      "name": "issue",
+      "type": "string",
+      "description": "Classifies the conversation into a category: "[CATEGORY 1]", "[CATEGORY 2]", "[CATEGORY 3]". [CATEGORY 1] is ..., [CATEGORY 2] is ..., [CATEGORY 3] is ...  ."
+    }
+    ```    
+    The more context you provide, the better the extraction quality.
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+  **Best Practice**: Provide clear, detailed descriptions for extraction fields. The more context you give, the more accurate the extraction will be.
+</Tip>
+
+
+
+### Webhooks
+
+Configure automatic notifications when transcription jobs complete or fail.
+
+| Attribute | Type | Description |
+| :--- | :--- | :--- |
+| `success_url` | `string` | URL to receive POST notifications on successful completion |
+| `error_url` | `string` | URL to receive POST notifications on failure |
+
+**Webhook Payload (Success):**
+
+```json
+{
+  "transcription_id": "f0e9d8c7-b6a5-4321-fedc-ba9876543210",
+  "status": "COMPLETED",
+  "configuration_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+  "duration": 125.5,
+  "completed_at": "2025-10-03T10:02:15.456Z"
+}
+```
+
+**Webhook Payload (Error):**
+
+```json
+{
+  "transcription_id": "f0e9d8c7-b6a5-4321-fedc-ba9876543210",
+  "status": "FAILED",
+  "error": {
+    "message": "Unsupported audio format",
+    "code": 400
+  }
+}
+```
+
+<Tip>
+  Your webhook endpoint should respond with a `200 OK` status to acknowledge receipt of the notification.
+</Tip>
+
+---
+
+## Transcription Object
+
+A **Transcription** represents an individual audio or video processing job. Its structure changes based on the job's current status.
+
+### Transcription Structure
+
+| Attribute | Type | Description |
+| :--- | :--- | :--- |
+| `transcription_id` | `string` | Unique identifier for the transcription (UUID format) |
+| `status` | `string` | Current [status](#status-values): `PENDING`, `IN_PROGRESS`, `COMPLETED`, `FAILED` |
+| `configuration_id` | `string` | ID of the configuration used |
+| `configuration_tag` | `string` | Tag of the configuration used |
+| `name` | `string` | Custom name for the transcription (can be `null`) |
+| `group` | `string` | Audio group/phase (can be `null`). See [available groups](#groups) |
+| `duration` | `number` | Media duration in seconds |
+| `details` | `object` | Full transcription results (only if `COMPLETED`) |
+| `error` | `object` | Error information (only if `FAILED`) |
+
+### Status Values
+
+<Steps>
+  <Step title="PENDING">
+    The transcription job is queued and waiting to start processing.
+  </Step>
+  <Step title="IN_PROGRESS">
+    The audio is currently being transcribed and analyzed.
+  </Step>
+  <Step title="COMPLETED">
+    Transcription finished successfully. The `details` object contains all results.
+  </Step>
+  <Step title="FAILED">
+    The transcription failed. The `error` object contains details about why.
+  </Step>
+</Steps>
+
+### Transcription Details (when COMPLETED)
+
+When a transcription completes successfully, the `details` object includes:
+
+| Attribute | Type | Description |
+| :--- | :--- | :--- |
+| `language` | `string` | Detected language of the media |
+| `num_speakers` | `number` | Number of unique speakers identified |
+| `created_at` | `string` | Timestamp when transcription started |
+| `completed_at` | `string` | Timestamp when transcription finished |
+| `conversation` | `object` | Full conversation with speaker-separated segments |
+| `summary` | `object` | Generated summary (if enabled) |
+| `fields` | `object` | Extracted structured data (if configured) |
+
+### Conversation Structure
+
+The `conversation` object contains speaker-separated segments:
+
+```json
+{
+  "conversation": {
+    "segments": [
+      {
+        "text": "Hello, thank you for calling support.",
+        "speaker": "SPEAKER_00"
+      },
+      {
+        "text": "Hi, I'm having an issue with my account.",
+        "speaker": "SPEAKER_01"
+      }
+    ]
+  }
+}
+```
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `text` | `string` | Transcribed text for this segment |
+| `speaker` | `string` | Speaker identifier (`SPEAKER_00`, `SPEAKER_01`, etc.) |
+
+### Complete Transcription Example
+
+```json
+{
+  "transcription_id": "f0e9d8c7-b6a5-4321-fedc-ba9876543210",
+  "status": "COMPLETED",
+  "configuration_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+  "configuration_tag": "Sales Call Analysis Q4",
+  "name": "client_call_2025_10_03.mp3",
+  "group": "UNDER_REVIEW",
+  "duration": 185.4,
+  "details": {
+    "language": "en",
+    "num_speakers": 2,
+    "created_at": "2025-10-03T10:00:00.123Z",
+    "completed_at": "2025-10-03T10:03:45.789Z",
+    "conversation": {
+      "segments": [
+        {
+          "text": "Good morning, this is Sarah from sales.",
+          "speaker": "SPEAKER_00"
+        }
+      ]
+    },
+    "summary": {
+      "summary": "A sales call discussing product pricing and implementation timeline."
+    },
+    "fields": {
+      "fields": [
+        {
+          "name": "customer_id",
+          "value": "CUST-12345"
+        },
+        {
+          "name": "purchase_amount",
+          "value": 15000
+        }
+      ]
+    }
+  }
+}
+```
+
+### Groups
+
+Use the `group` field to manage transcription group/phase:
+
+| Group Value | Description |
+| :--- | :--- |
+| `PENDING_REVIEW` | Transcription needs manual review |
+| `UNDER_REVIEW` | Currently being reviewed |
+| `ARCHIVED` | Completed and archived |
+| `null` | No group assigned |
+
+<Info>
+  Groups are managed using the `/update-transcription-group` endpoint. See [Update Transcription Group](/api-reference/transcription/update-group) for details.
+</Info>
+
+---
+
+## Supported Languages
+
+The following languages are supported for **transcriptions**, **summaries** (`summary_language`), and **analytics reports** (`analytics_language`).
+
+<Info>
+  **How the default language (`df`) works**
+
+  You can use `"df"` for `summary_language` and `analytics_language` for automatic language detection, but the behavior differs:
+  - **For summaries (`summary_language`)**: The summary will be generated in the language detected in that specific audio file.
+  - **For analytics (`analytics_language`)**: The report will be generated in the majority language found across all audio files associated with the configuration.
+</Info>
+
+<Tabs>
+  <Tab title="A-G">
+    | Language | ISO Code |
+    | :--- | :--- |
+    | Afrikaans | `af` |
+    | Albanian | `sq` |
+    | Arabic | `ar` |
+    | Azerbaijani | `az` |
+    | Basque | `eu` |
+    | Belarusian | `be` |
+    | Bengali | `bn` |
+    | Bosnian | `bs` |
+    | Bulgarian | `bg` |
+    | Catalan | `ca` |
+    | Chinese | `zh` |
+    | Croatian | `hr` |
+    | Czech | `cs` |
+    | Danish | `da` |
+    | Dutch | `nl` |
+    | English | `en` |
+    | Estonian | `et` |
+    | Finnish | `fi` |
+    | French | `fr` |
+    | Galician | `gl` |
+    | German | `de` |
+    | Greek | `el` |
+    | Gujarati | `gu` |
+  </Tab>
+  <Tab title="H-P">
+    | Language | ISO Code |
+    | :--- | :--- |
+    | Hebrew | `he` |
+    | Hindi | `hi` |
+    | Hungarian | `hu` |
+    | Indonesian | `id` |
+    | Italian | `it` |
+    | Japanese | `ja` |
+    | Kannada | `kn` |
+    | Kazakh | `kk` |
+    | Korean | `ko` |
+    | Latvian | `lv` |
+    | Lithuanian | `lt` |
+    | Macedonian | `mk` |
+    | Malay | `ms` |
+    | Malayalam | `ml` |
+    | Marathi | `mr` |
+    | Norwegian | `no` |
+    | Persian | `fa` |
+    | Polish | `pl` |
+    | Portuguese | `pt` |
+    | Punjabi | `pa` |
+  </Tab>
+  <Tab title="R-Z">
+    | Language | ISO Code |
+    | :--- | :--- |
+    | Romanian | `ro` |
+    | Russian | `ru` |
+    | Serbian | `sr` |
+    | Slovak | `sk` |
+    | Slovenian | `sl` |
+    | Spanish | `es` |
+    | Swahili | `sw` |
+    | Swedish | `sv` |
+    | Tagalog | `tl` |
+    | Tamil | `ta` |
+    | Telugu | `te` |
+    | Thai | `th` |
+    | Turkish | `tr` |
+    | Ukrainian | `uk` |
+    | Urdu | `ur` |
+    | Vietnamese | `vi` |
+    | Welsh | `cy` |
+  </Tab>
+</Tabs>
+
+---
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Organize with meaningful tags" icon="tag">
+    Use descriptive configuration tags that reflect their purpose:
+    - Good: `"Customer Support - Technical Issues"`
+    - Good: `"Sales Calls - Q4 2025"`
+    - Bad: `"Config 1"`
+  </Accordion>
+
+  <Accordion title="Reuse configurations" icon="recycle">
+    Create configurations for common use cases and reuse them across multiple transcriptions. You can have up to 20 configurations.
+  </Accordion>
+
+  <Accordion title="Use custom vocabulary" icon="spell-check">
+    Add industry-specific terms, product names, or acronyms to improve accuracy:
+    ```json
+    "vocabulary": ["Kubernetes", "API Gateway", "OAuth2"]
+    ```
+  </Accordion>
+
+  <Accordion title="Leverage extraction fields" icon="database">
+    Extract structured data automatically instead of parsing transcripts manually:
+    - Customer IDs
+    - Order numbers
+    - Dates and times
+    - Monetary amounts
+    - Yes/no answers
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="API Reference"
+    icon="code"
+    href="/api-reference/configuration/create"
+  >
+    Explore endpoint documentation
+  </Card>
+  <Card
+    title="Rate Limits & Quotas"
+    icon="gauge"
+    href="/core/limits"
+  >
+    Learn about API rate limits and quotas
+  </Card>
+</CardGroup>
