@@ -1,50 +1,120 @@
 ---
-title: "API Keys & Sandbox"
-description: "Manage your API keys and configure the Sandbox"
+title: "API Keys & Team"
+description: "Manage API keys, check Sandbox connection status, and invite team members."
 icon: "key"
 ---
 
-<Card
-  title="API Keys & Sandbox"
-  icon="key"
-  href="https://sandbox.heify.com/sandbox/api-keys"
->
-  Access to API keys at: **https://sandbox.heify.com/sandbox/api-keys**
-</Card>
-
-
-## Configure Sandbox
-<Info>
-  To use the Sandbox, you need to create an API key and configure the Sandbox with that key.
-</Info>    
-    
-    **How to configure:**
-    1. Create a new API key and copy it
-    2. Click on "Configure" button
-    2. Click the "Test Connection" button
-    3. Wait for the system to ping Heify servers
-    
-    <Warning>
-      If the test fails, **wait a few seconds and try again**. If it still fails, check your internet connection and browser settings (ad blockers, VPNs, or firewalls may interfere) and try again.
-    </Warning>
+This page groups three independent blocks: the Sandbox connection status, your API keys, and team member management. Everything related to API access is managed from here.
 
 ---
 
-## Need Help?
+## Sandbox status
+
+When you log in, the Sandbox automatically creates or reuses a reserved API key and validates it against the Heify API — no manual action is required under normal conditions.
+
+| State | When it appears |
+|---|---|
+| **Validating connection…** | Page load or a manual validation is in progress |
+| **Sandbox ready** | The reserved key is active and responding correctly |
+| **Sandbox not configured** | Auto-configuration failed or has not completed |
+
+Two actions are available depending on the current state:
+
+- **Test Connection** — visible only when the Sandbox is *Ready*. Launches a manual validation of the reserved key.
+- **Retry Auto-Configuration** — visible only when the Sandbox is *Not configured*. Re-runs the full provisioning process.
+
+<Note>
+  If you see **Sandbox not configured** after login, click **Retry Auto-Configuration**. If it still fails, go to the API Keys section and ensure at least one valid key exists, then retry.
+</Note>
+
+---
+
+## API keys
+
+All API keys for your account are listed here — including the auto-provisioned Sandbox reserved key, which always appears pinned at the top.
+
+| Column | Description |
+|---|---|
+| **Name** | The label assigned when the key was created. The Sandbox key is marked with a *Sandbox* badge. |
+| **Created on** | Key creation date. |
+| **Actions** | Delete the key. |
+
+<Note>
+  The account limit is **10 keys**. The **New API Key** button is disabled when the limit is reached.
+</Note>
+
+### Creating a key
+
+<Steps>
+  <Step title="Open the creation modal">
+    Click **New API Key** in the API Keys section header.
+  </Step>
+
+  <Step title="Enter a name">
+    Give the key a descriptive name that identifies where it will be used — for example `iOS App`, `Zapier Integration`, or `Backend Staging`. The name is required.
+  </Step>
+
+  <Step title="Create and save the key">
+    Click **Create Key**. The key viewing modal opens automatically.
+
+    <Warning>
+      **This is the only time the full key value is shown.** Once you close this modal, it cannot be retrieved from the platform. Copy it now and store it somewhere safe.
+    </Warning>
+
+    1. Click the **eye** icon to reveal the key value.
+    2. Click **Copy key** to copy it to your clipboard.
+    3. Check **"I have copied and saved this key in a safe place."**
+    4. Click **Got it, I saved it** to close.
+  </Step>
+</Steps>
+
+### Deleting a key
+
+Click the trash icon on any key's row and confirm deletion. This action cannot be undone. If you delete the Sandbox reserved key, the Sandbox will show as **not configured** until auto-provisioning runs again.
+
+---
+
+## Team
+
+<Info>
+  This section is only visible to users with the **Admin** role. Members cannot see or manage team access.
+</Info>
+
+Team management lets you invite collaborators to the platform under your account — without creating separate accounts. Each invited member gets their own login and access to all pipeline features.
+
+The section header shows the current member count (`X / Y`). The **Add member** button is disabled when the account limit is reached.
+
+### Inviting a member
+
+<Steps>
+  <Step title="Open the invite modal">
+    Click **Add member**.
+  </Step>
+
+  <Step title="Enter the member's email">
+    Type the email address of the person you want to invite. The email must be valid and not already registered.
+  </Step>
+
+  <Step title="Send the invitation">
+    Click **Send invitation**. The user receives an email and can log in immediately via OTP — no password setup required.
+  </Step>
+</Steps>
+
+<Note>
+  Members can access all transcription, configuration, evaluator, participant, and analytics features. They **cannot** add or remove other members, manage API keys, or see who else has access to the account.
+</Note>
+
+### Revoking access
+
+Click the trash icon on a member's row and confirm. Access is revoked immediately — the user will not be able to log in again until they are re-invited.
+
+---
 
 <CardGroup cols={2}>
-  <Card
-    title="Support"
-    icon="life-ring"
-    href="https://www.heify.com/contact.html"
-  >
-    Contact with us
+  <Card title="Sandbox Overview" icon="flask" href="/sandbox">
+    Learn about the Sandbox workflow and quota
   </Card>
-  <Card
-    title="Documentation"
-    icon="book"
-    href="/sandbox"
-  >
-    Explore the Sandbox guide
+  <Card title="Authentication" icon="lock" href="/sandbox/authentication">
+    How OTP login works
   </Card>
 </CardGroup>

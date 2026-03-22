@@ -1,112 +1,103 @@
 ---
 title: "Submit from local file"
-description: "Submit audio or video files from local files"
-openapi: 'POST /request-upload-url'
+description: "Upload a local audio or video file for transcription using a two-step process."
+openapi: 'api-reference/openapi-transcriptions.json POST /request-upload-url'
 ---
 
-For files on your computer, use the **two-step upload process**:
+Use this endpoint when your audio file is stored locally. Call this API first to receive a pre-signed upload URL, then upload your file directly to it. Transcription processing starts automatically once the upload completes.
 
-<Steps>
-  <Step title="Request an upload URL">
-    First, request a secure, pre-signed URL to upload your file.
+## Step 1 — Request upload URL
 
-    <CodeGroup>
+<CodeGroup>
 
 ```bash cURL
 curl -X POST https://api.heify.com/request-upload-url \
   -H "Content-Type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
   -d '{
-    "configuration_id": "YOUR_CONFIGURATION_ID",
-    "name": "My First Transcription"
+    "configuration_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+    "evaluator_id": "2abb5563-dd64-47bb-bb17-94252e168b06",
+    "name": "sales-call-2026-03-21.mp3"
   }'
 ```
 
 ```python Python
 import requests
 
-url = "https://api.heify.com/request-upload-url"
-headers = {
-    "Content-Type": "application/json",
-    "x-api-key": "YOUR_API_KEY"
-}
-payload = {
-    "configuration_id": "YOUR_CONFIGURATION_ID",
-    "name": "My First Transcription"
-}
+response = requests.post(
+    "https://api.heify.com/request-upload-url",
+    headers={"x-api-key": "YOUR_API_KEY"},
+    json={
+        "configuration_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+        "evaluator_id": "2abb5563-dd64-47bb-bb17-94252e168b06",
+        "name": "sales-call-2026-03-21.mp3"
+    }
+)
 
-response = requests.post(url, headers=headers, json=payload)
-data = response.json()
-
-# Extract data needed for the next step
-upload_data = data["data"]
-upload_url = upload_data["upload_url"]
-transcription_id = upload_data["transcription_id"]
-meta_config_id = upload_data["configuration_id"]
-meta_name = upload_data.get("name")
+data = response.json()["data"]
+upload_url = data["upload_url"]
+transcription_id = data["transcription_id"]
 ```
 
 </CodeGroup>
-    
-    **Response:**
-    
-    The API will return the pre-signed `upload_url` and the metadata needed for the upload headers.
-    
-    ```json
-    {
-      "data": {
-        "upload_url": "https://s3.amazonaws.com/...",
-        "transcription_id": "1a2b3c4d...",
-        "configuration_id": "a1b2c3d4...",
-        "name": "My First Transcription"
-      }
-    }
-    ```
-    
-    <Note>
-      Save all the values from the `data` object for the next step.
-    </Note>
 
-  </Step>
+<Warning>
+  The `upload_url` expires in **5 minutes**. Proceed to Step 2 immediately after receiving it.
+</Warning>
 
-  <Step title="Upload your audio file">
-    Now, use the `upload_url` and metadata from the previous response to upload the file with a PUT request.
+<Note>
+  `participant_id` and `evaluator_id` are optional. If provided, they must exist and belong to your account.
+</Note>
 
-    <CodeGroup>
+<Note>
+  The `name` field is sanitized to ASCII — accented or non-Latin characters are automatically stripped.
+</Note>
+
+## Step 2 — Upload the file
+
+Send a `PUT` request to the `upload_url` from the Step 1 response. You must include the metadata fields as headers — they are embedded in the upload URL signature and the request will fail if they are missing or don't match.
+
+<CodeGroup>
 
 ```bash cURL
-# Use the 'upload_url', 'configuration_id', and 'name' from the Step 1 response
-curl -X PUT --upload-file "path/to/audio.mp3" \
-  -H "x-amz-meta-configuration_id: YOUR_CONFIGURATION_ID" \
-  -H "x-amz-meta-name: My First Transcription" \
-  "https://s3.amazonaws.com/..."
+curl -X PUT \
+  -H "Content-Type: audio/mpeg" \
+  -H "x-amz-meta-configuration_id: CONFIGURATION_ID_FROM_STEP_1" \
+  -H "x-amz-meta-evaluator_id: EVALUATOR_ID_FROM_STEP_1" \
+  --data-binary @recording.mp3 \
+  "UPLOAD_URL_FROM_STEP_1"
 ```
 
 ```python Python
-import requests
+data = response.json()["data"]  # Step 1 response
 
-# Use the variables extracted in the previous step
-upload_headers = {
-    'x-amz-meta-configuration_id': meta_config_id
+# Build metadata headers from Step 1 response
+meta_headers = {
+    "Content-Type": "audio/mpeg",
+    "x-amz-meta-configuration_id": data["configuration_id"],
 }
-if meta_name:
-    upload_headers['x-amz-meta-name'] = meta_name
+if data.get("participant_id"):
+    meta_headers["x-amz-meta-participant_id"] = data["participant_id"]
+if data.get("evaluator_id"):
+    meta_headers["x-amz-meta-evaluator_id"] = data["evaluator_id"]
+if data.get("name"):
+    meta_headers["x-amz-meta-name"] = data["name"]
 
-# Upload the file
-with open("path/to/audio.mp3", "rb") as audio_file:
-    response = requests.put(upload_url, data=audio_file, headers=upload_headers)
+with open("recording.mp3", "rb") as f:
+    upload_response = requests.put(data["upload_url"], data=f, headers=meta_headers)
 
-if response.status_code == 200:
-    print(f"Upload successful! Transcription ID: {transcription_id}")
-else:
-    print(f"Upload failed: {response.text}")
+if upload_response.status_code == 200:
+    print(f"Upload successful. Transcription ID: {data['transcription_id']}")
 ```
 
 </CodeGroup>
-  </Step>
-</Steps>
 
-**Response (after a successful upload):**
+A `200 OK` with an empty body confirms the upload succeeded. Processing starts automatically in the background.
 
-A successful `PUT` request will return an HTTP `200 OK` status with an empty body. The transcription process has now started.
+<Note>
+  Use the `transcription_id` from Step 1 to [check results](/api-reference/transcription/details) once processing completes, or configure a [webhook](/core/configuration#webhooks) to receive a notification automatically.
+</Note>
 
+<Note>
+  For supported formats, file size limits, and duration limits, see [Rate Limits & Quotas](/platform/rate-limits).
+</Note>

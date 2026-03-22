@@ -1,74 +1,102 @@
 ---
-title: "Sandbox Authentication"
-description: "Access the Heify Sandbox platform"
+title: "Authentication"
+description: "How to log in to the Heify Sandbox using email OTP."
 icon: "lock"
 ---
 
-# Sandbox Access
-
-The Sandbox login page is your entry point to Heify's visual platform. You'll need valid credentials to access all features including API key management, configuration building, and transcription analysis.
+The Sandbox uses a **passwordless, OTP-based** authentication flow. Enter your email, receive a 6-digit one-time code, and log in — no password required.
 
 <Card
-  title="Heify Sandbox"
-  icon="globe"
+  title="Go to Sandbox"
+  icon="arrow-up-right-from-square"
   href="https://sandbox.heify.com"
 >
-  Access the Sandbox at: **https://sandbox.heify.com**
+  sandbox.heify.com
 </Card>
 
-## Login
-
-The authentication interface provides a simple, secure entry to your Heify account.
-
 <Info>
-  If you don't have an account yet, [contact with us](https://www.heify.com/contact.html) to request access.
+  Access is restricted to accounts registered by an administrator. If you don't have access yet, use the **Don't have an account?** link on the login screen or [contact us](https://heify.com/contact).
 </Info>
 
+---
 
-If you're logging in for the first time, you'll receive a **temporary password** via email.
+## Login flow
 
 <Steps>
-  <Step title="Check Your Email">
-    Look for a welcome email from Heify with your temporary password.
+  <Step title="Enter your email">
+    Type your registered email address and accept the Terms & Conditions. Click **Send Code** to receive your one-time code.
+
+    The button is disabled while the request is in progress or while the T&C checkbox is unchecked.
   </Step>
-  
-  <Step title="Enter Credentials">
-    Use your email and the temporary password on the login page.
+
+  <Step title="Enter the 6-digit code">
+    Check your inbox for a 6-digit numeric code. Enter each digit in the verification inputs — focus advances automatically as you type.
+
+    The code is valid for **3 minutes**. A live countdown timer is shown on screen.
+
+    <Note>
+      You can paste the full 6-digit code directly into the input field — it will be distributed automatically across all boxes.
+    </Note>
+
+    If the timer runs out before you verify, click **Resend code** to receive a new one. Use **Change email** to go back to Step 1.
   </Step>
-  
-  <Step title="Change Password">
-    You'll be prompted to create a new, permanent password.
-    
-    **Password Requirements:**
-    - Minimum 8 characters
-    - At least one uppercase letter
-    - At least one lowercase letter
-    - At least one number
-    - At least one special character
-  </Step>
-  
-  <Step title="Access Granted">
-    After setting your new password, you'll be redirected to the Sandbox dashboard.
+
+  <Step title="Access granted">
+    After successful verification, the Sandbox loads your workspace and redirects you to the dashboard. Your API key is provisioned automatically in the background.
   </Step>
 </Steps>
 
 ---
 
-## Need Help?
+## OTP keyboard shortcuts
+
+When entering the 6-digit code, the following keyboard interactions are supported:
+
+| Action | Result |
+|---|---|
+| Type a digit | Fills the box and moves focus to the next one |
+| `Backspace` on an empty box | Moves focus to the previous box |
+| `←` / `→` | Moves focus between boxes |
+| Paste (`Ctrl+V` / `Cmd+V`) | Distributes clipboard digits across all boxes |
+
+---
+
+## Error reference
+
+| Error | When it occurs |
+|---|---|
+| User not found | The email is not registered in the system |
+| Error sending the code | Generic failure when requesting the OTP |
+| Incorrect code | The entered code does not match the one sent |
+| Too many attempts | Excessive failed attempts — the system resets to Step 1 automatically |
+| Code expired | More than 3 minutes have passed since the code was sent |
+| Error verifying the code | Generic failure when checking the OTP |
+| Must accept Terms and Conditions | Submission attempted without checking the T&C checkbox |
+
+---
+
+## After login
+
+Once the code is verified:
+
+1. Your session is established.
+2. Your account and organization information is loaded.
+3. The **Sandbox API key is auto-provisioned** — a brief *"Setting up the sandbox…"* notice may appear.
+4. You are redirected to `/sandbox`.
+
+---
+
+## Language
+
+A globe icon in the top-right corner of the login screen toggles the interface language between **English** and **Spanish**. The preference is saved in the browser and persists across sessions.
+
+---
 
 <CardGroup cols={2}>
-  <Card
-    title="Support"
-    icon="life-ring"
-    href="https://www.heify.com/contact.html"
-  >
-    Contact with us
+  <Card title="Sandbox Overview" icon="flask" href="/sandbox">
+    Learn about the Sandbox and its core workflow
   </Card>
-  <Card
-    title="Documentation"
-    icon="book"
-    href="/sandbox"
-  >
-    Explore the Sandbox guide
+  <Card title="API Keys & Team" icon="key" href="/sandbox/api-keys">
+    Manage API keys and invite team members
   </Card>
 </CardGroup>

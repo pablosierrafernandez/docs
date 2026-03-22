@@ -1,0 +1,13 @@
+---
+title: "List Transcriptions"
+description: "Returns all transcriptions for the authenticated account with lightweight metadata and QA summary. No request body required."
+openapi: "api-reference/openapi-transcriptions.json POST /list-transcriptions"
+---
+
+<Note>
+  This endpoint returns **lightweight metadata only** — conversation, summary, extracted fields, and evaluation breakdown are not included. Use [Get Transcription](/api-reference/transcription/details) to retrieve full details for a specific transcription.
+</Note>
+
+<Note>
+  Results are capped at **20,000 transcriptions**. If `query_limit_reached` is `true`, not all transcriptions are shown.
+</Note>

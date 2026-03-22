@@ -47,7 +47,7 @@ Include your API key in the `x-api-key` header with every API request:
 <CodeGroup>
 
 ```bash cURL
-curl -X POST https://api.heify.com/get-configurations \
+curl -X POST https://api.heify.com/list-configurations \
   -H "Content-Type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
   -d '{}'
@@ -56,7 +56,7 @@ curl -X POST https://api.heify.com/get-configurations \
 ```python Python
 import requests
 
-url = "https://api.heify.com/get-configurations"
+url = "https://api.heify.com/list-configurations"
 headers = {
     "Content-Type": "application/json",
     "x-api-key": "YOUR_API_KEY"
@@ -113,21 +113,3 @@ Common causes of authentication errors:
   3. There are no extra spaces or special characters in the key
 </Tip>
 
-## Next Steps
-
-<CardGroup cols={2}>
-  <Card
-    title="Quickstart Guide"
-    icon="rocket"
-    href="/quickstart"
-  >
-    Make your first API call
-  </Card>
-  <Card
-    title="API Reference"
-    icon="code"
-    href="/api-reference/configuration/create"
-  >
-    Explore available endpoints
-  </Card>
-</CardGroup>

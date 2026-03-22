@@ -36,7 +36,7 @@ All error responses follow a consistent JSON structure:
 
 ```json
 {
-  "message": "Configuration not found or does not belong to your account"
+  "message": "Configuration not found"
 }
 ```
 
@@ -72,33 +72,6 @@ The most common error type. Occurs when the request is malformed or contains inv
     - Unescaped quotes in strings
     
     Use a JSON validator or library to ensure correctness.
-  </Accordion>
-
-  <Accordion title="Resource not found" icon="search">
-    **Error**: `"Configuration not found"`
-    
-    **Solution**: Verify the resource ID exists and belongs to your account:
-    
-    <CodeGroup>
-    ```bash cURL
-    curl -X POST https://api.heify.com/get-configurations \
-      -H "Content-Type: application/json" \
-      -H "x-api-key: YOUR_API_KEY" \
-      -d '{}'
-    ```
-    
-    ```python Python
-    # List all configurations to verify ID
-    response = requests.post(
-        "https://api.heify.com/get-configurations",
-        headers={"x-api-key": "YOUR_API_KEY"},
-        json={}
-    )
-    configs = response.json()["data"]["configurations"]
-    for config in configs:
-        print(config["configuration_id"])
-    ```
-    </CodeGroup>
   </Accordion>
 
   <Accordion title="Invalid audio format" icon="file-audio">
@@ -196,9 +169,39 @@ curl -X POST https://api.heify.com/details \
 
 ### 404 Not Found
 
-The requested resource doesn't exist or the endpoint URL is incorrect.
+Returned when a resource does not exist, or when the endpoint URL itself is incorrect.
 
-#### Error Example
+#### Resource not found
+
+```json
+{
+  "message": "Configuration not found"
+}
+```
+
+The API returns `404` whenever a referenced resource (configuration, transcription, evaluator, or participant) does not exist in your account. Verify the ID is correct by listing the resource first:
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://api.heify.com/get-configurations \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: YOUR_API_KEY" \
+  -d '{}'
+```
+
+```python Python
+response = requests.post(
+    "https://api.heify.com/get-configurations",
+    headers={"x-api-key": "YOUR_API_KEY"},
+    json={}
+)
+configs = response.json()["data"]["configurations"]
+for config in configs:
+    print(config["configuration_id"])
+```
+</CodeGroup>
+
+#### Wrong endpoint URL
 
 ```json
 {
@@ -206,15 +209,11 @@ The requested resource doesn't exist or the endpoint URL is incorrect.
 }
 ```
 
-#### Common Causes
+#### Common causes
 
-- Typo in endpoint URL
+- Typo in the endpoint path
 - Using GET instead of POST
 - Incorrect base URL
-
-#### Solution
-
-Verify the endpoint:
 
 | Correct | Incorrect |
 | :--- | :--- |

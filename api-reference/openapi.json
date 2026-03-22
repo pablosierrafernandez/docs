@@ -173,7 +173,7 @@
           }
         },
         "responses": {
-          "200": {
+          "201": {
             "description": "Configuration created successfully.",
             "content": {
               "application/json": {
@@ -1109,8 +1109,8 @@
           },
           "extraction_fields": {
             "type": "array",
-            "description": "A list of structured data fields for the AI to extract from the transcript. A maximum of 20 fields can be defined.",
-            "maxItems": 20,
+            "description": "A list of structured data fields for the AI to extract from the transcript. Maximum 10 fields. Field names are auto-normalized on creation: lowercased and special characters replaced with `_` (e.g. `\"Customer ID\"` → `\"customer_id\"`).",
+            "maxItems": 10,
             "items": {
               "$ref": "#/components/schemas/ExtractionField"
             }
@@ -1121,17 +1121,22 @@
           "summary": {
             "type": "boolean",
             "default": false,
-            "description": "If `true`, a summary of the transcription will be generated."
+            "description": "If `true`, an AI summary of the transcription will be generated."
+          },
+          "custom_summary": {
+            "type": "string",
+            "maxLength": 300,
+            "description": "A custom prompt that guides how the AI generates the summary (e.g., `\"Focus on customer complaints and resolution steps\"`). Only takes effect when `summary` is `true`."
           },
           "summary_language": {
             "type": "string",
             "default": "df",
-            "description": "The language for the generated summary. Use `\"df\"` for auto-detect. See documentation for supported languages."
+            "description": "Language for the generated summary. Use `\"df\"` for automatic detection based on the audio language. See [Supported Languages](/core/transcription#supported-languages)."
           },
           "analytics_language": {
             "type": "string",
             "default": "df",
-            "description": "The language for analytics processing. Use `\"df\"` for auto-detect. See documentation for supported languages."
+            "description": "Language for analytics reports. Use `\"df\"` for automatic detection. See [Supported Languages](/core/transcription#supported-languages)."
           }
         },
         "required": [

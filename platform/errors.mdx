@@ -1,0 +1,144 @@
+---
+title: "Error Codes"
+description: "HTTP status codes and error message reference for the Heify API."
+icon: "triangle-exclamation"
+---
+
+## Error Response Format
+
+All error responses follow this structure:
+
+```json
+{
+  "error": {
+    "message": "Descriptive error message explaining what went wrong",
+    "code": 400
+  }
+}
+```
+
+---
+
+## HTTP Status Codes
+
+| Code | Status | Description |
+| :--- | :--- | :--- |
+| `200` | OK | Request completed successfully |
+| `201` | Created | New resource created successfully |
+| `400` | Bad Request | Validation error or bad request data |
+| `402` | Payment Required | Insufficient transcription minutes |
+| `403` | Forbidden | Invalid or missing API key |
+| `404` | Not Found | Resource or endpoint not found |
+| `429` | Too Many Requests | Rate limit or monthly quota exceeded |
+| `500` | Internal Server Error | Unexpected error on Heify's servers |
+
+---
+
+## 400 Bad Request
+
+The request is malformed or contains invalid parameters.
+
+<AccordionGroup>
+  <Accordion title="Missing required fields" icon="exclamation">
+    **Error**: `"Missing required field: configuration_id"`
+
+    Ensure all required parameters are included in the request body.
+
+    ```json
+    {
+      "configuration_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Invalid JSON format" icon="code">
+    **Error**: `"Invalid JSON format"`
+
+    Validate your JSON before sending. Common issues:
+    - Missing commas between fields
+    - Trailing commas after the last field
+    - Unescaped quotes inside string values
+  </Accordion>
+
+  <Accordion title="Resource limit exceeded" icon="gauge">
+    **Error**: `"Maximum of 20 configurations per client exceeded"`
+
+    Delete unused resources before creating new ones. See [Rate Limits & Quotas](/platform/rate-limits) for all limits.
+  </Accordion>
+
+  <Accordion title="Invalid audio format or size" icon="file-audio">
+    **Error**: `"Unsupported audio format"`
+
+    Ensure your file meets the requirements:
+    - **Supported formats**: AAC, AIFF, AMR, ASF, FLAC, MP3, OGG, WAV, WebM, M4A, MP4
+    - **Max size**: 200 MB
+    - **Max duration**: 2 hours (7200 seconds)
+  </Accordion>
+
+  <Accordion title="Invalid group value" icon="layer-group">
+    **Error**: `"Invalid group value"`
+
+    Use only the allowed group values when updating a transcription:
+    - `PENDING_REVIEW`
+    - `UNDER_REVIEW`
+    - `ARCHIVED`
+    - `""` (empty string to remove the group)
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## 402 Payment Required
+
+Your account has run out of transcription minutes.
+
+Submit operations on transcriptions will be rejected until your balance is topped up. Contact [hola@heify.com](mailto:hola@heify.com) to add more minutes.
+
+---
+
+## 403 Forbidden
+
+Authentication failed. Your API key is invalid, missing, or inactive.
+
+| Cause | Solution |
+| :--- | :--- |
+| Missing `x-api-key` header | Add the header to every request |
+| Invalid API key value | Verify the key in your dashboard |
+| Deactivated API key | Generate a new key |
+| Wrong header name | Use `x-api-key`, not `Authorization` |
+
+---
+
+## 404 Not Found
+
+The requested resource or endpoint does not exist.
+
+| Cause | Solution |
+| :--- | :--- |
+| Typo in the endpoint URL | Double-check the path against the API reference |
+| Resource ID does not exist | Verify the ID belongs to your account |
+| Using GET instead of POST | All Heify endpoints use `POST` |
+| Wrong base URL | Use `https://api.heify.com/` |
+
+---
+
+## 429 Too Many Requests
+
+You have exceeded the rate limit for an endpoint or reached a monthly quota.
+
+See [Rate Limits & Quotas](/platform/rate-limits) for per-endpoint limits and a backoff implementation example.
+
+---
+
+## 500 Internal Server Error
+
+An unexpected error occurred on Heify's servers.
+
+<Steps>
+  <Step title="Retry the request">
+    The error is likely temporary. Wait a few seconds and try again.
+  </Step>
+  <Step title="Contact support">
+    If the issue persists, contact [hola@heify.com](mailto:hola@heify.com).
+  </Step>
+</Steps>

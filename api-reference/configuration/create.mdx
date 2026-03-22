@@ -1,7 +1,21 @@
 ---
-title: 'Create Configuration'
-openapi: 'POST /create-configuration'
+title: "Create Configuration"
+description: "Create a new configuration template that defines how audio/video files will be processed."
+openapi: "api-reference/openapi-configurations.json POST /create-configuration"
 ---
+
 <Info>
-For a detailed explanation of the Configuration and its parameters, please consult the [Configuration Object](../../core/objects#configuration-object).
+  For full details on the Configuration object, see [Configuration](/core/configuration).
 </Info>
+
+<Warning>
+  Each account has a maximum of **20 configurations**. Plan your templates to cover multiple use cases — you cannot exceed this limit.
+</Warning>
+
+<Note>
+  `tag` is permanent — it cannot be changed after creation. Choose a clear, descriptive name.
+</Note>
+
+<Tip>
+  The more specific the `description` on each extraction field, the more accurate the AI extraction will be. See [Best Practices for Extraction Fields](/core/configuration#best-practices-for-extraction-fields).
+</Tip>

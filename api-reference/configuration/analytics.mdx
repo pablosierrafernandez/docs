@@ -1,0 +1,25 @@
+---
+title: "Configuration Analysis"
+description: "Generates an AI-powered analytics report for all completed transcriptions under a configuration."
+openapi: "api-reference/openapi-configurations.json POST /analytics"
+---
+
+<Info>
+  The AI output language is controlled by `analytics_language` on the [Configuration](/core/configuration#analytics-language). Set it to `"df"` for auto-detection based on the most prevalent transcription language.
+</Info>
+
+<Warning>
+  This endpoint has a **monthly call limit**. The counter resets automatically on the first call of a new month. Exceeding the limit returns `429 Too Many Requests`.
+</Warning>
+
+<Note>
+  Only **completed** transcriptions are included in the analysis. Pending, processing, or failed transcriptions are excluded.
+</Note>
+
+<Note>
+  If no completed transcriptions exist for the configuration, the endpoint returns `200 OK` with `{"data": {"message": "No completed transcriptions found to analyze."}}` — not an error.
+</Note>
+
+<Note>
+  The `actionable_insights` and `executive_narrative` fields in `ai_insights` are **Markdown-formatted strings**, not structured objects. Render them accordingly.
+</Note>

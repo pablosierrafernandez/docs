@@ -1,7 +1,25 @@
 ---
-title: 'Get Transcription Details'
-openapi: 'POST /details'
+title: "Get Transcription"
+description: "Retrieve the full details of a single transcription, including conversation, summary, extracted fields, and evaluation breakdown."
+openapi: "api-reference/openapi-transcriptions.json POST /get-transcription"
 ---
+
 <Info>
-For a detailed explanation of the Transcription and its parameters, please consult the [Transcription Object](../../core/objects#transcription-object).
+  For the full Transcription data model, see [Transcription](/core/transcription).
 </Info>
+
+<Note>
+  The response structure varies by `status`. See [Transcription status](/core/transcription#status).
+</Note>
+
+<Note>
+  `summary`, `fields`, and `conversation` are `null` if those features were not enabled in the [Configuration](/core/configuration) used for this transcription.
+</Note>
+
+<Note>
+  Returns `404` if the transcription is not found.
+</Note>
+
+<Tip>
+  For the evaluation `breakdown` structure and criterion types (`boolean`, `scale`, `strict`), see [Evaluator](/core/evaluator).
+</Tip>

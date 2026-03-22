@@ -1,0 +1,13 @@
+---
+title: "Delete Participant"
+description: "Permanently delete a participant."
+openapi: 'api-reference/openapi-participants.json POST /delete-participant'
+---
+
+<Warning>
+  Deletion is **permanent** and cannot be undone. Transcriptions previously linked to this participant will retain the `participant_id` value, but the participant record will no longer be resolvable.
+</Warning>
+
+<Note>
+  Returns `404` if the participant is not found.
+</Note>

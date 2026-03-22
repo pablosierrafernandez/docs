@@ -1,10 +1,13 @@
 ---
 title: "Delete Transcription"
-openapi: "POST /delete-transcription"
+description: "Permanently delete a transcription record. This action is irreversible."
+openapi: "api-reference/openapi-transcriptions.json POST /delete-transcription"
 ---
+
 <Warning>
-  **This action is irreversible!** Once deleted, the transcription cannot be recovered.
+  This action is **irreversible**. Once deleted, the transcription and all its processed data cannot be recovered.
 </Warning>
-<Info>
-For a detailed explanation of the Transcription and its parameters, please consult the [Transcription Object](../../core/objects#transcription-object).
-</Info>
+
+<Note>
+  Returns `404` if the transcription is not found.
+</Note>

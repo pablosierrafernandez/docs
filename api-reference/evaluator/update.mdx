@@ -1,0 +1,25 @@
+---
+title: "Update Evaluator"
+description: "Update an evaluator's description, language, context, or criteria."
+openapi: 'api-reference/openapi-evaluators.json POST /update-evaluator'
+---
+
+<Warning>
+  **Criteria not included in the request will be permanently deleted.** Always send the full list of criteria you want to keep, not just the changes. See [Evaluator — criteria](/core/evaluator#criteria).
+</Warning>
+
+<Warning>
+  `tag` cannot be changed after creation.
+</Warning>
+
+<Note>
+  To update an existing criterion, include its `id`. To add a new one, omit `id`. Providing an `id` that does not belong to this evaluator returns `400`.
+</Note>
+
+<Note>
+  Non-`strict` criteria weights must still sum to exactly `100` after the update. See [Evaluator — weights](/core/evaluator#weights).
+</Note>
+
+<Note>
+  Returns `404` if the evaluator is not found.
+</Note>

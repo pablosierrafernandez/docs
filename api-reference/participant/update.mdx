@@ -1,0 +1,17 @@
+---
+title: "Update Participant"
+description: "Update a participant's tag and/or metadata."
+openapi: 'api-reference/openapi-participants.json POST /update-participant'
+---
+
+<Warning>
+  `metadata` uses **full replacement** semantics — the entire object is replaced by what you send. Any keys not included in the request will be lost. See [Participant — metadata](/core/participant#metadata).
+</Warning>
+
+<Note>
+  `tag` and `metadata` are both optional. If neither is provided, the request still succeeds and only `updated_at` is refreshed.
+</Note>
+
+<Note>
+  Returns `404` if the participant is not found.
+</Note>

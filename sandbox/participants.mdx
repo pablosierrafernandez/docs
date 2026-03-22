@@ -1,0 +1,108 @@
+---
+title: "Participants"
+description: "Register and manage the people linked to your transcriptions and track their performance over time."
+icon: "user"
+---
+
+A **Participant** is a named individual linked to transcription jobs — a support agent, job candidate being interviewed, salesperson, or any person whose performance you want to track. Attaching a participant to a transcription lets the platform attribute quality metrics to that individual and track their performance over time.
+
+For the full data model, see [Participant](/core/participant).
+
+<Info>
+  Unlike Configurations and Evaluators, there are no separate create or detail pages. All creation and editing happens in a **side drawer** that slides in from the right without leaving the list.
+</Info>
+
+---
+
+## Your participants
+
+Search, sort, and filter in real time by **name** or **participant ID**. Sort by name or last updated date (ascending/descending). Toggle between card grid and table layout.
+
+Each participant has a **gradient avatar** showing their initials. The color is determined by their name — the same name always produces the same gradient.
+
+Metadata is shown as **pills** directly on each card: grid view shows the first 4 entries, table view shows the first 2, with a **+N more** badge when there are additional fields.
+
+To delete participants, hover over a card or row to reveal a **checkbox** in place of the avatar. Select one or more items, then click **Delete** in the blue action bar that appears. A confirmation modal is shown before deleting.
+
+<Note>
+  Single-item deletion works the same way — select its checkbox and use the **Delete** button. There is no delete option inside a drawer.
+</Note>
+
+---
+
+## Creating a participant
+
+Click **New Participant** to open the drawer.
+
+### Name *(required)*
+
+The participant's display name — their label throughout the platform. As you type, a live **gradient avatar preview** updates in real time showing the initials and color that will be assigned to this participant.
+
+### Metadata *(optional)*
+
+Structured key-value pairs that describe the participant. Max **10 fields**, shown with a `N / 10` counter.
+
+Use the preset quick-add chips to add common fields instantly:
+
+| Chip | Key | Example value |
+|---|---|---|
+| Email | `email` | `agent@company.com`, `candidate@example.com` |
+| Role | `role` | `Supervisor`, `Agent`, `Candidate`, `Interviewer` |
+| Phone | `phone` | `+1 600 000 000` |
+| Department | `department` | `Customer Support` |
+| Region | `region` | `New York`, `London` |
+| Language | `language` | `EN`, `ES`, `FR` |
+| Timezone | `timezone` | `UTC+1` |
+| Skills | `skills` | `SQL`, `Customer Service` |
+| Employee ID | `employee_id` | `EMP-001` |
+
+Clicking a chip adds a row with the key pre-filled. A chip is disabled once that key is already in the form. For any field not listed above, click **+ Add custom field** to add a blank row.
+
+<Note>
+  Keys must be unique within a participant. Rows left completely empty are silently ignored on save.
+</Note>
+
+Click **Create Participant** in the sticky footer to save. The drawer closes automatically on success.
+
+---
+
+## Editing a participant
+
+Click any card or table row to open the **Edit Drawer**. The drawer header shows the participant's ID with a copy button.
+
+The same name and metadata fields are available. The participant **name can be changed** after creation.
+
+<Warning>
+  Updating metadata replaces the **entire** metadata object — keys not included in the update will be lost. To preserve existing fields, include them in the update. See [Participant — metadata](/core/participant#metadata).
+</Warning>
+
+Click **Save Changes** in the sticky footer to confirm, or close the drawer to discard.
+
+---
+
+## Metadata keys reference
+
+| Key | Common use |
+|---|---|
+| `email` | `agent@company.com`, `candidate@example.com` |
+| `role` | `Supervisor`, `Agent`, `Candidate`, `Interviewer` |
+| `phone` | `+1 600 000 000` |
+| `department` | `Customer Support` |
+| `region` | `New York` |
+| `language` | `EN`, `ES` |
+| `timezone` | `UTC+1` |
+| `skills` | `SQL, Customer Service` |
+| `employee_id` | `EMP-001` |
+
+Any key not listed above is stored normally and displayed with a generic icon.
+
+---
+
+<CardGroup cols={2}>
+  <Card title="Participant" icon="user" href="/core/participant">
+    Full data model and metadata reference
+  </Card>
+  <Card title="Participant Analysis" icon="chart-line" href="/sandbox/analytics-participant">
+    View performance insights for this participant
+  </Card>
+</CardGroup>

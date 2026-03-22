@@ -1,0 +1,42 @@
+---
+title: "Participant"
+description: "Reference for the Participant object — the person tracked across transcriptions: a support agent, job candidate, salesperson, or any individual."
+icon: "user"
+---
+
+A **Participant** represents any individual whose performance or results are tracked across transcriptions — a support agent, salesperson, job candidate being interviewed, or any other person. Participants are optional — use them when you need per-person analytics.
+
+## Fields
+
+| Field | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `participant_id` | `string` | Auto-generated | Unique identifier (UUID) |
+| `tag` | `string` | **Yes** | Name or identifier of the participant (e.g. agent name, candidate name, employee ID) — 1–100 chars, whitespace auto-trimmed |
+| `metadata` | `object` | No | Free-form key-value pairs for any additional data — max 10 keys, key ≤50 chars, value ≤250 chars |
+| `created_at` | `string` | Auto-generated | ISO 8601 creation timestamp |
+| `updated_at` | `string` | Auto-updated | ISO 8601 last-modified timestamp |
+
+<Note>
+  All metadata values are stored as **strings** regardless of the type provided (e.g. `42` → `"42"`, `true` → `"True"`).
+</Note>
+
+<Note>
+  When updating `metadata`, the new object **fully replaces** the previous one (PUT semantics). To update a single key without losing the rest, fetch the participant first, modify the object locally, and send the complete updated `metadata`.
+</Note>
+
+## Example
+
+```json
+{
+  "participant_id": "c3d4e5f6-a7b8-9012-3456-789012cdef01",
+  "tag": "Sarah Johnson",
+  "metadata": {
+    "email": "sarah.johnson@example.com",
+    "role": "Senior Support Agent",
+    "department": "Customer Success",
+    "employee_id": "EMP-0042"
+  },
+  "created_at": "2025-01-15T10:00:00.000000+00:00",
+  "updated_at": "2025-01-15T10:00:00.000000+00:00"
+}
+```

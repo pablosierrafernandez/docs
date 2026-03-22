@@ -3,8 +3,14 @@
   "theme": "mint",
   "name": "Heify Docs",
   "api": {
+    "openapi": [
+      "api-reference/openapi-configurations.json",
+      "api-reference/openapi-transcriptions.json",
+      "api-reference/openapi-evaluators.json",
+      "api-reference/openapi-participants.json"
+    ],
     "mdx": {
-      "server": "https://tu-dominio-api.com/api/v1",
+      "server": "https://api.heify.com",
       "auth": {
         "method": "key",
         "name": "x-api-key"
@@ -35,11 +41,25 @@
             ]
           },
           {
-            "group": "Core Concepts",
+            "group": "Core Objects",
             "pages": [
-              "core/objects",
-              "core/errors",
-              "core/limits"
+              {
+                "group": "Modules",
+                "icon": "layer-group",
+                "pages": [
+                  "core/configuration",
+                  "core/evaluator",
+                  "core/participant"
+                ]
+              },
+              "core/transcription"
+            ]
+          },
+          {
+            "group": "Platform",
+            "pages": [
+              "platform/rate-limits",
+              "platform/errors"
             ]
           }
         ]
@@ -49,30 +69,50 @@
         "icon": "code",
         "groups": [
           {
-            "group": "Configuration Endpoints",
+            "group": "Configurations",
             "icon": "gear",
             "pages": [
               "api-reference/configuration/create",
               "api-reference/configuration/get",
-              "api-reference/configuration/delete"
+              "api-reference/configuration/list",
+              "api-reference/configuration/update",
+              "api-reference/configuration/delete",
+              "api-reference/configuration/analytics"
             ]
           },
           {
-            "group": "Transcription Endpoints",
+            "group": "Evaluators",
+            "icon": "clipboard-check",
+            "pages": [
+              "api-reference/evaluator/create",
+              "api-reference/evaluator/get",
+              "api-reference/evaluator/list",
+              "api-reference/evaluator/update",
+              "api-reference/evaluator/delete",
+              "api-reference/evaluator/analytics"
+            ]
+          },
+          {
+            "group": "Participants",
+            "icon": "user",
+            "pages": [
+              "api-reference/participant/create",
+              "api-reference/participant/list",
+              "api-reference/participant/update",
+              "api-reference/participant/delete",
+              "api-reference/participant/analytics"
+            ]
+          },
+          {
+            "group": "Transcriptions",
             "icon": "microphone",
             "pages": [
-              {
-                "group": "Submit Transcription",
-              "tag": "2",
-                "pages": [
-                  "api-reference/transcription/submit",
-                  "api-reference/transcription/request-upload-url"
-                  
-                ]
-              },
+              "api-reference/transcription/submit",
+              "api-reference/transcription/request-upload-url",
               "api-reference/transcription/details",
-              "api-reference/transcription/delete",
-              "api-reference/transcription/update-group"
+              "api-reference/transcription/list",
+              "api-reference/transcription/update-group",
+              "api-reference/transcription/delete"
             ]
           }
         ]
@@ -85,17 +125,31 @@
             "group": "Getting Started",
             "pages": [
               "sandbox/index",
-              "sandbox/authentication"
+              "sandbox/authentication",
+              "sandbox/api-keys"
             ]
           },
           {
-            "group": "Platform Features",
+            "group": "Modules",
             "pages": [
-              "sandbox/api-keys",
               "sandbox/configurations",
+              "sandbox/evaluators",
+              "sandbox/participants"
+            ]
+          },
+          {
+            "group": "Transcriptions",
+            "pages": [
               "sandbox/transcribe",
-              "sandbox/transcriptions",
-              "sandbox/analytics"
+              "sandbox/transcriptions"
+            ]
+          },
+          {
+            "group": "Analysis",
+            "pages": [
+              "sandbox/analytics",
+              "sandbox/analytics-evaluator",
+              "sandbox/analytics-participant"
             ]
           }
         ]

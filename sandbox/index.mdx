@@ -1,153 +1,134 @@
 ---
-title: "Sandbox Overview"
-description: "Visual platform for creating transcriptions, managing configurations, and analyzing results"
+title: "Sandbox"
+description: "A fully browser-based workspace for building transcription pipelines, managing evaluations, and analyzing results — without writing any code."
 icon: "flask"
 ---
 
-# Heify Sandbox
-
-The **Heify Sandbox** is your visual command center for managing and creating transcriptions and configurations, and analyzing results—all without writing a single line of code.
+The Heify Sandbox is a personal, isolated workspace. Each authenticated user gets their own instance — a self-contained environment where you can build transcription pipelines, manage quality evaluation criteria, upload audio, and explore performance analytics without affecting any other user or any production system.
 
 <Info>
-  **No code required**: The Sandbox provides a complete browser-based interface to use Heify's full capabilities before integrating with your application.
+  No code required. The Sandbox provides full access to Heify's pipeline — from configuration to analytics — entirely through the browser.
 </Info>
 
-## What You Can Do
-
-<CardGroup cols={2}>
-  <Card
-    title="Manage API Keys"
-    icon="key"
-    href="/sandbox/api-keys"
-  >
-    Create, view, and revoke API keys for production use
-  </Card>
-  <Card
-    title="Build Configurations"
-    icon="sliders"
-    href="/sandbox/configurations"
-  >
-    Create reusable templates with AI features and extraction fields
-  </Card>
-  <Card
-    title="Process Audio"
-    icon="microphone"
-    href="/sandbox/transcribe"
-  >
-    Upload files or provide URLs to start transcriptions
-  </Card>
-  <Card
-    title="Review Transcripts"
-    icon="file-lines"
-    href="/sandbox/transcriptions"
-  >
-    View results and extracted data
-  </Card>
-  <Card
-    title="✨ Analyze Data"
-    icon="chart-line"
-    href="/sandbox/analytics"
-  >
-    Discover patterns and insights across multiple transcriptions
-  </Card>
-</CardGroup>
-
 ---
 
-## Key Features
-
-### <Icon icon="gear" iconType="regular" /> Visual Configuration Builder
-
-Design complex transcription configurations using our intuitive interface:
-
-- **Drag-and-drop** custom vocabulary
-- **One-click templates** for common extraction fields (sentiment, classification, etc.)
-- **Quick actions** for predefined field types
-
-### <Icon icon="microphone" iconType="regular" /> Transcribe
-
-
-- **Upload files** or provide URLs to start transcriptions
-- **Process multiple files at once**
-
-### <Icon icon="chart-line" iconType="regular" /> Advanced Analytics
-
-Gain insights from your transcription data:
-
-- **Distribution charts** for speakers, languages, and durations
-- **Trend analysis** over time
-- **Correlation heatmaps** for numerical fields
-- **Co-occurrence matrices** for array data
-- **AI-generated summaries** of key findings
-- **AI-generated insights** of key findings
-- **Automated anomaly detection**
-- **Export data** for external analysis
-
-*And much more...*
-
-### <Icon icon="list-check" iconType="regular" /> Transcriptions Management
-
-Organize your transcriptions:
-
-- Mark transcriptions for review
-- Track progress through stages
-- Filter and search across thousands of files
-- Export data for external analysis
-
----
-
-## <Icon icon="rocket" iconType="regular" /> Getting Started
+## Getting started
 
 <Steps>
-  <Step title="Access the Sandbox">
-    Log in to [sandbox.heify.com](https://sandbox.heify.com) with your credentials.
-    
-    [Learn more →](/sandbox/authentication)
+  <Step title="Authenticate">
+    Access to the Sandbox requires an account. Login is **OTP-based**: enter your email, receive a one-time code, and log in — no password required.
+
+    After login you are redirected to the main dashboard. See [Authentication](/sandbox/authentication) for the full flow.
   </Step>
-  
-  <Step title="Create Your First Configuration">
-    Define how you want your audio processed—add custom vocabulary, enable summaries, or extract structured data.
-    
-    [Learn more →](/sandbox/configurations)
+
+  <Step title="Automatic setup">
+    When the Sandbox loads for the first time, it automatically **provisions a reserved API key** on your behalf. This key is validated against the Heify API and stored in the browser's local storage.
+
+    A *"Setting up the sandbox…"* notice appears during provisioning. On success, a *"Sandbox ready"* notification is shown. If automatic provisioning fails, you are directed to the [API Keys & Sandbox](/sandbox/api-keys) page to configure the connection manually.
   </Step>
-  
-  <Step title="Upload Audio">
-    Drag and drop files or paste a public URL to start transcribing.
-    
-    [Learn more →](/sandbox/transcribe)
-  </Step>
-  
-  <Step title="Review Results">
-    Access the full transcript, AI summary, and extracted fields.
-    
-    [Learn more →](/sandbox/transcriptions)
-  </Step>
-  
-  <Step title="Analyze Patterns">
-    Use the Analytics dashboard to discover insights across multiple transcriptions.
-    
-    [Learn more →](/sandbox/analytics)
+
+  <Step title="Sandbox ready">
+    The Sandbox is considered **ready** when two conditions are both true:
+
+    - An API key is stored in the browser.
+    - That key has been validated against the Heify API.
+
+    <Note>
+      If the Sandbox is not ready, a **SandboxSetupWarning** banner appears at the top of affected pages with a *Configure* button. Transcription, configurations, evaluators, and analytics features are disabled until setup is complete.
+    </Note>
   </Step>
 </Steps>
 
 ---
 
-## Next Steps
+## Navigation
+
+The Sandbox is organized into seven areas accessible from the collapsible sidebar on desktop and a bottom navigation bar on mobile.
 
 <CardGroup cols={2}>
-  <Card
-    title="Authentication"
-    icon="lock"
-    href="/sandbox/authentication"
-  >
-    Learn how to access the Sandbox
+  <Card title="Dashboard" icon="gauge" href="/sandbox">
+    Overview of the pipeline, summary counts, and setup status.
   </Card>
-  <Card
-    title="Sandbox"
-    icon="rocket"
-    href="https://sandbox.heify.com/"
-  >
-    Go to Sandbox
+  <Card title="Configurations" icon="sliders" href="/sandbox/configurations">
+    Create and manage transcription configurations — the foundation of every pipeline.
   </Card>
-  
+  <Card title="Evaluators" icon="clipboard-check" href="/sandbox/evaluators">
+    Define AI quality criteria to score transcriptions automatically.
+  </Card>
+  <Card title="Participants" icon="users" href="/sandbox/participants">
+    Register the people who appear in the audio — agents, candidates, salespeople, or any individual.
+  </Card>
+  <Card title="Transcribe" icon="microphone" href="/sandbox/transcribe">
+    Upload audio files or submit URLs for transcription.
+  </Card>
+  <Card title="Transcriptions" icon="file-lines" href="/sandbox/transcriptions">
+    View, filter, and inspect all processed transcriptions and their results.
+  </Card>
+  <Card title="Analysis" icon="chart-bar" href="/sandbox/analytics">
+    AI-powered analytics dashboards by Configuration, Evaluator, or Participant.
+  </Card>
 </CardGroup>
+
+<Note>
+  The desktop sidebar also provides quick links to the **AI Assistant**, **Docs**, and **Support**. The user menu at the bottom shows your role, remaining transcription minutes, and analytics quota counts.
+</Note>
+
+---
+
+## Core workflow
+
+A typical Heify pipeline follows this sequence:
+
+<Steps>
+  <Step title="Create a Configuration">
+    Every transcription must be associated with a [Configuration](/sandbox/configurations). It defines what features are enabled (summaries, field extraction, conversation output) and which evaluator to apply.
+  </Step>
+
+  <Step title="Create Evaluators and Participants (optional)">
+    [Evaluators](/sandbox/evaluators) add a quality scoring layer — a set of criteria applied to transcriptions to produce a score and flag critical failures. [Participants](/sandbox/participants) identify the individuals in the recordings — support agents, job candidates, salespeople — enabling per-person performance tracking across analytics dashboards.
+  </Step>
+
+  <Step title="Upload audio via Transcribe">
+    Go to [Transcribe](/sandbox/transcribe) to upload files or paste a public URL. Associate the transcription with a configuration and optionally link an evaluator and participant.
+  </Step>
+
+  <Step title="Review results in Transcriptions">
+    Open any transcription in [Transcriptions](/sandbox/transcriptions) to view the full transcript, AI summary, extracted fields, evaluation score, and criterion-level breakdown.
+  </Step>
+
+  <Step title="Explore trends in Analysis">
+    Use the [Analysis](/sandbox/analytics) dashboards to discover patterns across all transcriptions — by configuration, evaluator, or participant.
+  </Step>
+</Steps>
+
+---
+
+## Quota
+
+The Sandbox operates under two types of quota:
+
+<CardGroup cols={2}>
+  <Card title="Transcription minutes" icon="clock">
+    Total audio duration that can be processed. Consumed when a transcription completes successfully.
+  </Card>
+  <Card title="Analytics quota" icon="chart-bar">
+    Number of analysis reports that can be generated per module (configurations, evaluators, participants). Consumed on every request, even if no data is returned.
+  </Card>
+</CardGroup>
+
+<Note>
+  Remaining quota is shown in the sidebar user menu. When an analytics quota is exhausted, the **Generate Analysis** button is disabled on the corresponding dashboard.
+</Note>
+
+---
+
+## API keys and team
+
+All API keys are managed from the [API Keys & Sandbox](/sandbox/api-keys) page. The auto-provisioned reserved key appears pinned at the top of the list. You can also create additional keys with custom names — up to **10 keys** per account.
+
+Team members can be invited from the same page. Each member gets their own access to the Sandbox under the same account.
+
+| Role | Capabilities |
+|---|---|
+| **Admin** | Full access: pipeline, analytics, API key management, team management |
+| **Member** | Pipeline and analytics access. Cannot manage API keys or team settings |

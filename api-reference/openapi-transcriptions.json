@@ -1,0 +1,889 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Heify API — Transcriptions",
+    "description": "Endpoints for submitting, retrieving, and managing Transcriptions.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.heify.com"
+    }
+  ],
+  "security": [
+    {
+      "apiKeyAuth": []
+    }
+  ],
+  "paths": {
+    "/request-upload-url": {
+      "post": {
+        "summary": "Submit from local file (1/2)",
+        "description": "Generates a secure, pre-signed S3 URL for uploading a local audio or video file. This is step 1 of 2 in the local file upload flow. The pre-signed URL is valid for **5 minutes** — upload the file immediately after receiving it.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestUploadUrlBody"
+              },
+              "examples": {
+                "StandardRequest": {
+                  "summary": "Request a pre-signed upload URL",
+                  "value": {
+                    "configuration_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+                    "evaluator_id": "2abb5563-dd64-47bb-bb17-94252e168b06",
+                    "name": "sales-call-2026-03-21.mp3"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Pre-signed URL generated successfully. PUT the audio file to `upload_url` with the correct `Content-Type` header.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestUploadUrlResponse"
+                },
+                "examples": {
+                  "SuccessResponse": {
+                    "value": {
+                      "data": {
+                        "transcription_id": "b147ee2b-41f8-43ac-8838-29b17229abf4",
+                        "upload_url": "https://storage.heify.com/upload/client-id/b147ee2b-41f8-43ac-8838-29b17229abf4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Expires=300&...",
+                        "configuration_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+                        "participant_id": null,
+                        "evaluator_id": "2abb5563-dd64-47bb-bb17-94252e168b06",
+                        "name": "sales-call-2026-03-21.mp3"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/submit": {
+      "post": {
+        "summary": "Submit from public URL",
+        "description": "Submits an audio or video file for transcription and processing using a publicly accessible URL. The transcription job is created and starts processing asynchronously — poll `/get-transcription` or use webhooks to track completion.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitUrlRequest"
+              },
+              "examples": {
+                "SubmitViaUrl": {
+                  "summary": "Submit audio from a public URL",
+                  "value": {
+                    "configuration_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+                    "url": "https://s3.amazonaws.com/my-public-bucket/interviews/quarterly-review.mp3",
+                    "name": "Quarterly Sales Review",
+                    "evaluator_id": "2abb5563-1234-5678-abcd-ef1234567890"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Transcription job created successfully. Processing has started asynchronously.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmitResponse"
+                },
+                "examples": {
+                  "SuccessResponse": {
+                    "value": {
+                      "data": {
+                        "message": "Transcription created successfully",
+                        "transcription_id": "1a2b3c4d-e5f6-7890-1234-567890abcdef"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/get-transcription": {
+      "post": {
+        "summary": "Get Transcription",
+        "description": "Retrieves full details for a single transcription, including conversation, summary, extracted fields, and the complete evaluation breakdown.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetTranscriptionRequest"
+              },
+              "examples": {
+                "GetTranscription": {
+                  "summary": "Get a transcription by ID",
+                  "value": {
+                    "transcription_id": "e6b7d4ce-c63d-42df-86a8-c3fabe203b2a"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transcription retrieved successfully. Response shape varies by `status` — see schema.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetSingleTranscriptionResponse"
+                },
+                "examples": {
+                  "CompletedWithEvaluation": {
+                    "summary": "Completed transcription with evaluation",
+                    "value": {
+                      "data": {
+                        "transcription_id": "e6b7d4ce-c63d-42df-86a8-c3fabe203b2a",
+                        "status": "COMPLETED",
+                        "configuration_id": "3b8006ad-b1a2-464b-9a6b-79dcd45c9433",
+                        "configuration_tag": "Pitch Analysis DEMO",
+                        "name": null,
+                        "group": null,
+                        "duration": 542.82,
+                        "participant_id": null,
+                        "evaluator_id": "2abb5563-dd64-47bb-bb17-94252e168b06",
+                        "participant_tag": null,
+                        "evaluator_tag": "pitch temporal",
+                        "details": {
+                          "language": "en",
+                          "num_speakers": 4,
+                          "created_at": "2026-03-21T11:22:30.211193+00:00",
+                          "completed_at": "2026-03-21T11:22:59.737279+00:00",
+                          "conversation": {
+                            "segments": [
+                              { "text": "Hi, Sharks. My name is Charlie Green. I'm from Los Angeles, California, and I'm here seeking $300,000 for 5% equity in my company, Ramento.", "speaker": "SPEAKER_00" },
+                              { "text": "So, what does it cost to do this project?", "speaker": "SPEAKER_01" }
+                            ]
+                          },
+                          "summary": null,
+                          "fields": {
+                            "fields": [
+                              { "name": "requested_amount", "value": 300000 },
+                              { "name": "deal_accepted", "value": true },
+                              { "name": "product_name", "value": "Ramento" },
+                              { "name": "reported_profit", "value": null }
+                            ]
+                          },
+                          "evaluation": {
+                            "score": 52.8,
+                            "critical_fail": false,
+                            "status": "COMPLETED",
+                            "breakdown": {
+                              "evaluator_id": "2abb5563-dd64-47bb-bb17-94252e168b06",
+                              "evaluator_tag": "pitch temporal",
+                              "generated_at": "2026-03-21T11:22:59.601049+00:00",
+                              "language_used": "es",
+                              "final_score": 52.8,
+                              "critical_fail_triggered": false,
+                              "summary_feedback": "### Visión General\n\nEl pitch ha obtenido una calificación de 52.8/100...",
+                              "results": [
+                                {
+                                  "criteria_id": "2faa4a20-7445-4beb-a09e-2af26872dba3",
+                                  "name": "Saludo Corporativo inicial",
+                                  "type": "boolean",
+                                  "max_weight": 34.0,
+                                  "score_raw_ai": 0,
+                                  "score_obtained": 0.0,
+                                  "status": "FAIL",
+                                  "reasoning": "El pitch no comienza con la presentación formal requerida.",
+                                  "quote": "Hi, Sharks. My name is Charlie Green...",
+                                  "feedback": "Es fundamental iniciar el pitch con una presentación clara y formal."
+                                },
+                                {
+                                  "criteria_id": "5718a64e-43e6-4959-90a6-19946b44249c",
+                                  "name": "Escucha Activa",
+                                  "type": "scale",
+                                  "max_weight": 33.0,
+                                  "score_raw_ai": 4,
+                                  "score_obtained": 26.4,
+                                  "status": "PASS",
+                                  "reasoning": "El emprendedor demuestra buena escucha activa.",
+                                  "quote": "That's exactly the way the product is designed today.",
+                                  "feedback": null
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "Failed": {
+                    "summary": "Failed transcription",
+                    "value": {
+                      "data": {
+                        "transcription_id": "1a2b3c4d-e5f6-7890-1234-567890abcdef",
+                        "status": "FAILED",
+                        "details": {
+                          "message": "Audio file format not supported.",
+                          "code": 400,
+                          "failed_at": "2026-03-20T22:01:00+00:00"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/list-transcriptions": {
+      "post": {
+        "summary": "List Transcriptions",
+        "description": "Returns a lightweight listing of all transcriptions for the authenticated account. No request body is required — send an empty object `{}`.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              },
+              "examples": {
+                "ListAll": {
+                  "summary": "List all transcriptions",
+                  "value": {}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transcription listing returned successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetAllTranscriptionsResponse"
+                },
+                "examples": {
+                  "ListingExample": {
+                    "summary": "Transcription listing",
+                    "value": {
+                      "data": {
+                        "total_transcriptions": 3,
+                        "query_limit_reached": false,
+                        "statistics": {
+                          "completed": 2,
+                          "failed": 0,
+                          "in_progress": 1
+                        },
+                        "transcriptions": [
+                          {
+                            "transcription_id": "e6b7d4ce-c63d-42df-86a8-c3fabe203b2a",
+                            "status": "COMPLETED",
+                            "configuration_id": "3b8006ad-b1a2-464b-9a6b-79dcd45c9433",
+                            "configuration_tag": "Pitch Analysis DEMO",
+                            "duration": 542.82,
+                            "group": null,
+                            "name": null,
+                            "created_at": "2026-03-21T11:22:30.211193+00:00",
+                            "qa": {
+                              "score": 52.8,
+                              "critical_fail": false,
+                              "status": "COMPLETED",
+                              "participant_id": null,
+                              "evaluator_id": "2abb5563-dd64-47bb-bb17-94252e168b06",
+                              "participant_tag": null,
+                              "evaluator_tag": "pitch temporal"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/delete-transcription": {
+      "post": {
+        "summary": "Delete a Transcription",
+        "description": "Permanently deletes a transcription record and all its associated processing data. This action is irreversible.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteTranscriptionRequest"
+              },
+              "examples": {
+                "DeleteExample": {
+                  "summary": "Delete a transcription",
+                  "value": {
+                    "transcription_id": "1a2b3c4d-e5f6-7890-1234-567890abcdef"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transcription deleted successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteTranscriptionResponse"
+                },
+                "examples": {
+                  "Success": {
+                    "value": {
+                      "data": {
+                        "message": "Transcription deleted successfully."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/update-transcription-group": {
+      "post": {
+        "summary": "Update Transcription Group",
+        "description": "Updates the `group` field of a transcription to manage its review workflow status. Pass an empty string `\"\"` to clear the group.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTranscriptionGroupRequest"
+              },
+              "examples": {
+                "SetGroup": {
+                  "summary": "Set a transcription's group",
+                  "value": {
+                    "transcription_id": "1a2b3c4d-e5f6-7890-1234-567890abcdef",
+                    "group": "PENDING_REVIEW"
+                  }
+                },
+                "ClearGroup": {
+                  "summary": "Clear a transcription's group",
+                  "value": {
+                    "transcription_id": "1a2b3c4d-e5f6-7890-1234-567890abcdef",
+                    "group": ""
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Group updated successfully. Returns the full, updated transcription object.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateTranscriptionGroupResponse"
+                },
+                "examples": {
+                  "SuccessResponse": {
+                    "summary": "Group updated successfully",
+                    "value": {
+                      "data": {
+                        "message": "Transcription group updated successfully.",
+                        "transcription": {
+                          "transcription_id": "be340280-2618-43f7-9632-ef51fe91906e",
+                          "status": "COMPLETED",
+                          "configuration_id": "3b8006ad-b1a2-464b-9a6b-79dcd45c9433",
+                          "configuration_tag": "Pitch Analysis DEMO",
+                          "duration": 542.82,
+                          "group": "PENDING_REVIEW",
+                          "name": null,
+                          "participant_id": null,
+                          "evaluator_id": null,
+                          "participant_tag": null,
+                          "evaluator_tag": null,
+                          "details": {
+                            "language": "en",
+                            "num_speakers": 4,
+                            "created_at": "2026-03-21T12:51:39.990670+00:00",
+                            "completed_at": "2026-03-21T12:52:00.274673+00:00",
+                            "conversation": null,
+                            "summary": null,
+                            "fields": null,
+                            "evaluation": null
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "apiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key"
+      }
+    },
+    "schemas": {
+      "RequestUploadUrlBody": {
+        "type": "object",
+        "properties": {
+          "configuration_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The unique identifier of the configuration to use for this transcription."
+          },
+          "name": {
+            "type": "string",
+            "description": "Optional label or filename for the transcription. Only ASCII characters are kept — non-ASCII characters are automatically stripped."
+          },
+          "participant_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Optional. Link this transcription to a participant. Must exist and belong to your account."
+          },
+          "evaluator_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Optional. Link this transcription to an evaluator. Must exist and belong to your account."
+          }
+        },
+        "required": ["configuration_id"]
+      },
+      "RequestUploadUrlResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "transcription_id": {
+                "type": "string",
+                "format": "uuid",
+                "description": "The unique identifier assigned to this transcription. Use this for all subsequent API calls."
+              },
+              "upload_url": {
+                "type": "string",
+                "format": "uri",
+                "description": "The pre-signed upload URL. Send a `PUT` request to this URL with your audio file. Valid for **5 minutes**."
+              },
+              "configuration_id": {
+                "type": "string",
+                "format": "uuid",
+                "description": "Echo of the configuration ID used."
+              },
+              "participant_id": {
+                "type": "string",
+                "format": "uuid",
+                "nullable": true,
+                "description": "Echo of the participant ID provided, or `null`."
+              },
+              "evaluator_id": {
+                "type": "string",
+                "format": "uuid",
+                "nullable": true,
+                "description": "Echo of the evaluator ID provided, or `null`."
+              },
+              "name": {
+                "type": "string",
+                "nullable": true,
+                "description": "The sanitized name provided, or `null`. Non-ASCII characters are stripped."
+              }
+            }
+          }
+        }
+      },
+      "SubmitUrlRequest": {
+        "type": "object",
+        "properties": {
+          "configuration_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The unique identifier of the configuration to use for processing."
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "A publicly accessible URL to the audio or video file to transcribe. Must require no authentication. Subject to a 60-second download timeout."
+          },
+          "name": {
+            "type": "string",
+            "description": "Optional custom name for the transcription job."
+          },
+          "participant_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Optional. Link this transcription to a participant. Must exist and belong to your account."
+          },
+          "evaluator_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Optional. Link this transcription to an evaluator. Must exist and belong to your account."
+          }
+        },
+        "required": ["configuration_id", "url"]
+      },
+      "SubmitResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "message": {
+                "type": "string",
+                "description": "Confirmation message."
+              },
+              "transcription_id": {
+                "type": "string",
+                "format": "uuid",
+                "description": "The unique identifier for the newly created transcription job."
+              }
+            }
+          }
+        }
+      },
+      "GetTranscriptionRequest": {
+        "type": "object",
+        "properties": {
+          "transcription_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The unique identifier of the transcription to retrieve."
+          }
+        },
+        "required": ["transcription_id"]
+      },
+      "TranscriptionDetailObject": {
+        "oneOf": [
+          {
+            "title": "COMPLETED",
+            "type": "object",
+            "description": "A completed transcription with full details.",
+            "properties": {
+              "transcription_id": { "type": "string", "format": "uuid" },
+              "status": { "type": "string", "enum": ["COMPLETED"] },
+              "configuration_id": { "type": "string", "format": "uuid", "nullable": true },
+              "configuration_tag": { "type": "string", "nullable": true },
+              "duration": { "type": "number", "nullable": true, "description": "Duration in seconds." },
+              "group": {
+                "type": "string",
+                "nullable": true,
+                "enum": ["PENDING_REVIEW", "UNDER_REVIEW", "ARCHIVED", null],
+                "description": "Review workflow group."
+              },
+              "name": { "type": "string", "nullable": true },
+              "participant_id": { "type": "string", "nullable": true },
+              "evaluator_id": { "type": "string", "nullable": true },
+              "participant_tag": { "type": "string", "nullable": true },
+              "evaluator_tag": { "type": "string", "nullable": true },
+              "details": { "$ref": "#/components/schemas/TranscriptionFullSuccessDetails" }
+            },
+            "required": ["transcription_id", "status", "details"]
+          },
+          {
+            "title": "FAILED",
+            "type": "object",
+            "description": "A failed transcription.",
+            "properties": {
+              "transcription_id": { "type": "string", "format": "uuid" },
+              "status": { "type": "string", "enum": ["FAILED"] },
+              "details": { "$ref": "#/components/schemas/TranscriptionErrorDetails" }
+            },
+            "required": ["transcription_id", "status", "details"]
+          },
+          {
+            "title": "IN_PROGRESS",
+            "type": "object",
+            "description": "An in-progress transcription. Same structure as COMPLETED but all `details` fields are `null` while processing is ongoing.",
+            "properties": {
+              "transcription_id": { "type": "string", "format": "uuid" },
+              "status": { "type": "string", "enum": ["IN_PROGRESS"] },
+              "configuration_id": { "type": "string", "format": "uuid", "nullable": true },
+              "configuration_tag": { "type": "string", "nullable": true },
+              "duration": { "type": "number", "nullable": true },
+              "group": { "type": "string", "nullable": true },
+              "name": { "type": "string", "nullable": true },
+              "participant_id": { "type": "string", "format": "uuid", "nullable": true },
+              "evaluator_id": { "type": "string", "format": "uuid", "nullable": true },
+              "participant_tag": { "type": "string", "nullable": true },
+              "evaluator_tag": { "type": "string", "nullable": true },
+              "details": { "$ref": "#/components/schemas/TranscriptionFullSuccessDetails" }
+            },
+            "required": ["transcription_id", "status", "details"]
+          }
+        ]
+      },
+      "GetSingleTranscriptionResponse": {
+        "type": "object",
+        "properties": {
+          "data": { "$ref": "#/components/schemas/TranscriptionDetailObject" }
+        }
+      },
+      "GetAllTranscriptionsResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+          "total_transcriptions": {
+            "type": "integer",
+            "description": "Total number of transcriptions returned."
+          },
+          "query_limit_reached": {
+            "type": "boolean",
+            "description": "`true` if results were truncated due to the 20,000 record limit."
+          },
+          "statistics": {
+            "type": "object",
+            "properties": {
+              "completed": { "type": "integer" },
+              "failed": { "type": "integer" },
+              "in_progress": { "type": "integer" }
+            },
+            "required": ["completed", "failed", "in_progress"]
+          },
+          "transcriptions": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/TranscriptionListItem" },
+            "description": "Lightweight transcription listing."
+          }
+            },
+            "required": ["total_transcriptions", "query_limit_reached", "statistics", "transcriptions"]
+          }
+        }
+      },
+      "TranscriptionListItem": {
+        "type": "object",
+        "properties": {
+          "transcription_id": { "type": "string", "format": "uuid" },
+          "status": { "type": "string", "enum": ["COMPLETED", "FAILED", "IN_PROGRESS"] },
+          "configuration_id": { "type": "string", "nullable": true },
+          "configuration_tag": { "type": "string", "nullable": true },
+          "duration": { "type": "number", "nullable": true },
+          "group": { "type": "string", "nullable": true },
+          "name": { "type": "string", "nullable": true },
+          "created_at": { "type": "string", "format": "date-time" },
+          "qa": {
+            "type": "object",
+            "description": "QA evaluation summary (lightweight, no breakdown).",
+            "properties": {
+              "score": { "type": "number", "nullable": true },
+              "critical_fail": { "type": "boolean" },
+              "status": { "type": "string", "nullable": true },
+              "participant_id": { "type": "string", "nullable": true },
+              "evaluator_id": { "type": "string", "nullable": true },
+              "participant_tag": { "type": "string", "nullable": true },
+              "evaluator_tag": { "type": "string", "nullable": true }
+            }
+          }
+        },
+        "required": ["transcription_id", "status"]
+      },
+      "TranscriptionFullSuccessDetails": {
+        "type": "object",
+        "description": "Full details for a completed transcription.",
+        "properties": {
+          "language": { "type": "string", "nullable": true, "description": "Detected language code." },
+          "num_speakers": { "type": "number", "nullable": true, "description": "Number of unique speakers identified." },
+          "created_at": { "type": "string", "format": "date-time", "description": "Submission timestamp (ISO 8601)." },
+          "completed_at": { "type": "string", "format": "date-time", "nullable": true, "description": "Completion timestamp (ISO 8601)." },
+          "summary": {
+            "$ref": "#/components/schemas/SummaryContent",
+            "nullable": true,
+            "description": "AI-generated summary. `null` if `summary` was not enabled in the configuration."
+          },
+          "conversation": {
+            "$ref": "#/components/schemas/ConversationContent",
+            "nullable": true,
+            "description": "Speaker-separated transcript segments."
+          },
+          "fields": {
+            "$ref": "#/components/schemas/FieldsContent",
+            "nullable": true,
+            "description": "Extracted structured data. `null` if no extraction fields were configured."
+          },
+          "evaluation": {
+            "$ref": "#/components/schemas/EvaluationSummary",
+            "nullable": true,
+            "description": "QA evaluation result. `null` if no evaluator was used."
+          }
+        },
+        "required": ["created_at"]
+      },
+      "TranscriptionErrorDetails": {
+        "type": "object",
+        "description": "Details for a failed transcription.",
+        "properties": {
+          "message": { "type": "string", "description": "Human-readable error description." },
+          "code": { "type": "integer", "description": "Internal error code." },
+          "failed_at": { "type": "string", "format": "date-time", "nullable": true, "description": "Timestamp when the failure occurred." }
+        },
+        "required": ["message", "code"]
+      },
+      "ConversationContent": {
+        "type": "object",
+        "properties": {
+          "segments": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ConversationSegment" }
+          }
+        },
+        "required": ["segments"]
+      },
+      "ConversationSegment": {
+        "type": "object",
+        "properties": {
+          "text": { "type": "string", "description": "Transcribed text for this segment." },
+          "speaker": { "type": "string", "description": "Speaker label (e.g. `SPEAKER_00`, `SPEAKER_01`)." }
+        },
+        "required": ["text", "speaker"]
+      },
+      "SummaryContent": {
+        "type": "object",
+        "properties": {
+          "summary": { "type": "string", "description": "AI-generated summary text." }
+        },
+        "required": ["summary"]
+      },
+      "FieldsContent": {
+        "type": "object",
+        "properties": {
+          "fields": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ExtractedFieldItem" }
+          }
+        },
+        "required": ["fields"]
+      },
+      "ExtractedFieldItem": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "description": "Field name matching the configured extraction field." },
+          "value": { "description": "Extracted value. Type matches the configured field type (`string`, `number`, `boolean`, `array`)." }
+        },
+        "required": ["name", "value"]
+      },
+      "EvaluationSummary": {
+        "type": "object",
+        "properties": {
+          "score": { "type": "number", "nullable": true, "description": "Overall quality score (0–100)." },
+          "critical_fail": { "type": "boolean", "description": "Whether a `strict` criterion was triggered." },
+          "status": { "type": "string", "nullable": true, "enum": ["PENDING", "COMPLETED", "FAILED"] },
+          "breakdown": {
+            "$ref": "#/components/schemas/EvaluationBreakdown",
+            "nullable": true,
+            "description": "Full per-criterion evaluation. Only present when `status` is `COMPLETED`."
+          }
+        }
+      },
+      "EvaluationBreakdown": {
+        "type": "object",
+        "description": "Full evaluation breakdown generated by the evaluator.",
+        "properties": {
+          "evaluator_id": { "type": "string", "format": "uuid", "description": "ID of the evaluator used." },
+          "evaluator_tag": { "type": "string", "description": "Name of the evaluator." },
+          "generated_at": { "type": "string", "format": "date-time", "description": "Timestamp when the evaluation was generated." },
+          "language_used": { "type": "string", "description": "Language used for the AI-generated feedback (e.g. `es`, `en`)." },
+          "final_score": { "type": "number", "description": "Final score (0–100), identical to `evaluation.score`." },
+          "critical_fail_triggered": { "type": "boolean", "description": "Whether a `strict` criterion was triggered." },
+          "summary_feedback": { "type": "string", "description": "AI-generated Markdown summary of the evaluation with overall feedback and action plan." },
+          "results": {
+            "type": "array",
+            "description": "Per-criterion evaluation results.",
+            "items": { "$ref": "#/components/schemas/CriterionResult" }
+          }
+        }
+      },
+      "CriterionResult": {
+        "type": "object",
+        "description": "Evaluation result for a single criterion.",
+        "properties": {
+          "criteria_id": { "type": "string", "format": "uuid", "description": "Unique ID of the criterion." },
+          "name": { "type": "string", "description": "Criterion name." },
+          "type": { "type": "string", "enum": ["boolean", "scale", "strict"], "description": "Criterion type. See [Evaluator](/core/evaluator#criterion-types)." },
+          "max_weight": { "type": "number", "description": "Maximum score contribution of this criterion." },
+          "score_raw_ai": { "type": "number", "description": "Raw score returned by the AI model." },
+          "score_obtained": { "type": "number", "description": "Final weighted score obtained." },
+          "status": { "type": "string", "enum": ["PASS", "FAIL"], "description": "`PASS` or `FAIL`." },
+          "reasoning": { "type": "string", "nullable": true, "description": "AI explanation for the score." },
+          "quote": { "type": "string", "nullable": true, "description": "Relevant quote from the transcript that informed the evaluation." },
+          "feedback": { "type": "string", "nullable": true, "description": "Actionable improvement suggestion for this criterion." }
+        }
+      },
+      "DeleteTranscriptionRequest": {
+        "type": "object",
+        "properties": {
+          "transcription_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The unique identifier of the transcription to delete."
+          }
+        },
+        "required": ["transcription_id"]
+      },
+      "DeleteTranscriptionResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "message": { "type": "string", "example": "Transcription deleted successfully." }
+            }
+          }
+        }
+      },
+      "UpdateTranscriptionGroupRequest": {
+        "type": "object",
+        "properties": {
+          "transcription_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The unique identifier of the transcription to update."
+          },
+          "group": {
+            "type": "string",
+            "description": "New group value. Valid values: `PENDING_REVIEW`, `UNDER_REVIEW`, `ARCHIVED`. Pass `\"\"` (empty string) to clear the group."
+          }
+        },
+        "required": ["transcription_id", "group"]
+      },
+      "UpdateTranscriptionGroupResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "message": { "type": "string" },
+              "transcription": { "$ref": "#/components/schemas/TranscriptionDetailObject" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

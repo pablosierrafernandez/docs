@@ -1,293 +1,307 @@
 ---
 title: "Core Objects"
-description: "Understanding Configuration and Transcription objects"
+description: "Reference for the main objects in the Heify API: Configurations, Evaluators, Participants, and Transcriptions."
 icon: "cube"
 ---
 
-# Core Objects
+Heify is built around four core objects. Understanding their structure is essential for working with the API effectively.
 
-Heify revolves around two main objects: **Configurations** and **Transcriptions**. Understanding these objects is essential for working with the API effectively.
+---
 
-## Configuration Object
+## Configuration
 
-A **Configuration** is a reusable template that defines how audio/video files should be processed. Think of it as a preset that you can apply to multiple transcription jobs.
+A **Configuration** is a reusable template that defines how audio/video files are processed. It sets the language, vocabulary, extraction fields, and optional features like summaries or webhooks. Every transcription requires a configuration.
 
-### Configuration Structure
+### Fields
 
-| Attribute | Type | Required | Description |
+| Field | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| `configuration_id` | `string` | Auto-generated | Unique identifier for the configuration (UUID format) |
-| `client_id` | `string` | Auto-assigned | Your client identifier (linked to your API key) |
-| `tag` | `string` | **Yes** | Descriptive name for the configuration (max 255 characters) |
-| `vocabulary` | `array<string>` | No | Custom words/phrases to improve recognition accuracy |
-| `extraction_fields` | `array<object>` | No | Structured data fields to extract (max 20 fields) |
-| `webhooks` | `object` | No | [URLs for success/error notifications](#webhooks) |
-| `summary` | `boolean` | No | Generate a summary of the transcription (default: `false`) |
-| `summary_language` | `string` | No | Language for summary generation (default: `"df"` - auto-detect). See [Supported Languages](#supported-languages). |
-| `analytics_language` | `string` | No | Language for the Executive and Qualitative Analysis Report (default: `"df"` - auto-detect). See [Supported Languages](#supported-languages). |
-| `created_at` | `string` | Auto-generated | ISO 8601 timestamp of creation |
+| `configuration_id` | `string` | Auto-generated | Unique identifier (UUID) |
+| `client_id` | `string` | Auto-assigned | Your account identifier |
+| `tag` | `string` | **Yes** | Descriptive name (max 255 characters) |
+| `vocabulary` | `array<string>` | No | Custom terms to improve recognition accuracy |
+| `extraction_fields` | `array<object>` | No | Structured data fields to extract via AI (max 10) |
+| `summary` | `boolean` | No | Generate an AI summary (default: `false`) |
+| `summary_language` | `string` | No | Language for the summary (`"df"` = auto-detect) |
+| `analytics_language` | `string` | No | Language for analytics reports (`"df"` = auto-detect) |
+| `webhooks` | `object` | No | URLs to notify on completion or failure |
+| `created_at` | `string` | Auto-generated | ISO 8601 creation timestamp |
 
-### Example Configuration
+### Extraction Fields
+
+Each item in `extraction_fields` tells the AI what structured data to extract from the transcript.
+
+| Field | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `name` | `string` | **Yes** | Field identifier (e.g. `"sentiment"`, `"ticket_id"`) |
+| `type` | `string` | **Yes** | Data type: `string`, `number`, `boolean`, `array` |
+| `description` | `string` | **Yes** | Instructions for the AI — the more specific, the more accurate |
+
+<Tip>
+  Define a bounded set of possible values in the description for consistent results. For example: *"Classify the sentiment. Must be one of: POSITIVE, NEGATIVE, NEUTRAL."*
+</Tip>
+
+### Webhooks
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `success_url` | `string` | POST notification when the transcription completes |
+| `error_url` | `string` | POST notification when the transcription fails |
+
+### Example
 
 ```json
 {
   "configuration_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
   "client_id": "client-uuid",
-  "tag": "Sales Call Analysis Q4",
-  "vocabulary": ["blockchain", "cryptocurrency", "NFT"],
+  "tag": "Sales Call Analysis",
+  "vocabulary": ["CRM", "upsell", "churn"],
   "extraction_fields": [
-    {
-      "name": "customer_id",
-      "type": "string",
-      "description": "The customer ID mentioned in the conversation"
-    },
-    {
-      "name": "purchase_amount",
-      "type": "number",
-      "description": "The total purchase amount discussed"
-    }
-  ],
-  "webhooks": {
-    "success_url": "https://mysandbox.com/webhooks/success",
-    "error_url": "https://mysandbox.com/webhooks/error"
-  },
-  "summary": true,
-  "summary_language": "en",
-  "analytics_language": "en",
-  "created_at": "2025-10-03T22:25:00.123456+00:00"
-}
-```
-
-### Extraction Fields
-
-Define structured data to extract from transcriptions using AI.
-
-| Attribute | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| `name` | `string` | **Yes** | Field identifier (e.g., `"ticket_id"`, `"customer_name"`) |
-| `type` | `string` | **Yes** | Data type: `string`, `number`, `boolean`, `array` |
-| `description` | `string` | **Yes** | Detailed description to guide the AI extraction |
-
-#### Best Practices for Extraction Fields
-
-<AccordionGroup>
-  <Accordion title="Use bounded responses" icon="list-check">
-    Define a clear, limited set of possible values to improve consistency and accuracy.
-    
-    **Example:**
-    ```json
     {
       "name": "sentiment",
       "type": "string",
-      "description": "Classify the overall sentiment of the conversation. Must be one of: POSITIVE, NEGATIVE, or NEUTRAL"
-    }
-    ```
-    
-    This approach ensures the AI returns predictable, standardized values instead of varied descriptions.
-  </Accordion>
-  
-  <Accordion title="Provide specific context" icon="message-lines">
-    Give clear descriptions and specific examples to guide the AI for more accurate results.
-    
-    **Poor description:**
-    ```json
+      "description": "Overall sentiment of the conversation: POSITIVE, NEGATIVE, or NEUTRAL."
+    },
     {
-      "name": "classification",
+      "name": "next_action",
       "type": "string",
-      "description": "Classifies the conversation"
+      "description": "The agreed next action with the customer, if any."
     }
-    ```
-    
-    **Good description:**
-    ```json
-    {
-      "name": "issue",
-      "type": "string",
-      "description": "Classifies the conversation into a category: "[CATEGORY 1]", "[CATEGORY 2]", "[CATEGORY 3]". [CATEGORY 1] is ..., [CATEGORY 2] is ..., [CATEGORY 3] is ...  ."
-    }
-    ```    
-    The more context you provide, the better the extraction quality.
-  </Accordion>
-</AccordionGroup>
-
-<Tip>
-  **Best Practice**: Provide clear, detailed descriptions for extraction fields. The more context you give, the more accurate the extraction will be.
-</Tip>
-
-
-
-### Webhooks
-
-Configure automatic notifications when transcription jobs complete or fail.
-
-| Attribute | Type | Description |
-| :--- | :--- | :--- |
-| `success_url` | `string` | URL to receive POST notifications on successful completion |
-| `error_url` | `string` | URL to receive POST notifications on failure |
-
-**Webhook Payload (Success):**
-
-```json
-{
-  "transcription_id": "f0e9d8c7-b6a5-4321-fedc-ba9876543210",
-  "status": "COMPLETED",
-  "configuration_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
-  "duration": 125.5,
-  "completed_at": "2025-10-03T10:02:15.456Z"
+  ],
+  "summary": true,
+  "summary_language": "en",
+  "analytics_language": "en",
+  "webhooks": {
+    "success_url": "https://example.com/webhooks/success",
+    "error_url": "https://example.com/webhooks/error"
+  },
+  "created_at": "2025-01-15T10:00:00.000000+00:00"
 }
 ```
-
-**Webhook Payload (Error):**
-
-```json
-{
-  "transcription_id": "f0e9d8c7-b6a5-4321-fedc-ba9876543210",
-  "status": "FAILED",
-  "error": {
-    "message": "Unsupported audio format",
-    "code": 400
-  }
-}
-```
-
-<Tip>
-  Your webhook endpoint should respond with a `200 OK` status to acknowledge receipt of the notification.
-</Tip>
 
 ---
 
-## Transcription Object
+## Evaluator
 
-A **Transcription** represents an individual audio or video processing job. Its structure changes based on the job's current status.
+An **Evaluator** is a quality-scoring template made up of criteria. When attached to a transcription, the AI evaluates the conversation against each criterion and produces a score. Evaluators are optional — use them when you need automated quality assurance.
 
-### Transcription Structure
+### Fields
 
-| Attribute | Type | Description |
-| :--- | :--- | :--- |
-| `transcription_id` | `string` | Unique identifier for the transcription (UUID format) |
-| `status` | `string` | Current [status](#status-values): `PENDING`, `IN_PROGRESS`, `COMPLETED`, `FAILED` |
-| `configuration_id` | `string` | ID of the configuration used |
-| `configuration_tag` | `string` | Tag of the configuration used |
-| `name` | `string` | Custom name for the transcription (can be `null`) |
-| `group` | `string` | Audio group/phase (can be `null`). See [available groups](#groups) |
-| `duration` | `number` | Media duration in seconds |
-| `details` | `object` | Full transcription results (only if `COMPLETED`) |
-| `error` | `object` | Error information (only if `FAILED`) |
+| Field | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `evaluator_id` | `string` | Auto-generated | Unique identifier (UUID) |
+| `client_id` | `string` | Auto-assigned | Your account identifier |
+| `tag` | `string` | **Yes** | Name of the evaluator (not updatable after creation) |
+| `description` | `string` | No | Description of the evaluator's purpose |
+| `language` | `string` | No | Language used for evaluation (`"df"` = auto-detect) |
+| `context` | `any` | No | Additional context to guide the AI evaluation |
+| `criteria` | `array<object>` | **Yes** | List of evaluation criteria (min 1, max 10) |
+| `created_at` | `string` | Auto-generated | ISO 8601 creation timestamp |
+| `updated_at` | `string` | Auto-updated | ISO 8601 last-modified timestamp |
 
-### Status Values
+### Criteria
 
-<Steps>
-  <Step title="PENDING">
-    The transcription job is queued and waiting to start processing.
-  </Step>
-  <Step title="IN_PROGRESS">
-    The audio is currently being transcribed and analyzed.
-  </Step>
-  <Step title="COMPLETED">
-    Transcription finished successfully. The `details` object contains all results.
-  </Step>
-  <Step title="FAILED">
-    The transcription failed. The `error` object contains details about why.
-  </Step>
-</Steps>
-
-### Transcription Details (when COMPLETED)
-
-When a transcription completes successfully, the `details` object includes:
-
-| Attribute | Type | Description |
-| :--- | :--- | :--- |
-| `language` | `string` | Detected language of the media |
-| `num_speakers` | `number` | Number of unique speakers identified |
-| `created_at` | `string` | Timestamp when transcription started |
-| `completed_at` | `string` | Timestamp when transcription finished |
-| `conversation` | `object` | Full conversation with speaker-separated segments |
-| `summary` | `object` | Generated summary (if enabled) |
-| `fields` | `object` | Extracted structured data (if configured) |
-
-### Conversation Structure
-
-The `conversation` object contains speaker-separated segments:
-
-```json
-{
-  "conversation": {
-    "segments": [
-      {
-        "text": "Hello, thank you for calling support.",
-        "speaker": "SPEAKER_00"
-      },
-      {
-        "text": "Hi, I'm having an issue with my account.",
-        "speaker": "SPEAKER_01"
-      }
-    ]
-  }
-}
-```
+Each criterion defines one aspect of the evaluation.
 
 | Field | Type | Description |
 | :--- | :--- | :--- |
-| `text` | `string` | Transcribed text for this segment |
-| `speaker` | `string` | Speaker identifier (`SPEAKER_00`, `SPEAKER_01`, etc.) |
+| `id` | `string` | Criterion UUID (auto-generated) |
+| `name` | `string` | Name of the criterion |
+| `description` | `string` | Instructions for the AI to evaluate this criterion |
+| `type` | `string` | `boolean`, `scale`, or `strict` (see below) |
+| `weight` | `number` | Percentage contribution to the total score (ignored for `strict`) |
 
-### Complete Transcription Example
+**Criterion types:**
+
+- **`boolean`** — Pass/fail. If the criterion passes, its `weight` is added to the total score.
+- **`scale`** — Scored 1–5 (1 = Poor, 5 = Excellent). Contributes `(value / 5) × weight` to the score. Fails if the result is below 3.
+- **`strict`** — Critical criterion. If it fails, `critical_fail_triggered` is set to `true` on the result, regardless of the overall score. The `weight` is always forced to `0`.
+
+### Example
+
+```json
+{
+  "evaluator_id": "b2c3d4e5-f6a7-8901-2345-678901bcdef0",
+  "client_id": "client-uuid",
+  "tag": "Customer Service Standard",
+  "description": "Evaluates call quality for the support team.",
+  "language": "en",
+  "context": "Inbound customer support calls for a SaaS product.",
+  "criteria": [
+    {
+      "id": "c1d2e3f4-...",
+      "name": "Greeting",
+      "description": "Did the agent greet the customer with the standard opening phrase?",
+      "type": "BOOLEAN",
+      "weight": 20
+    },
+    {
+      "id": "d2e3f4g5-...",
+      "name": "No offensive language",
+      "description": "Did the agent use any rude or inappropriate language?",
+      "type": "STRICT",
+      "weight": 0
+    },
+    {
+      "id": "e3f4g5h6-...",
+      "name": "Issue resolved",
+      "description": "Was the customer's issue fully resolved by the end of the call?",
+      "type": "BOOLEAN",
+      "weight": 80
+    }
+  ],
+  "created_at": "2025-01-15T10:00:00.000000",
+  "updated_at": "2025-01-15T10:00:00.000000"
+}
+```
+
+---
+
+## Participant
+
+A **Participant** represents an individual whose performance is tracked across transcriptions — a support agent, job candidate being interviewed, salesperson, or any person. Participants are optional — use them when you need per-person analytics.
+
+### Fields
+
+| Field | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `participant_id` | `string` | Auto-generated | Unique identifier (UUID) |
+| `client_id` | `string` | Auto-assigned | Your account identifier |
+| `tag` | `string` | **Yes** | Name or identifier of the participant (e.g. agent name, candidate name, employee ID) |
+| `metadata` | `object` | No | Free-form key-value pairs for any additional data |
+| `created_at` | `string` | Auto-generated | ISO 8601 creation timestamp |
+| `updated_at` | `string` | Auto-updated | ISO 8601 last-modified timestamp |
+
+<Note>
+  When updating `metadata`, the new object **fully replaces** the previous one (PUT semantics). To update a single field without losing the rest, fetch the participant first, modify the object locally, and send the complete updated `metadata`.
+</Note>
+
+### Example
+
+```json
+{
+  "participant_id": "c3d4e5f6-a7b8-9012-3456-789012cdef01",
+  "client_id": "client-uuid",
+  "tag": "Sarah Johnson",
+  "metadata": {
+    "email": "sarah.johnson@example.com",
+    "role": "Senior Support Agent",
+    "department": "Customer Success",
+    "employee_id": "EMP-0042"
+  },
+  "created_at": "2025-01-15T10:00:00.000000",
+  "updated_at": "2025-01-15T10:00:00.000000"
+}
+```
+
+---
+
+## Transcription
+
+A **Transcription** represents a single audio or video processing job. Its structure evolves as the job moves through its lifecycle.
+
+### Fields
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `transcription_id` | `string` | Unique identifier (UUID) |
+| `status` | `string` | Current status: `PENDING`, `IN_PROGRESS`, `COMPLETED`, `FAILED` |
+| `configuration_id` | `string` | ID of the configuration used |
+| `configuration_tag` | `string` | Tag of the configuration used |
+| `evaluator_id` | `string` | ID of the evaluator used (if any) |
+| `participant_id` | `string` | ID of the participant associated (if any) |
+| `name` | `string` | Custom name (`null` if not set) |
+| `group` | `string` | Review group (`null` if not set) |
+| `duration` | `number` | Duration in seconds |
+| `details` | `object` | Full results — only present when `COMPLETED` |
+| `error` | `object` | Error details — only present when `FAILED` |
+
+### Status Lifecycle
+
+<Steps>
+  <Step title="PENDING">
+    The job is queued and waiting to start.
+  </Step>
+  <Step title="IN_PROGRESS">
+    The audio is being transcribed and analyzed.
+  </Step>
+  <Step title="COMPLETED">
+    Processing finished. The `details` object contains all results.
+  </Step>
+  <Step title="FAILED">
+    Processing failed. The `error` object explains why.
+  </Step>
+</Steps>
+
+### Groups
+
+Use `group` to manage the review workflow for each transcription.
+
+| Value | Description |
+| :--- | :--- |
+| `PENDING_REVIEW` | Needs manual review |
+| `UNDER_REVIEW` | Currently being reviewed |
+| `ARCHIVED` | Completed and archived |
+| `null` | No group assigned |
+
+### Details Object (when COMPLETED)
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `language` | `string` | Detected language |
+| `num_speakers` | `number` | Number of unique speakers identified |
+| `created_at` | `string` | ISO 8601 — when processing started |
+| `completed_at` | `string` | ISO 8601 — when processing finished |
+| `conversation` | `object` | Full transcript with speaker-separated segments |
+| `summary` | `object` | AI-generated summary (if enabled in the configuration) |
+| `fields` | `object` | Extracted structured data (if configured) |
+| `evaluation` | `object` | Quality score and criterion results (if an evaluator was used) |
+
+### Example
 
 ```json
 {
   "transcription_id": "f0e9d8c7-b6a5-4321-fedc-ba9876543210",
   "status": "COMPLETED",
   "configuration_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
-  "configuration_tag": "Sales Call Analysis Q4",
-  "name": "client_call_2025_10_03.mp3",
+  "configuration_tag": "Sales Call Analysis",
+  "evaluator_id": "b2c3d4e5-f6a7-8901-2345-678901bcdef0",
+  "participant_id": "c3d4e5f6-a7b8-9012-3456-789012cdef01",
+  "name": "call_2025_01_15.mp3",
   "group": "UNDER_REVIEW",
   "duration": 185.4,
   "details": {
     "language": "en",
     "num_speakers": 2,
-    "created_at": "2025-10-03T10:00:00.123Z",
-    "completed_at": "2025-10-03T10:03:45.789Z",
+    "created_at": "2025-01-15T10:00:00.123Z",
+    "completed_at": "2025-01-15T10:03:45.789Z",
     "conversation": {
       "segments": [
-        {
-          "text": "Good morning, this is Sarah from sales.",
-          "speaker": "SPEAKER_00"
-        }
+        { "text": "Good morning, this is Sarah from support.", "speaker": "SPEAKER_00" },
+        { "text": "Hi, I have an issue with my subscription.", "speaker": "SPEAKER_01" }
       ]
     },
     "summary": {
-      "summary": "A sales call discussing product pricing and implementation timeline."
+      "summary": "A support call where the customer reported a billing issue that was resolved by the agent."
     },
     "fields": {
       "fields": [
-        {
-          "name": "customer_id",
-          "value": "CUST-12345"
-        },
-        {
-          "name": "purchase_amount",
-          "value": 15000
-        }
+        { "name": "sentiment", "value": "POSITIVE" },
+        { "name": "next_action", "value": "Send confirmation email" }
+      ]
+    },
+    "evaluation": {
+      "score": 90,
+      "critical_fail_triggered": false,
+      "criteria_results": [
+        { "name": "Greeting", "passed": true },
+        { "name": "No offensive language", "passed": true },
+        { "name": "Issue resolved", "passed": true }
       ]
     }
   }
 }
 ```
-
-### Groups
-
-Use the `group` field to manage transcription group/phase:
-
-| Group Value | Description |
-| :--- | :--- |
-| `PENDING_REVIEW` | Transcription needs manual review |
-| `UNDER_REVIEW` | Currently being reviewed |
-| `ARCHIVED` | Completed and archived |
-| `null` | No group assigned |
-
-<Info>
-  Groups are managed using the `/update-transcription-group` endpoint. See [Update Transcription Group](/api-reference/transcription/update-group) for details.
-</Info>
 
 ---
 
@@ -296,11 +310,7 @@ Use the `group` field to manage transcription group/phase:
 The following languages are supported for **transcriptions**, **summaries** (`summary_language`), and **analytics reports** (`analytics_language`).
 
 <Info>
-  **How the default language (`df`) works**
-
-  You can use `"df"` for `summary_language` and `analytics_language` for automatic language detection, but the behavior differs:
-  - **For summaries (`summary_language`)**: The summary will be generated in the language detected in that specific audio file.
-  - **For analytics (`analytics_language`)**: The report will be generated in the majority language found across all audio files associated with the configuration.
+  Use `"df"` for automatic language detection. For `summary_language`, the summary is generated in the detected language of each individual file. For `analytics_language`, the report uses the majority language across all files in the configuration.
 </Info>
 
 <Tabs>
@@ -377,57 +387,3 @@ The following languages are supported for **transcriptions**, **summaries** (`su
     | Welsh | `cy` |
   </Tab>
 </Tabs>
-
----
-
-## Best Practices
-
-<AccordionGroup>
-  <Accordion title="Organize with meaningful tags" icon="tag">
-    Use descriptive configuration tags that reflect their purpose:
-    - Good: `"Customer Support - Technical Issues"`
-    - Good: `"Sales Calls - Q4 2025"`
-    - Bad: `"Config 1"`
-  </Accordion>
-
-  <Accordion title="Reuse configurations" icon="recycle">
-    Create configurations for common use cases and reuse them across multiple transcriptions. You can have up to 20 configurations.
-  </Accordion>
-
-  <Accordion title="Use custom vocabulary" icon="spell-check">
-    Add industry-specific terms, product names, or acronyms to improve accuracy:
-    ```json
-    "vocabulary": ["Kubernetes", "API Gateway", "OAuth2"]
-    ```
-  </Accordion>
-
-  <Accordion title="Leverage extraction fields" icon="database">
-    Extract structured data automatically instead of parsing transcripts manually:
-    - Customer IDs
-    - Order numbers
-    - Dates and times
-    - Monetary amounts
-    - Yes/no answers
-  </Accordion>
-</AccordionGroup>
-
----
-
-## Next Steps
-
-<CardGroup cols={2}>
-  <Card
-    title="API Reference"
-    icon="code"
-    href="/api-reference/configuration/create"
-  >
-    Explore endpoint documentation
-  </Card>
-  <Card
-    title="Rate Limits & Quotas"
-    icon="gauge"
-    href="/core/limits"
-  >
-    Learn about API rate limits and quotas
-  </Card>
-</CardGroup>

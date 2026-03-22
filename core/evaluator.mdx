@@ -1,0 +1,92 @@
+---
+title: "Evaluator"
+description: "Reference for the Evaluator object — the quality-scoring template applied to transcriptions."
+icon: "clipboard-check"
+---
+
+An **Evaluator** is a quality-scoring template made up of criteria. When attached to a transcription, the AI evaluates the conversation against each criterion and produces a score. Evaluators are optional — use them when you need automated quality assurance.
+
+## Fields
+
+| Field | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `evaluator_id` | `string` | Auto-generated | Unique identifier (UUID) |
+| `tag` | `string` | **Yes** | Name of the evaluator (not updatable after creation) — max 100 chars |
+| `description` | `string` | No | Description of the evaluator's purpose — max 250 chars |
+| `language` | `string` | No | Language used for evaluation (`"df"` = auto-detect) |
+| `context` | `string` | No | Additional context to guide the AI evaluation — max 1000 chars |
+| `criteria` | `array<object>` | **Yes** | List of evaluation criteria (min 1, max 10) — see [Criteria](#criteria) |
+| `created_at` | `string` | Auto-generated | ISO 8601 creation timestamp |
+
+## Criteria
+
+Each criterion defines one aspect of the evaluation.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `id` | `string` | Criterion UUID (auto-generated) |
+| `name` | `string` | Name of the criterion — 1–100 chars |
+| `description` | `string` | Instructions for the AI to evaluate this criterion — 5–1000 chars |
+| `type` | `string` | `boolean`, `scale`, or `strict` — see [Criterion Types](#criterion-types) |
+| `weight` | `number` | Score contribution — see [Weight Rules](#weight-rules) |
+
+<Warning>
+  When updating `criteria`, any criterion **not included** in the update is **permanently removed**. Provide the criterion `id` to update an existing criterion; omit `id` to add a new one.
+</Warning>
+
+### Criterion Types
+
+| Type | AI input | Scoring | Fails when |
+| :--- | :--- | :--- | :--- |
+| `boolean` | `0` or `1` | `weight` if pass, `0` if fail | result is `0` |
+| `scale` | `1`–`5` | `(value / 5) × weight` (proportional) | result `< 3` |
+| `strict` | `0` or `1` | Always `0` — does not affect score | result is `0` → sets `critical_fail_triggered: true` |
+
+### Weight Rules
+
+<Note>
+  The sum of `weight` across all **non-`strict`** criteria must equal exactly **100**. Non-`strict` criteria must have `weight > 0`. `strict` criteria must have `weight: 0` — if you pass a non-zero weight for a `strict` criterion, it is automatically overridden to `0`. The default type is `boolean`.
+</Note>
+
+## Example
+
+```json
+{
+  "evaluator_id": "2abb5563-dd64-47bb-bb17-94252e168b06",
+  "tag": "Customer Service Standard",
+  "description": "Evaluates call quality for the support team.",
+  "language": "en",
+  "context": "Inbound customer support calls for a SaaS product.",
+  "criteria": [
+    {
+      "id": "c1d2e3f4-...",
+      "name": "Greeting",
+      "description": "Did the agent greet the customer with the standard opening phrase?",
+      "type": "boolean",
+      "weight": 34
+    },
+    {
+      "id": "d2e3f4g5-...",
+      "name": "Active Listening",
+      "description": "Did the agent listen without interrupting, confirm key details, and ask relevant questions before offering a solution?",
+      "type": "scale",
+      "weight": 33
+    },
+    {
+      "id": "e3f4g5h6-...",
+      "name": "Issue Resolved",
+      "description": "Was the customer's issue fully resolved by the end of the call?",
+      "type": "scale",
+      "weight": 33
+    },
+    {
+      "id": "f4g5h6i7-...",
+      "name": "No offensive language",
+      "description": "Did the agent use any rude or inappropriate language?",
+      "type": "strict",
+      "weight": 0
+    }
+  ],
+  "created_at": "2025-01-15T10:00:00.000000"
+}
+```

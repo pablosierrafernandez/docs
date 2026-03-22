@@ -1,0 +1,1054 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Heify API — Evaluators",
+    "description": "Endpoints for creating, retrieving, and managing Evaluators.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.heify.com"
+    }
+  ],
+  "security": [
+    {
+      "apiKeyAuth": []
+    }
+  ],
+  "paths": {
+    "/create-evaluator": {
+      "post": {
+        "summary": "Create Evaluator",
+        "description": "Creates a new evaluator with its evaluation criteria.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEvaluatorRequest"
+              },
+              "examples": {
+                "CreateWithAllTypes": {
+                  "summary": "Evaluator with all three criterion types",
+                  "value": {
+                    "tag": "nombre de ejemplo",
+                    "description": "descripcion opcional",
+                    "language": "df",
+                    "context": "You are evaluating a salesperson during a sales call or meeting with a prospect or client. Assess their ability to identify needs, communicate value and handle objections.",
+                    "criteria": [
+                      {
+                        "name": "Cierre de Venta",
+                        "description": "El agente debe solicitar explicitamente la venta o el compromiso del cliente utilizando tecnicas de cierre directas como \"¿Procedemos con la contratacion?\" o \"¿Le gustaria activar el servicio hoy?\". No debe finalizar la llamada sin haber intentado cerrar al menos una vez.",
+                        "type": "boolean",
+                        "weight": 50
+                      },
+                      {
+                        "name": "Escucha Activa",
+                        "description": "El agente no interrumpe al cliente mientras expone su problema, confirma los datos clave repitiendo o parafraseando lo escuchado y realiza preguntas relevantes para entender la situacion completa antes de ofrecer una solucion.",
+                        "type": "strict",
+                        "weight": 0
+                      },
+                      {
+                        "name": "Empatia",
+                        "description": "El agente muestra comprension ante la situacion del cliente utilizando frases de reconocimiento como \"Entiendo su frustracion\", \"Lamento las molestias\" o \"Comprendo lo importante que es esto para usted\". No debe minimizar el problema ni usar un tono condescendiente.",
+                        "type": "scale",
+                        "weight": 50
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Evaluator created successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateEvaluatorResponse"
+                },
+                "examples": {
+                  "Success": {
+                    "summary": "Evaluator created",
+                    "value": {
+                      "data": {
+                        "message": "Evaluator created successfully",
+                        "evaluator": {
+                          "evaluator_id": "47e865ea-67ee-4930-9064-0a07db10c6b3",
+                          "tag": "nombre de ejemplo",
+                          "description": "descripcion opcional",
+                          "language": "df",
+                          "context": "You are evaluating a salesperson during a sales call or meeting with a prospect or client. Assess their ability to identify needs, communicate value and handle objections.",
+                          "criteria": [
+                            {
+                              "id": "f5ccfa19-40d1-4d0c-aee5-4217a5a22485",
+                              "name": "Cierre de Venta",
+                              "description": "El agente debe solicitar explicitamente la venta...",
+                              "type": "boolean",
+                              "weight": 50
+                            },
+                            {
+                              "id": "beaac9a5-a067-4413-9721-874e3ccda50c",
+                              "name": "Escucha Activa",
+                              "description": "El agente no interrumpe al cliente...",
+                              "type": "strict",
+                              "weight": 0
+                            },
+                            {
+                              "id": "0daee516-3b0f-40b5-836e-f0850365d355",
+                              "name": "Empatia",
+                              "description": "El agente muestra comprension ante la situacion del cliente...",
+                              "type": "scale",
+                              "weight": 50
+                            }
+                          ],
+                          "created_at": "2026-03-21T14:19:57.834336+00:00"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/get-evaluator": {
+      "post": {
+        "summary": "Get Evaluator",
+        "description": "Retrieves a single evaluator by ID.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetEvaluatorRequest"
+              },
+              "examples": {
+                "GetEvaluator": {
+                  "summary": "Get an evaluator",
+                  "value": {
+                    "evaluator_id": "cd9e6ef7-fd3c-4cf1-9dd5-a5d5dbc8e887"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Evaluator retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetEvaluatorResponse"
+                },
+                "examples": {
+                  "Success": {
+                    "summary": "Evaluator retrieved",
+                    "value": {
+                      "data": {
+                        "evaluator_id": "cd9e6ef7-fd3c-4cf1-9dd5-a5d5dbc8e887",
+                        "tag": "nombree",
+                        "description": "descripcion",
+                        "language": "ar",
+                        "context": "Estas evaluando a un agente de atencion al cliente en una llamada entrante. El agente representa a la empresa y debe resolver la consulta del cliente siguiendo los protocolos internos.",
+                        "criteria": [
+                          {
+                            "id": "141aceae-9fe2-4e55-80c7-707b0aeb9bff",
+                            "name": "Saludo Corporativo",
+                            "description": "El agente debe presentarse con su nombre completo, indicar el nombre de la empresa y dar la bienvenida al cliente.",
+                            "type": "boolean",
+                            "weight": 50
+                          },
+                          {
+                            "id": "a2b542de-a06a-44ea-9975-20cab95ccaa8",
+                            "name": "Verificacion de Identidad",
+                            "description": "El agente debe verificar la identidad del cliente solicitando al menos dos datos personales antes de proporcionar informacion sensible.",
+                            "type": "strict",
+                            "weight": 0
+                          },
+                          {
+                            "id": "228dc9a9-30a4-447a-9b0e-7ef01904fc2c",
+                            "name": "Empatia",
+                            "description": "El agente muestra comprension ante la situacion del cliente utilizando frases de reconocimiento.",
+                            "type": "scale",
+                            "weight": 50
+                          }
+                        ],
+                        "created_at": "2026-03-21T15:50:25.898670+00:00"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/list-evaluators": {
+      "post": {
+        "summary": "List Evaluators",
+        "description": "Returns all evaluators for the authenticated account, sorted by creation date (newest first).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ListEvaluatorsRequest"
+              },
+              "examples": {
+                "ListAll": {
+                  "summary": "List all evaluators",
+                  "value": {}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Evaluators retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListEvaluatorsResponse"
+                },
+                "examples": {
+                  "Success": {
+                    "summary": "Evaluators listed",
+                    "value": {
+                      "data": {
+                        "items": [
+                          {
+                            "evaluator_id": "cd9e6ef7-fd3c-4cf1-9dd5-a5d5dbc8e887",
+                            "tag": "nombree",
+                            "description": "descripcion",
+                            "language": "ar",
+                            "context": "Estas evaluando a un agente de atencion al cliente en una llamada entrante.",
+                            "criteria": [
+                              { "id": "141aceae-9fe2-4e55-80c7-707b0aeb9bff", "name": "Saludo Corporativo", "description": "El agente debe presentarse con su nombre completo...", "type": "boolean", "weight": 50 },
+                              { "id": "a2b542de-a06a-44ea-9975-20cab95ccaa8", "name": "Verificacion de Identidad", "description": "El agente debe verificar la identidad del cliente...", "type": "strict", "weight": 0 },
+                              { "id": "228dc9a9-30a4-447a-9b0e-7ef01904fc2c", "name": "Empatia", "description": "El agente muestra comprension ante la situacion del cliente...", "type": "scale", "weight": 50 }
+                            ],
+                            "created_at": "2026-03-21T15:50:25.898670+00:00"
+                          },
+                          {
+                            "evaluator_id": "2abb5563-dd64-47bb-bb17-94252e168b06",
+                            "tag": "pitch temporal",
+                            "description": "",
+                            "language": "es",
+                            "context": "Estas evaluando un pitch de una empresa a inversores.",
+                            "criteria": [
+                              { "id": "2faa4a20-7445-4beb-a09e-2af26872dba3", "name": "Saludo Corporativo inicial2", "description": "El agente debe presentarse con su nombre completo...", "type": "boolean", "weight": 34 },
+                              { "id": "5718a64e-43e6-4959-90a6-19946b44249c", "name": "Escucha Activa", "description": "El agente no interrumpe al cliente...", "type": "scale", "weight": 33 },
+                              { "id": "d34172c8-6bf7-486e-aced-d35dc8c2c283", "name": "Manejo de Objeciones", "description": "Ante una objecion o rechazo del cliente...", "type": "scale", "weight": 33 },
+                              { "id": "58f6bc79-3eda-4e67-b762-52466145850a", "name": "cierre de inversion", "description": "consigue cerrar la venta/inversion satisfactoriamente", "type": "strict", "weight": 0 }
+                            ],
+                            "created_at": "2026-03-07T22:53:28.735002+00:00"
+                          }
+                        ],
+                        "count": 4
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/update-evaluator": {
+      "post": {
+        "summary": "Update Evaluator",
+        "description": "Updates an existing evaluator. Scalar fields use PATCH semantics (omit to leave unchanged). Criteria use merge-by-ID logic — criteria not included in the request are permanently deleted.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEvaluatorRequest"
+              },
+              "examples": {
+                "UpdateWithMixedCriteria": {
+                  "summary": "Update fields + update/add criteria",
+                  "value": {
+                    "evaluator_id": "cd9e6ef7-fd3c-4cf1-9dd5-a5d5dbc8e887",
+                    "description": "descripcion cambiada",
+                    "language": "eu",
+                    "context": "cambiado",
+                    "criteria": [
+                      {
+                        "id": "141aceae-9fe2-4e55-80c7-707b0aeb9bff",
+                        "name": "Saludo Corporativodf",
+                        "description": "El agente debe presentarse con su nombre completo, indicar el nombre de la empresa y dar la bienvenida al cliente.",
+                        "type": "scale",
+                        "weight": 54
+                      },
+                      {
+                        "id": "a2b542de-a06a-44ea-9975-20cab95ccaa8",
+                        "name": "Verificación de Identidad",
+                        "description": "El agente debe verificar la identidad del cliente solicitando al menos dos datos personales.",
+                        "type": "strict",
+                        "weight": 0
+                      },
+                      {
+                        "id": "228dc9a9-30a4-447a-9b0e-7ef01904fc2c",
+                        "name": "Empatía",
+                        "description": "El agente muestra comprensión ante la situación del cliente.",
+                        "type": "boolean",
+                        "weight": 42
+                      },
+                      {
+                        "name": "New Criterion",
+                        "description": "New criterion added during update — no id provided.",
+                        "type": "boolean",
+                        "weight": 4
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Evaluator updated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateEvaluatorResponse"
+                },
+                "examples": {
+                  "Success": {
+                    "summary": "Evaluator updated",
+                    "value": {
+                      "data": {
+                        "message": "Evaluator updated successfully",
+                        "evaluator": {
+                          "evaluator_id": "cd9e6ef7-fd3c-4cf1-9dd5-a5d5dbc8e887",
+                          "tag": "nombree",
+                          "description": "descripcion cambiada",
+                          "language": "eu",
+                          "context": "cambiado",
+                          "criteria": [
+                            {
+                              "id": "141aceae-9fe2-4e55-80c7-707b0aeb9bff",
+                              "name": "Saludo Corporativodf",
+                              "description": "El agente debe presentarse con su nombre completo, indicar el nombre de la empresa y dar la bienvenida al cliente.",
+                              "type": "scale",
+                              "weight": 54
+                            },
+                            {
+                              "id": "a2b542de-a06a-44ea-9975-20cab95ccaa8",
+                              "name": "Verificación de Identidad",
+                              "description": "El agente debe verificar la identidad del cliente solicitando al menos dos datos personales.",
+                              "type": "strict",
+                              "weight": 0
+                            },
+                            {
+                              "id": "228dc9a9-30a4-447a-9b0e-7ef01904fc2c",
+                              "name": "Empatía",
+                              "description": "El agente muestra comprensión ante la situación del cliente.",
+                              "type": "boolean",
+                              "weight": 42
+                            },
+                            {
+                              "id": "932f8c81-044e-405e-8a9c-493003e1f4e5",
+                              "name": "New Criterion",
+                              "description": "New criterion added during update — no id provided.",
+                              "type": "boolean",
+                              "weight": 4
+                            }
+                          ],
+                          "created_at": "2026-03-21T15:50:25.898670+00:00"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/delete-evaluator": {
+      "post": {
+        "summary": "Delete Evaluator",
+        "description": "Permanently deletes an evaluator and all its criteria. This action cannot be undone.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteEvaluatorRequest"
+              },
+              "examples": {
+                "DeleteEvaluator": {
+                  "summary": "Delete an evaluator",
+                  "value": {
+                    "evaluator_id": "cd9e6ef7-fd3c-4cf1-9dd5-a5d5dbc8e887"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Evaluator deleted successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteEvaluatorResponse"
+                },
+                "examples": {
+                  "Success": {
+                    "summary": "Evaluator deleted",
+                    "value": {
+                      "data": {
+                        "message": "Evaluator deleted successfully"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analytics-evaluator": {
+      "post": {
+        "summary": "Evaluator Analysis",
+        "description": "Generates a comprehensive QA performance dashboard for a specific evaluator, aggregating all its evaluated transcriptions into KPIs, charts, participant rankings, and raw data.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnalyticsEvaluatorRequest"
+              },
+              "examples": {
+                "AnalyzeEvaluator": {
+                  "summary": "Analyze an evaluator",
+                  "value": {
+                    "evaluator_id": "2abb5563-dd64-47bb-bb17-94252e168b06"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Analysis generated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalyticsEvaluatorResponse"
+                },
+                "examples": {
+                  "Success": {
+                    "summary": "Analysis result",
+                    "value": {
+                      "data": {
+                        "metadata": {
+                          "total_records_analyzed": 6,
+                          "query_limit_reached": false,
+                          "generated_at": "2026-03-22T01:08:17.482723"
+                        },
+                        "kpis": {
+                          "total_calls": 6,
+                          "avg_score": 53.1,
+                          "pass_rate": 83.3,
+                          "total_critical_fails": 0,
+                          "pending_critical_reviews": 0
+                        },
+                        "charts": {
+                          "timeline": [
+                            { "date": "2026-03-07", "avg_score": 53.3, "volume": 3, "critical_fails": 0 },
+                            { "date": "2026-03-12", "avg_score": 52.8, "volume": 1, "critical_fails": 0 }
+                          ],
+                          "heatmap": {
+                            "saturday": { "12": 52.8, "22": 53.3 },
+                            "thursday": { "20": 52.8 }
+                          }
+                        },
+                        "participants": [
+                          {
+                            "id": "580cc0e1-3a60-49d9-8e20-1745252f0aae",
+                            "tag": "Pedro Borrado",
+                            "calls": 4,
+                            "avg_score": 53.2,
+                            "critical_fails": 0,
+                            "critical_fail_rate": 0.0,
+                            "consistency": 13.13,
+                            "avg_duration": 587
+                          }
+                        ],
+                        "criteria_breakdown": [
+                          {
+                            "id": "2faa4a20-7445-4beb-a09e-2af26872dba3",
+                            "name": "Saludo Corporativo inicial2",
+                            "fail_count": 6,
+                            "fail_rate": 100.0
+                          }
+                        ],
+                        "score_distribution": {
+                          "0-20": 0,
+                          "21-40": 1,
+                          "41-60": 4,
+                          "61-80": 1,
+                          "81-100": 0
+                        },
+                        "comparison": {
+                          "current_period": { "calls": 6, "avg_score": 53.1, "pass_rate": 83.3 },
+                          "previous_period": { "calls": 0, "avg_score": 0, "pass_rate": 0 },
+                          "delta": {}
+                        },
+                        "duration_insights": {
+                          "thresholds": { "p25": 543.0, "p75": 602.0 },
+                          "short": { "count": 3, "avg_score": 52.8 },
+                          "medium": { "count": 1, "avg_score": 65.0 },
+                          "long": { "count": 2, "avg_score": 47.5 }
+                        },
+                        "raw_data": [
+                          {
+                            "id": "e927a34c-8f2f-4045-8a15-c0f7a182bab2",
+                            "date": "2026-03-12T20:33:14.145386+00:00",
+                            "score": 52.8,
+                            "critical": false,
+                            "duration": 542,
+                            "participant_tag": "Pedro Borrado",
+                            "participant_id": "580cc0e1-3a60-49d9-8e20-1745252f0aae",
+                            "group": null,
+                            "status": "COMPLETED",
+                            "failed_criteria": ["Saludo Corporativo inicial2"]
+                          },
+                          {
+                            "id": "67ff08bf-c1e5-441d-a8ba-c9909254ed1d",
+                            "date": "2026-03-07T22:54:33.882702+00:00",
+                            "score": 65.0,
+                            "critical": false,
+                            "duration": 578,
+                            "participant_tag": "Pedro Borrado",
+                            "participant_id": "580cc0e1-3a60-49d9-8e20-1745252f0aae",
+                            "group": null,
+                            "status": "COMPLETED",
+                            "failed_criteria": ["Saludo Corporativo inicial2"]
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "apiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key"
+      }
+    },
+    "schemas": {
+      "CriterionInput": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "description": "Name of the criterion. 1–100 characters."
+          },
+          "description": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 1000,
+            "description": "Detailed instructions for the AI on how to evaluate this criterion. 5–1000 characters. Quality of this description directly affects evaluation accuracy."
+          },
+          "type": {
+            "type": "string",
+            "enum": ["boolean", "scale", "strict"],
+            "default": "boolean",
+            "description": "`boolean` — pass/fail (0% or 100%); `scale` — scored 1–5; `strict` — critical pass/fail that triggers a critical fail flag if failed, regardless of overall score."
+          },
+          "weight": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Relative importance in the final score (0–100). Must be > 0 for non-`strict` criteria. Automatically forced to `0` for `strict` criteria."
+          }
+        },
+        "required": ["name", "description"]
+      },
+      "CriterionObject": {
+        "type": "object",
+        "description": "A criterion as returned in API responses. Identical to the input shape but includes an auto-generated `id`.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Auto-generated unique identifier for this criterion."
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the criterion."
+          },
+          "description": {
+            "type": "string",
+            "description": "Evaluation instructions provided to the AI."
+          },
+          "type": {
+            "type": "string",
+            "enum": ["boolean", "scale", "strict"],
+            "description": "Criterion evaluation type."
+          },
+          "weight": {
+            "type": "integer",
+            "description": "Weight in the final score. Always `0` for `strict` criteria."
+          }
+        }
+      },
+      "EvaluatorObject": {
+        "type": "object",
+        "description": "Full evaluator object as returned by the API.",
+        "properties": {
+          "evaluator_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier for this evaluator."
+          },
+          "tag": {
+            "type": "string",
+            "description": "Name/label for the evaluator (e.g. campaign name)."
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "description": "Description of the evaluator's purpose."
+          },
+          "language": {
+            "type": "string",
+            "description": "Language used for AI evaluation output. `\"df\"` = auto-detect from audio."
+          },
+          "context": {
+            "type": "string",
+            "nullable": true,
+            "description": "Additional context provided to the AI during evaluation."
+          },
+          "criteria": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CriterionObject"
+            },
+            "description": "Evaluation criteria for this evaluator."
+          },
+          "created_at": {
+            "type": "string",
+            "description": "Creation timestamp (ISO 8601)."
+          }
+        }
+      },
+      "CreateEvaluatorRequest": {
+        "type": "object",
+        "properties": {
+          "tag": {
+            "type": "string",
+            "description": "Name/label for the evaluator. Max 100 characters."
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 250,
+            "description": "Description of the evaluator's purpose. Max 250 characters."
+          },
+          "language": {
+            "type": "string",
+            "default": "df",
+            "description": "Language for AI evaluation output. `\"df\"` (default) auto-detects from audio. See [Evaluator — language](/core/evaluator#language) for supported codes."
+          },
+          "context": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 1000,
+            "description": "Additional context provided to the AI during evaluation. Helps the model understand the business scenario. Max 1000 characters."
+          },
+          "criteria": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CriterionInput"
+            },
+            "description": "List of evaluation criteria. Min 1, max 10 items. Non-`strict` weights must sum to exactly 100."
+          }
+        },
+        "required": ["tag", "criteria"]
+      },
+      "CreateEvaluatorResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "message": {
+                "type": "string",
+                "example": "Evaluator created successfully"
+              },
+              "evaluator": {
+                "$ref": "#/components/schemas/EvaluatorObject"
+              }
+            }
+          }
+        }
+      },
+      "GetEvaluatorRequest": {
+        "type": "object",
+        "properties": {
+          "evaluator_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The unique identifier of the evaluator to retrieve."
+          }
+        },
+        "required": ["evaluator_id"]
+      },
+      "GetEvaluatorResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/EvaluatorObject"
+          }
+        }
+      },
+      "ListEvaluatorsRequest": {
+        "type": "object",
+        "description": "No parameters required. Send an empty object."
+      },
+      "ListEvaluatorsResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/EvaluatorObject"
+                },
+                "description": "Array of evaluator objects sorted by creation date (newest first)."
+              },
+              "count": {
+                "type": "integer",
+                "description": "Total number of evaluators returned."
+              }
+            }
+          }
+        }
+      },
+      "UpdateCriterionInput": {
+        "type": "object",
+        "description": "A criterion to create or update. Include `id` to update an existing criterion; omit `id` to create a new one.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of an existing criterion to update. Omit to create a new criterion. Providing an ID that does not belong to this evaluator returns `400`."
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "description": "Name of the criterion. 1–100 characters."
+          },
+          "description": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 1000,
+            "description": "Detailed description of what the AI should evaluate. 5–1000 characters."
+          },
+          "type": {
+            "type": "string",
+            "enum": ["boolean", "scale", "strict"],
+            "description": "Criterion type. See [Evaluator — criterion types](/core/evaluator#criterion-types)."
+          },
+          "weight": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Scoring weight (0–100). Must be `0` for `strict` criteria. All non-`strict` weights must sum to exactly `100`."
+          }
+        },
+        "required": ["name", "description", "type", "weight"]
+      },
+      "UpdateEvaluatorRequest": {
+        "type": "object",
+        "description": "Request body for updating an evaluator. All fields except `evaluator_id` are optional — omit any field to leave it unchanged.",
+        "properties": {
+          "evaluator_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The evaluator to update."
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 250,
+            "description": "New description. Max 250 characters. Omit to leave unchanged."
+          },
+          "language": {
+            "type": "string",
+            "description": "New language code for the evaluator. Omit to leave unchanged. See [Evaluator — language](/core/evaluator#language)."
+          },
+          "context": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 1000,
+            "description": "Updated AI context prompt. Max 1000 characters. Omit to leave unchanged. See [Evaluator — context](/core/evaluator#context)."
+          },
+          "criteria": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpdateCriterionInput"
+            },
+            "description": "Full replacement list of criteria using merge-by-ID logic. Criteria not included will be permanently deleted. Min 1, max 10."
+          }
+        },
+        "required": ["evaluator_id"]
+      },
+      "DeleteEvaluatorRequest": {
+        "type": "object",
+        "properties": {
+          "evaluator_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The evaluator to delete."
+          }
+        },
+        "required": ["evaluator_id"]
+      },
+      "DeleteEvaluatorResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "message": { "type": "string" }
+            }
+          }
+        }
+      },
+      "AnalyticsEvaluatorRequest": {
+        "type": "object",
+        "properties": {
+          "evaluator_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The evaluator to analyze. Must belong to the authenticated account."
+          }
+        },
+        "required": ["evaluator_id"]
+      },
+      "AnalyticsEvaluatorResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "metadata": {
+                "type": "object",
+                "description": "Report generation metadata.",
+                "properties": {
+                  "total_records_analyzed": { "type": "integer", "description": "Number of COMPLETED evaluated transcriptions included in the report." },
+                  "query_limit_reached": { "type": "boolean", "description": "`true` if results were capped at the maximum query limit (20,000). The report is based on a partial dataset." },
+                  "generated_at": { "type": "string", "format": "date-time", "description": "Timestamp when the report was generated (ISO 8601)." }
+                }
+              },
+              "kpis": {
+                "type": "object",
+                "description": "Top-level performance indicators.",
+                "properties": {
+                  "total_calls": { "type": "integer", "description": "Total evaluated transcriptions for this evaluator." },
+                  "avg_score": { "type": "number", "description": "Average evaluation score across all transcriptions (0–100)." },
+                  "pass_rate": { "type": "number", "description": "Percentage of transcriptions that passed (score ≥ 50 AND no critical fail)." },
+                  "total_critical_fails": { "type": "integer", "description": "Number of transcriptions with a `strict` criterion failure." },
+                  "pending_critical_reviews": { "type": "integer", "description": "Critical fails where `group` is `PENDING_REVIEW` or `null` — not yet reviewed." }
+                }
+              },
+              "charts": {
+                "type": "object",
+                "properties": {
+                  "timeline": {
+                    "type": "array",
+                    "description": "Daily aggregated performance data, sorted by date ascending.",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "date": { "type": "string", "description": "Date (YYYY-MM-DD)." },
+                        "avg_score": { "type": "number", "description": "Average evaluation score on this day." },
+                        "volume": { "type": "integer", "description": "Number of calls on this day." },
+                        "critical_fails": { "type": "integer", "description": "Number of critical failures on this day." }
+                      }
+                    }
+                  },
+                  "heatmap": {
+                    "type": "object",
+                    "description": "Average score by day of week and hour of day. Keys are lowercase English day names (`monday`–`sunday`). Values are objects where keys are hour strings (`\"0\"`–`\"23\"`) and values are average scores. Only days/hours with data are included.",
+                    "additionalProperties": {
+                      "type": "object",
+                      "additionalProperties": { "type": "number" }
+                    }
+                  }
+                }
+              },
+              "participants": {
+                "type": "array",
+                "description": "Participant performance ranking sorted by `avg_score` descending. Only participants with at least 1 call are included.",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string", "format": "uuid", "description": "Participant ID." },
+                    "tag": { "type": "string", "description": "Participant label." },
+                    "calls": { "type": "integer", "description": "Number of evaluated calls." },
+                    "avg_score": { "type": "number", "description": "Average evaluation score." },
+                    "critical_fails": { "type": "integer", "description": "Number of critical failures." },
+                    "critical_fail_rate": { "type": "number", "description": "Critical fails as a percentage of total calls." },
+                    "consistency": { "type": "number", "description": "Standard deviation of scores — lower means more consistent. `0.0` if only one call." },
+                    "avg_duration": { "type": "integer", "nullable": true, "description": "Average call duration in seconds." }
+                  }
+                }
+              },
+              "criteria_breakdown": {
+                "type": "array",
+                "description": "Top failed criteria sorted by `fail_count` descending. Only includes criteria that still exist on the evaluator.",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string", "format": "uuid", "description": "Criterion ID." },
+                    "name": { "type": "string", "description": "Criterion name." },
+                    "fail_count": { "type": "integer", "description": "Number of times this criterion failed." },
+                    "fail_rate": { "type": "number", "description": "Fail rate as a percentage of total calls." }
+                  }
+                }
+              },
+              "score_distribution": {
+                "type": "object",
+                "description": "Fixed-bin histogram of evaluation scores.",
+                "properties": {
+                  "0-20": { "type": "integer" },
+                  "21-40": { "type": "integer" },
+                  "41-60": { "type": "integer" },
+                  "61-80": { "type": "integer" },
+                  "81-100": { "type": "integer" }
+                }
+              },
+              "comparison": {
+                "type": "object",
+                "description": "Month-over-month comparison (current calendar month vs. previous).",
+                "properties": {
+                  "current_period": {
+                    "type": "object",
+                    "properties": {
+                      "calls": { "type": "integer" },
+                      "avg_score": { "type": "number" },
+                      "pass_rate": { "type": "number" }
+                    }
+                  },
+                  "previous_period": {
+                    "type": "object",
+                    "properties": {
+                      "calls": { "type": "integer" },
+                      "avg_score": { "type": "number" },
+                      "pass_rate": { "type": "number" }
+                    }
+                  },
+                  "delta": {
+                    "type": "object",
+                    "description": "Score and pass-rate change vs. previous period. Empty `{}` when either period has no data.",
+                    "properties": {
+                      "avg_score": { "type": "number" },
+                      "pass_rate": { "type": "number" }
+                    }
+                  }
+                }
+              },
+              "duration_insights": {
+                "type": "object",
+                "description": "Score analysis segmented by call duration using dynamic P25/P75 percentile thresholds.",
+                "properties": {
+                  "thresholds": {
+                    "type": "object",
+                    "properties": {
+                      "p25": { "type": "number", "description": "25th percentile duration in seconds (short/medium boundary)." },
+                      "p75": { "type": "number", "description": "75th percentile duration in seconds (medium/long boundary)." }
+                    }
+                  },
+                  "short": {
+                    "type": "object",
+                    "description": "Calls at or below P25.",
+                    "properties": {
+                      "count": { "type": "integer" },
+                      "avg_score": { "type": "number" }
+                    }
+                  },
+                  "medium": {
+                    "type": "object",
+                    "description": "Calls between P25 and P75.",
+                    "properties": {
+                      "count": { "type": "integer" },
+                      "avg_score": { "type": "number" }
+                    }
+                  },
+                  "long": {
+                    "type": "object",
+                    "description": "Calls at or above P75.",
+                    "properties": {
+                      "count": { "type": "integer" },
+                      "avg_score": { "type": "number" }
+                    }
+                  }
+                }
+              },
+              "raw_data": {
+                "type": "array",
+                "description": "Full list of individual transcription records included in this report.",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string", "format": "uuid", "description": "Transcription ID." },
+                    "date": { "type": "string", "format": "date-time", "description": "Transcription creation date (ISO 8601)." },
+                    "score": { "type": "number", "description": "Evaluation score (0–100)." },
+                    "critical": { "type": "boolean", "description": "`true` if a `strict` criterion failed." },
+                    "duration": { "type": "integer", "nullable": true, "description": "Audio duration in seconds." },
+                    "participant_tag": { "type": "string", "nullable": true, "description": "Participant label, if a participant was linked to this transcription." },
+                    "participant_id": { "type": "string", "nullable": true, "format": "uuid", "description": "Participant ID, if linked." },
+                    "group": { "type": "string", "nullable": true, "description": "Lifecycle group (`PENDING_REVIEW`, `UNDER_REVIEW`, `ARCHIVED`, or `null`). See [Transcription — group](/core/transcription#group)." },
+                    "status": { "type": "string", "description": "Transcription status. Always `COMPLETED` in this context." },
+                    "failed_criteria": {
+                      "type": "array",
+                      "items": { "type": "string" },
+                      "description": "Names of criteria that failed in this transcription."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

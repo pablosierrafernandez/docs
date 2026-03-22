@@ -1,0 +1,21 @@
+---
+title: "Create Evaluator"
+description: "Create a new evaluator with its evaluation criteria."
+openapi: 'api-reference/openapi-evaluators.json POST /create-evaluator'
+---
+
+<Warning>
+  The sum of all non-`strict` criterion weights must equal **exactly 100**. The weight of `strict` criteria is automatically set to `0` regardless of what you send.
+</Warning>
+
+<Note>
+  The `description` of each criterion is the text the AI uses to evaluate the call. A clear, specific description directly improves evaluation accuracy. For guidance on writing effective criteria, see [Evaluator — criteria](/core/evaluator#criteria).
+</Note>
+
+<Note>
+  `language` defaults to `"df"` (auto-detect from audio). See [Evaluator — language](/core/evaluator#language) for supported language codes.
+</Note>
+
+<Tip>
+  Maximum **20 evaluators** per account and **10 criteria** per evaluator. See [Rate Limits & Quotas](/platform/rate-limits).
+</Tip>

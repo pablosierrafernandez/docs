@@ -1,0 +1,182 @@
+---
+title: "Evaluators"
+description: "Create and manage reusable quality-control rubrics that the AI uses to score transcriptions."
+icon: "clipboard-check"
+---
+
+An **Evaluator** is a reusable quality-control template that defines the criteria the AI uses to audit a call transcript. You specify a set of scored criteria, assign weights, and the AI produces a structured pass/fail report for every transcription associated with this evaluator.
+
+For the full data model and criteria reference, see [Evaluator](/core/evaluator).
+
+---
+
+## Your evaluators
+
+Search, filter, and sort in real time by **name**, **description**, or **evaluator ID**. Sort by name or creation date (ascending/descending). Toggle between a card grid and a table layout.
+
+Each evaluator displays **capability badges** at a glance:
+
+| Badge | What it means |
+|---|---|
+| Language name | Feedback language configured for the evaluator |
+| **N Criteria** | Total number of evaluation criteria defined |
+| **Critical** | Shown only when at least one Strict criterion is defined |
+
+To delete multiple evaluators at once, hover over any card or row to reveal its checkbox, select the items you want to remove, and click **Delete selection** in the action bar that appears. The table header includes a **Select all** checkbox for the current filtered results.
+
+<Note>
+  Single-item deletion is done from the detail view, not from the list.
+</Note>
+
+---
+
+## Creating an evaluator
+
+Click **New Evaluator** to open the creation form.
+
+### General parameters
+
+| Field | Required | Limit | Notes |
+|---|---|---|---|
+| **Evaluator Name** | Yes | 100 chars | Human-readable label — e.g. `Outbound Sales Audit 2025` |
+| **Feedback Language** | No | — | Language the AI writes feedback in. Default: inferred from audio. 60+ languages. |
+| **Description** | No | 250 chars | Short summary of the evaluator's purpose |
+
+<Warning>
+  The **Name** cannot be changed after creation. Choose a meaningful, descriptive name before saving.
+</Warning>
+
+### Evaluation context *(optional)*
+
+Provides situational context so the AI understands who is being evaluated and under what circumstances. Max 1000 characters.
+
+Six preset templates are available to fill the field instantly:
+
+| Preset | Context provided to the AI |
+|---|---|
+| Call center | Support agent on an inbound call following internal protocols |
+| Job interview | Candidate being assessed for role suitability and communication clarity |
+| Training or coaching | Participant in a training session; comprehension and engagement |
+| Sales meeting | Salesperson on a sales call; needs identification and objection handling |
+| Customer follow-up | Account manager in a follow-up meeting; relationship quality and proposals |
+| Custom | Blank — write your own |
+
+<Note>
+  Selecting a preset fills the textarea with a ready-to-edit prompt. Selecting **Custom** clears it.
+</Note>
+
+### Evaluation criteria
+
+Define up to **10 criteria**. A `N / 10 criteria used` counter is shown at the top of the section.
+
+Each criterion requires:
+
+- **Name** *(required, max 100 chars)* — human-readable label, e.g. `Corporate Greeting`
+- **Type** — how the AI scores this criterion (see [Criteria types](#criteria-types))
+- **Weight** *(0–100%)* — contribution to the final score. Strict criteria are always 0%
+- **AI Instructions** *(required, max 1000 chars)* — natural-language description of exactly what to look for in the transcript
+
+<Note>
+  Weights across all non-Strict criteria **must sum to exactly 100%** before the evaluator can be saved. Use the **Balance Weights** button in the sticky bottom bar to distribute them evenly with a single click.
+</Note>
+
+### Suggested Criteria panel
+
+The right panel offers 8 pre-built criteria you can add with a single click:
+
+| Criteria | Type | Default weight | What it evaluates |
+|---|---|---|---|
+| Corporate Greeting | Boolean | 10% | Name + company + welcome at call start |
+| Identity Verification | Strict | 0% | Two personal data points verified before sensitive info is shared |
+| Empathy | Scale | 20% | Acknowledgement phrases used; no condescending tone |
+| Active Listening | Scale | 15% | No interruptions; paraphrases key points; asks clarifying questions |
+| Resolution | Boolean | 25% | Concrete solution offered or escalation with a defined next step |
+| Objection Handling | Scale | 15% | Objections answered with data; proposal adapted to client needs |
+| Sales Close | Boolean | 15% | Explicit close attempt made (e.g. "Shall we proceed?") |
+| Formal Farewell | Boolean | 0% | Actions summarized; further help offered; waits for client to hang up |
+
+<Note>
+  The 7 non-Strict suggested criteria already sum to **100%** — they form a complete, immediately usable evaluator without any manual weight adjustment.
+</Note>
+
+Once a criterion has been added, its button shows a checkmark and "Already added". It cannot be added twice.
+
+### Quality tips
+
+<AccordionGroup>
+  <Accordion title="Be specific and observable" icon="magnifying-glass">
+    Describe concrete, verifiable actions the AI can detect in the transcript. Avoid subjective criteria.
+
+    **Poor:** `"Be friendly."`
+
+    **Good:** `"Greet the client by name and thank them for the call."`
+  </Accordion>
+
+  <Accordion title="Define what should NOT happen" icon="ban">
+    Include negative examples in the AI instructions to detect violations and reduce false positives.
+
+    Example: *"The agent must not interrupt the client while they are speaking."*
+  </Accordion>
+
+  <Accordion title="Add context and examples" icon="lightbulb">
+    Include expected phrases, scripts, or specific business situations the AI should recognize.
+
+    Example: *"The agent must mention the Premium Plus plan ($29.99/month) and at least two of its core benefits."*
+  </Accordion>
+
+  <Accordion title="One criterion, one action" icon="list-check">
+    Split complex criteria into simpler, focused ones. Each criterion should evaluate a single observable behavior.
+
+    **Poor:** `"Greeted AND verified identity AND offered a solution."`
+
+    **Good:** Three separate criteria — one for each action.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Criteria types
+
+| Type | How the AI scores | Weight |
+|---|---|---|
+| **Boolean** | Pass or Fail | Contributes to score via weight % |
+| **Scale** | 1–5 based on degree of compliance | Contributes to score via weight % |
+| **Strict** | Pass or Fail — failure **fails the entire evaluation** | Always 0% |
+
+<Warning>
+  **Strict criteria are automatic disqualifiers.** A single failed Strict criterion marks the entire evaluation as failed, regardless of how well all other criteria were met. Use them only for non-negotiable compliance requirements — such as identity verification or required legal disclosures.
+</Warning>
+
+---
+
+## Viewing and editing
+
+Click any evaluator in the list to open its detail view.
+
+**Read mode** shows three sections:
+- **General Information** — name, feedback language, description, evaluation context, creation date
+- **Critical Criteria** *(shown only when Strict criteria exist)* — red-bordered card listing each Strict criterion with its name and description
+- **Evaluation Criteria** — each Boolean and Scale criterion with its name, type badge, weight, and AI instructions
+
+Click **Edit** to enter edit mode (amber borders and header). You can update:
+- Feedback language, description, and evaluation context
+- Criteria: edit AI instructions, type, and weight; add new criteria; remove existing ones
+
+<Note>
+  **Name** is read-only in edit mode and cannot be changed after creation.
+</Note>
+
+Use the sticky **Save changes** bar at the bottom to confirm, or **Cancel** to discard all edits. The bar also shows the current weight status and the **Balance Weights** button.
+
+To delete an evaluator, use the trash icon in the detail view header. **This cannot be undone.** Deleting an evaluator does not affect transcriptions that were already processed with it.
+
+---
+
+<CardGroup cols={2}>
+  <Card title="Evaluator" icon="clipboard-check" href="/core/evaluator">
+    Full data model and criteria reference
+  </Card>
+  <Card title="Evaluator Analysis" icon="chart-line" href="/sandbox/analytics-evaluator">
+    View performance insights for this evaluator
+  </Card>
+</CardGroup>

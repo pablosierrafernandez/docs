@@ -1,0 +1,33 @@
+---
+title: "Update Configuration"
+description: "Partially update an existing configuration. Only fields included in the request body are modified."
+openapi: "api-reference/openapi-configurations.json POST /update-configuration"
+---
+
+<Info>
+  For full details on all Configuration fields, see [Configuration](/core/configuration).
+</Info>
+
+<Note>
+  This endpoint uses **PATCH semantics** — omitted fields are not touched. Only `configuration_id` is required; include only the fields you want to change.
+</Note>
+
+<Warning>
+  **`extraction_fields` is not a simple replacement — it uses a merge-by-name strategy.** Any existing field **not included** in your request will be **removed**. Always send the complete desired list of fields, not just the ones you're changing.
+</Warning>
+
+<Warning>
+  The `type` of an existing extraction field **cannot be changed**. Attempting to do so returns a `400` error. To change a field type, delete and recreate the configuration.
+</Warning>
+
+<Note>
+  `tag` cannot be updated — it is immutable after creation. See [Configuration](/core/configuration#tag).
+</Note>
+
+<Note>
+  `vocabulary` and `webhooks` are **fully replaced** by whatever you send. To remove webhooks entirely, pass `"webhooks": null`.
+</Note>
+
+<Note>
+  Returns `404` if the configuration is not found.
+</Note>

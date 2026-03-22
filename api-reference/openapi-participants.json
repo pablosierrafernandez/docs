@@ -1,0 +1,714 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Heify API — Participants",
+    "description": "Endpoints for creating, retrieving, and managing Participants.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.heify.com"
+    }
+  ],
+  "security": [
+    {
+      "apiKeyAuth": []
+    }
+  ],
+  "paths": {
+    "/create-participant": {
+      "post": {
+        "summary": "Create Participant",
+        "description": "Creates a new participant profile for the authenticated account.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateParticipantRequest"
+              },
+              "examples": {
+                "WithMetadata": {
+                  "summary": "Create participant with metadata",
+                  "value": {
+                    "tag": "juan pedro",
+                    "metadata": {
+                      "role": "manager",
+                      "language": "español",
+                      "empresa": "leroy"
+                    }
+                  }
+                },
+                "TagOnly": {
+                  "summary": "Create participant with tag only",
+                  "value": {
+                    "tag": "Maria García"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Participant created successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateParticipantResponse"
+                },
+                "examples": {
+                  "Success": {
+                    "summary": "Participant created",
+                    "value": {
+                      "data": {
+                        "message": "Participant created successfully",
+                        "participant": {
+                          "participant_id": "1f77a5f5-ac38-42c6-999d-45f02d11d121",
+                          "tag": "juan pedro",
+                          "metadata": {
+                            "role": "manager",
+                            "language": "español",
+                            "empresa": "leroy"
+                          },
+                          "created_at": "2026-03-21T13:23:18.069124+00:00",
+                          "updated_at": "2026-03-21T13:23:18.088360+00:00"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/list-participants": {
+      "post": {
+        "summary": "List Participants",
+        "description": "Returns all participant profiles for the authenticated account. No request body required — send an empty object `{}`.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "type": "object" },
+              "examples": {
+                "ListAll": {
+                  "summary": "List all participants",
+                  "value": {}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Participants returned successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListParticipantsResponse"
+                },
+                "examples": {
+                  "Success": {
+                    "summary": "Participant listing",
+                    "value": {
+                      "data": {
+                        "items": [
+                          {
+                            "participant_id": "1f77a5f5-ac38-42c6-999d-45f02d11d121",
+                            "tag": "juan pedro",
+                            "metadata": {
+                              "empresa": "leroy",
+                              "language": "español",
+                              "role": "manager"
+                            },
+                            "created_at": "2026-03-21T13:23:18.069124+00:00",
+                            "updated_at": "2026-03-21T13:23:18.088360+00:00"
+                          },
+                          {
+                            "participant_id": "580cc0e1-3a60-49d9-8e20-1745252f0aae",
+                            "tag": "Pedro Borrado",
+                            "metadata": {
+                              "email": "ejep@gg.com"
+                            },
+                            "created_at": "2026-03-03T19:30:35.377560+00:00",
+                            "updated_at": "2026-03-03T19:30:35.397110+00:00"
+                          }
+                        ],
+                        "count": 2
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/update-participant": {
+      "post": {
+        "summary": "Update Participant",
+        "description": "Updates an existing participant's `tag` and/or `metadata`. Only provided fields are modified. `metadata` uses full replacement semantics.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateParticipantRequest"
+              },
+              "examples": {
+                "UpdateTagAndMetadata": {
+                  "summary": "Update tag and metadata",
+                  "value": {
+                    "participant_id": "2e2f776f-0dff-44a9-83e0-66ad34712623",
+                    "tag": "chuchu caci",
+                    "metadata": { "department": "ventas" }
+                  }
+                },
+                "UpdateTagOnly": {
+                  "summary": "Update tag only",
+                  "value": {
+                    "participant_id": "2e2f776f-0dff-44a9-83e0-66ad34712623",
+                    "tag": "New Name"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Participant updated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateParticipantResponse"
+                },
+                "examples": {
+                  "Success": {
+                    "summary": "Participant updated",
+                    "value": {
+                      "data": {
+                        "message": "Participant updated successfully",
+                        "participant": {
+                          "participant_id": "2e2f776f-0dff-44a9-83e0-66ad34712623",
+                          "tag": "chuchu caci",
+                          "metadata": { "department": "ventas" },
+                          "created_at": "2026-03-21T13:33:23.189414+00:00",
+                          "updated_at": "2026-03-21T13:38:48.510473+00:00"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/delete-participant": {
+      "post": {
+        "summary": "Delete Participant",
+        "description": "Permanently deletes a participant record.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteParticipantRequest"
+              },
+              "examples": {
+                "DeleteParticipant": {
+                  "summary": "Delete a participant",
+                  "value": {
+                    "participant_id": "2e2f776f-0dff-44a9-83e0-66ad34712623"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Participant deleted successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteParticipantResponse"
+                },
+                "examples": {
+                  "Success": {
+                    "summary": "Participant deleted",
+                    "value": {
+                      "data": {
+                        "message": "Participant deleted successfully"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analytics-participant": {
+      "post": {
+        "summary": "Participant Analysis",
+        "description": "Generates a performance dashboard for a single participant across all evaluators and campaigns they have been evaluated in.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnalyticsParticipantRequest"
+              },
+              "examples": {
+                "AnalyzeParticipant": {
+                  "summary": "Analyze a participant",
+                  "value": {
+                    "participant_id": "580cc0e1-3a60-49d9-8e20-1745252f0aae"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Participant analysis generated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalyticsParticipantResponse"
+                },
+                "examples": {
+                  "Success": {
+                    "summary": "Participant analysis",
+                    "value": {
+                      "data": {
+                        "metadata": {
+                          "total_records_analyzed": 5,
+                          "query_limit_reached": false,
+                          "generated_at": "2026-03-21T14:07:43.791756"
+                        },
+                        "kpis": {
+                          "total_calls": 5,
+                          "avg_score": 55.8,
+                          "pass_rate": 80.0,
+                          "total_critical_fails": 0,
+                          "pending_critical_reviews": 0
+                        },
+                        "charts": {
+                          "timeline": [
+                            { "date": "2026-03-03", "avg_score": 66.0, "volume": 1, "critical_fails": 0 },
+                            { "date": "2026-03-07", "avg_score": 53.3, "volume": 3, "critical_fails": 0 },
+                            { "date": "2026-03-12", "avg_score": 52.8, "volume": 1, "critical_fails": 0 }
+                          ]
+                        },
+                        "evaluators": [
+                          { "id": "a848aaa5-28d6-43eb-bd7c-247f7535aa3a", "tag": "evaluador temporal", "calls": 1, "avg_score": 66.0, "critical_fails": 0, "critical_fail_rate": 0.0, "consistency": 0.0, "avg_duration": 542 },
+                          { "id": "2abb5563-dd64-47bb-bb17-94252e168b06", "tag": "pitch temporal", "calls": 4, "avg_score": 53.2, "critical_fails": 0, "critical_fail_rate": 0.0, "consistency": 13.13, "avg_duration": 587 }
+                        ],
+                        "criteria_breakdown": [
+                          { "id": "2faa4a20-7445-4beb-a09e-2af26872dba3", "name": "Saludo Corporativo inicial2", "fail_count": 4, "fail_rate": 80.0 },
+                          { "id": "881fa6dd-12b2-45e8-9705-0c3485421afe", "name": "Saludo Corporativo", "fail_count": 1, "fail_rate": 20.0 }
+                        ],
+                        "score_distribution": { "0-20": 0, "21-40": 1, "41-60": 2, "61-80": 2, "81-100": 0 },
+                        "comparison": {
+                          "current_period": { "calls": 5, "avg_score": 55.8, "pass_rate": 80.0 },
+                          "previous_period": { "calls": 0, "avg_score": 0, "pass_rate": 0 },
+                          "delta": {}
+                        },
+                        "duration_insights": {
+                          "thresholds": { "p25": 543.0, "p75": 609.0 },
+                          "short": { "count": 2, "avg_score": 59.4 },
+                          "medium": { "count": 1, "avg_score": 65.0 },
+                          "long": { "count": 2, "avg_score": 47.5 }
+                        },
+                        "trend": {
+                          "direction": "insufficient_data",
+                          "recent_avg": null,
+                          "previous_avg": null,
+                          "sample_size": 20
+                        },
+                        "degradation_alert": false,
+                        "raw_data": [
+                          { "id": "e927a34c-8f2f-4045-8a15-c0f7a182bab2", "date": "2026-03-12T20:33:14.145386+00:00", "score": 52.8, "critical": false, "duration": 542, "evaluator_tag": "pitch temporal", "evaluator_id": "2abb5563-dd64-47bb-bb17-94252e168b06", "group": null, "status": "COMPLETED", "failed_criteria": ["Saludo Corporativo inicial2"] },
+                          { "id": "caa75e99-53d5-4a8e-8cb2-0521e2fd59ba", "date": "2026-03-03T20:19:16.427616+00:00", "score": 66.0, "critical": false, "duration": 542, "evaluator_tag": "evaluador temporal", "evaluator_id": "a848aaa5-28d6-43eb-bd7c-247f7535aa3a", "group": "PENDING_REVIEW", "status": "COMPLETED", "failed_criteria": ["Saludo Corporativo"] }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "apiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key"
+      }
+    },
+    "schemas": {
+      "ParticipantObject": {
+        "type": "object",
+        "properties": {
+          "participant_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier for this participant."
+          },
+          "tag": {
+            "type": "string",
+            "description": "Human-readable label for this participant. Max 100 characters."
+          },
+          "metadata": {
+            "type": "object",
+            "nullable": true,
+            "description": "Arbitrary key-value pairs. All values are stored as strings. Max 10 keys; key names max 50 characters; values max 250 characters."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Creation timestamp (ISO 8601)."
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Last updated timestamp (ISO 8601)."
+          }
+        },
+        "required": ["participant_id", "tag", "created_at", "updated_at"]
+      },
+      "CreateParticipantRequest": {
+        "type": "object",
+        "properties": {
+          "tag": {
+            "type": "string",
+            "description": "Label for this participant. Max 100 characters. Leading and trailing whitespace is stripped automatically."
+          },
+          "metadata": {
+            "type": "object",
+            "nullable": true,
+            "description": "Optional key-value pairs. Max 10 keys; keys ≤50 characters, values ≤250 characters. All values are stored as strings regardless of input type."
+          }
+        },
+        "required": ["tag"]
+      },
+      "ListParticipantsResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/ParticipantObject" },
+                "description": "List of participant profiles."
+              },
+              "count": {
+                "type": "integer",
+                "description": "Total number of participants returned."
+              }
+            }
+          }
+        }
+      },
+      "CreateParticipantResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "message": { "type": "string" },
+              "participant": { "$ref": "#/components/schemas/ParticipantObject" }
+            }
+          }
+        }
+      },
+      "UpdateParticipantRequest": {
+        "type": "object",
+        "properties": {
+          "participant_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The unique identifier of the participant to update."
+          },
+          "tag": {
+            "type": "string",
+            "description": "New label for this participant. Max 100 characters. Cannot be empty or whitespace-only. Omit to leave unchanged."
+          },
+          "metadata": {
+            "type": "object",
+            "nullable": true,
+            "description": "Full replacement for the metadata object. All previous keys not included will be lost. Max 10 keys; key names max 50 characters; values max 250 characters. Omit to leave unchanged."
+          }
+        },
+        "required": ["participant_id"]
+      },
+      "UpdateParticipantResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "message": { "type": "string" },
+              "participant": { "$ref": "#/components/schemas/ParticipantObject" }
+            }
+          }
+        }
+      },
+      "DeleteParticipantRequest": {
+        "type": "object",
+        "properties": {
+          "participant_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The unique identifier of the participant to delete."
+          }
+        },
+        "required": ["participant_id"]
+      },
+      "DeleteParticipantResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "message": {
+                "type": "string",
+                "example": "Participant deleted successfully"
+              }
+            }
+          }
+        }
+      },
+      "AnalyticsParticipantRequest": {
+        "type": "object",
+        "properties": {
+          "participant_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The unique identifier of the participant to analyze. Must belong to the authenticated account."
+          }
+        },
+        "required": ["participant_id"]
+      },
+      "AnalyticsParticipantResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "metadata": {
+                "type": "object",
+                "description": "Report metadata.",
+                "properties": {
+                  "total_records_analyzed": {
+                    "type": "integer",
+                    "description": "Number of COMPLETED transcriptions with a non-null evaluation score included in this report."
+                  },
+                  "query_limit_reached": {
+                    "type": "boolean",
+                    "description": "`true` if results were capped at the maximum query limit (20,000). The dashboard is based on a partial dataset."
+                  },
+                  "generated_at": {
+                    "type": "string",
+                    "description": "Timestamp when the report was generated (ISO 8601)."
+                  }
+                }
+              },
+              "kpis": {
+                "type": "object",
+                "description": "Top-level performance indicators.",
+                "properties": {
+                  "total_calls": { "type": "integer", "description": "Total evaluated transcriptions for this participant." },
+                  "avg_score": { "type": "number", "description": "Average evaluation score (0–100)." },
+                  "pass_rate": { "type": "number", "description": "Percentage of transcriptions that passed (score ≥ 50 and no critical fail)." },
+                  "total_critical_fails": { "type": "integer", "description": "Number of transcriptions with a STRICT criterion failure." },
+                  "pending_critical_reviews": { "type": "integer", "description": "Critical fails where the transcription group is `PENDING_REVIEW` or `null`." }
+                }
+              },
+              "charts": {
+                "type": "object",
+                "description": "Chart data for visualization.",
+                "properties": {
+                  "timeline": {
+                    "type": "array",
+                    "description": "Daily performance evolution, sorted by date.",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "date": { "type": "string", "description": "Date (YYYY-MM-DD)." },
+                        "avg_score": { "type": "number", "description": "Average score on this date." },
+                        "volume": { "type": "integer", "description": "Number of evaluated calls on this date." },
+                        "critical_fails": { "type": "integer", "description": "Number of critical failures on this date." }
+                      }
+                    }
+                  }
+                }
+              },
+              "evaluators": {
+                "type": "array",
+                "description": "Evaluator/campaign ranking for this participant, sorted by average score (descending). Evaluators with zero calls are excluded.",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string", "description": "Evaluator ID." },
+                    "tag": { "type": "string", "description": "Evaluator/campaign name." },
+                    "calls": { "type": "integer", "description": "Number of evaluated calls in this campaign." },
+                    "avg_score": { "type": "number", "description": "Average evaluation score in this campaign." },
+                    "critical_fails": { "type": "integer", "description": "Number of critical failures in this campaign." },
+                    "critical_fail_rate": { "type": "number", "description": "Critical fails as a percentage of total calls." },
+                    "consistency": { "type": "number", "description": "Standard deviation of scores. Lower values indicate more consistent performance." },
+                    "avg_duration": { "type": "integer", "nullable": true, "description": "Average call duration in seconds." }
+                  }
+                }
+              },
+              "criteria_breakdown": {
+                "type": "array",
+                "description": "Top failed criteria across all evaluators, sorted by fail count (descending).",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string", "description": "Criterion ID." },
+                    "name": { "type": "string", "description": "Criterion name." },
+                    "fail_count": { "type": "integer", "description": "Total number of times this criterion was failed." },
+                    "fail_rate": { "type": "number", "description": "Fail rate as a percentage of total calls." }
+                  }
+                }
+              },
+              "score_distribution": {
+                "type": "object",
+                "description": "Fixed-bin histogram of score distribution.",
+                "properties": {
+                  "0-20": { "type": "integer" },
+                  "21-40": { "type": "integer" },
+                  "41-60": { "type": "integer" },
+                  "61-80": { "type": "integer" },
+                  "81-100": { "type": "integer" }
+                }
+              },
+              "comparison": {
+                "type": "object",
+                "description": "Month-over-month comparison. `delta` may be an empty object `{}` if there is no previous-period data.",
+                "properties": {
+                  "current_period": {
+                    "type": "object",
+                    "properties": {
+                      "calls": { "type": "integer" },
+                      "avg_score": { "type": "number" },
+                      "pass_rate": { "type": "number" }
+                    }
+                  },
+                  "previous_period": {
+                    "type": "object",
+                    "properties": {
+                      "calls": { "type": "integer" },
+                      "avg_score": { "type": "number" },
+                      "pass_rate": { "type": "number" }
+                    }
+                  },
+                  "delta": {
+                    "type": "object",
+                    "description": "Difference between current and previous period. Empty `{}` when previous period has no data.",
+                    "properties": {
+                      "avg_score": { "type": "number" },
+                      "pass_rate": { "type": "number" }
+                    }
+                  }
+                }
+              },
+              "duration_insights": {
+                "type": "object",
+                "description": "Score analysis grouped by call duration buckets (short/medium/long). Thresholds are computed as the p25 and p75 of the duration distribution.",
+                "properties": {
+                  "thresholds": {
+                    "type": "object",
+                    "properties": {
+                      "p25": { "type": "number", "description": "25th percentile of call duration (seconds). Calls below this are 'short'." },
+                      "p75": { "type": "number", "description": "75th percentile of call duration (seconds). Calls above this are 'long'." }
+                    }
+                  },
+                  "short": {
+                    "type": "object",
+                    "properties": {
+                      "count": { "type": "integer" },
+                      "avg_score": { "type": "number" }
+                    }
+                  },
+                  "medium": {
+                    "type": "object",
+                    "properties": {
+                      "count": { "type": "integer" },
+                      "avg_score": { "type": "number" }
+                    }
+                  },
+                  "long": {
+                    "type": "object",
+                    "properties": {
+                      "count": { "type": "integer" },
+                      "avg_score": { "type": "number" }
+                    }
+                  }
+                }
+              },
+              "trend": {
+                "type": "object",
+                "description": "Performance trajectory — compares the most recent N calls vs. the N calls before that.",
+                "properties": {
+                  "direction": {
+                    "type": "string",
+                    "enum": ["improving", "declining", "stable", "insufficient_data"],
+                    "description": "`improving` if recent avg > previous avg by >2 pts; `declining` if <−2 pts; `stable` if within ±2 pts; `insufficient_data` if fewer than 2×sample_size total calls."
+                  },
+                  "recent_avg": { "type": "number", "nullable": true, "description": "Average score of the most recent N calls. `null` if insufficient data." },
+                  "previous_avg": { "type": "number", "nullable": true, "description": "Average score of the N calls before that. `null` if insufficient data." },
+                  "sample_size": { "type": "integer", "description": "N used for the comparison (default: 20)." }
+                }
+              },
+              "degradation_alert": {
+                "type": "boolean",
+                "description": "`true` if the participant's recent performance (last N calls) has dropped more than 10 points below their all-time average. Acts as an early warning signal for supervisors."
+              },
+              "raw_data": {
+                "type": "array",
+                "description": "Full list of individual transcription records included in this analysis.",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string", "description": "Transcription ID." },
+                    "date": { "type": "string", "description": "Transcription date (ISO 8601)." },
+                    "score": { "type": "number", "description": "Evaluation score." },
+                    "critical": { "type": "boolean", "description": "`true` if a STRICT criterion failed." },
+                    "duration": { "type": "integer", "nullable": true, "description": "Audio duration in seconds." },
+                    "evaluator_tag": { "type": "string", "nullable": true, "description": "Evaluator/campaign name." },
+                    "evaluator_id": { "type": "string", "nullable": true, "description": "Evaluator ID." },
+                    "group": { "type": "string", "nullable": true, "description": "Transcription lifecycle group. See [Transcription group](/core/transcription#group)." },
+                    "status": { "type": "string", "description": "Transcription status." },
+                    "failed_criteria": {
+                      "type": "array",
+                      "items": { "type": "string" },
+                      "description": "Names of criteria that failed in this transcription."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

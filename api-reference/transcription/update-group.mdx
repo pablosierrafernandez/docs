@@ -1,7 +1,25 @@
 ---
 title: "Update Transcription Group"
-openapi: 'POST /update-transcription-group'
+description: "Assign or clear the review workflow group of a transcription."
+openapi: 'api-reference/openapi-transcriptions.json POST /update-transcription-group'
 ---
-<Info>
-For a detailed explanation of the Transcription and its parameters, please consult the [Transcription Object](../../core/objects#transcription-object).
-</Info>
+
+<Note>
+  `group` is the **only updatable field** on a transcription. All other fields are set during processing and are immutable.
+</Note>
+
+<Note>
+  For valid group values and their meaning in the review workflow, see [Transcription — group](/core/transcription#group).
+</Note>
+
+<Note>
+  Pass `""` (empty string) as `group` to clear it (sets the field to `null`).
+</Note>
+
+<Note>
+  Returns `404` if the transcription is not found.
+</Note>
+
+<Tip>
+  The response includes the **full updated transcription** — same structure as [Get Transcription](/api-reference/transcription/details).
+</Tip>

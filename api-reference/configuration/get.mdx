@@ -1,7 +1,13 @@
 ---
-title: 'Get Configuration'
-openapi: 'POST /get-configurations'
+title: "Get Configuration"
+description: "Retrieve a single configuration by its ID."
+openapi: "api-reference/openapi-configurations.json POST /get-configuration"
 ---
+
 <Info>
-For a detailed explanation of the Configuration and its parameters, please consult the [Configuration Object](../../core/objects#configuration-object).
+  For full details on all Configuration fields, see [Configuration](/core/configuration).
 </Info>
+
+<Note>
+  Returns `404` if the configuration is not found.
+</Note>

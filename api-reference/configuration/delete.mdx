@@ -1,10 +1,19 @@
 ---
 title: 'Delete Configuration'
-openapi: 'POST /delete-configuration'
+openapi: 'api-reference/openapi-configurations.json POST /delete-configuration'
 ---
 <Warning>
   **This action is irreversible!** Once deleted, the configuration cannot be recovered.
 </Warning>
+
+<Note>
+  Returns `404` if the configuration is not found.
+</Note>
+
+<Note>
+  Existing transcriptions that were processed with this configuration remain accessible after deletion. Deleting a configuration does not affect already-processed data.
+</Note>
+
 <Info>
-For a detailed explanation of the Configuration and its parameters, please consult the [Configuration Object](../../core/objects#configuration-object).
+  For a detailed explanation of the Configuration and its parameters, please consult the [Configuration](/core/configuration).
 </Info>

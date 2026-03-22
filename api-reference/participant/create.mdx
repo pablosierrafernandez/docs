@@ -1,0 +1,21 @@
+---
+title: "Create Participant"
+description: "Create a new participant profile to track a person across transcriptions — a support agent, job candidate, salesperson, or any individual."
+openapi: 'api-reference/openapi-participants.json POST /create-participant'
+---
+
+<Info>
+  For the full Participant data model, see [Participant](/core/participant).
+</Info>
+
+<Note>
+  `tag` is trimmed of leading and trailing whitespace automatically.
+</Note>
+
+<Note>
+  `metadata` values are always stored as strings, regardless of the input type. See [Participant — metadata](/core/participant#metadata).
+</Note>
+
+<Note>
+  Each account is limited to **200 participants**. Returns `400` if the limit is reached.
+</Note>

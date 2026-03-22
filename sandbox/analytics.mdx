@@ -1,349 +1,192 @@
 ---
-title: "Analytics Dashboard"
-description: "Discover insights and patterns across your transcriptions"
-icon: "chart-line"
-tag: "✨ NEW"
+title: "Configuration Analysis"
+description: "Generate an AI-powered analytics report for a configuration — distribution metrics, anomalies, extraction field insights, temporal trends, and cross-variable relationships."
+icon: "chart-mixed"
 ---
-<Update label="✨ NEW" description="Dashboard Analytics">
-  To view statistics, patterns, anomalies, etc., at a glance for the audios associated with a Configuration.
 
-</Update>
+The Configuration Analysis page aggregates all transcriptions processed under a selected configuration and organizes the results into seven collapsible dashboard sections: AI synthesis, distribution metrics, data quality, anomaly detection, extraction field analysis, temporal trends, and cross-variable relationships.
 
-<Card
-  title="Analytics Dashboard"
-  icon="chart-line"
-  href="https://sandbox.heify.com/sandbox/analytics"
->
-  Access to Analytics Dashboard at: **https://sandbox.heify.com/sandbox/analytics**
-</Card>
-
-# Analytics Dashboard
-
-The **[Analytics Dashboard](https://sandbox.heify.com/sandbox/analytics)** provides powerful, AI-driven insights from your transcription data. Analyze trends, discover patterns, identify anomalies, and gain a deep understanding of your audio data at scale.
-
-
-<Info>
-  Analytics are generated for transcriptions processed under a **specific configuration**.
-</Info>
+<Warning>
+  Each analysis generation consumes **one unit** of your account's analytics quota. Viewing previously cached results for the same configuration ID is free.
+</Warning>
 
 ---
 
-## Analysis Sections
+## Generating an analysis
 
-The dashboard is organized into thematic sections, each providing different insights:
+Select a configuration from the searchable dropdown and click **Generate Analysis**. The dashboard will populate once the report is ready.
 
-<CardGroup cols={2}>
-  <Card title="Synthesis" icon="brain">
-    AI-generated executive summaries
-  </Card>
-  <Card title="General Distribution" icon="chart-bar">
-    Core metrics and distributions
-  </Card>
-  <Card title="Quality & Confidence" icon="shield-check">
-    Data completeness and anomalies
-  </Card>
-  <Card title="Extraction Fields" icon="database">
-    Field-by-field analysis
-  </Card>
-  <Card title="Temporal Analysis" icon="calendar">
-    Trends over time
-  </Card>
-  <Card title="Relationships" icon="diagram-project">
-    Correlations and co-occurrences
-  </Card>
-</CardGroup>
+<Note>
+  Navigating directly to a URL that includes a configuration ID (e.g. from a bookmark or shared link) loads the last cached result immediately — no quota is consumed.
+</Note>
 
 ---
 
-### Synthesis
+## Dashboard controls
 
-AI-powered summaries to understand your data at a glance.
+Once results are loaded, the dashboard header shows:
 
-- **Executive Summary**: Highlight key findings, temporal trends, and opportunities or risks for decision-making.
+| Control | Behavior |
+|---|---|
+| **Files Analyzed** | Total number of audios included in this analysis |
+| **Total Duration** | Combined duration of all analyzed audios |
+| **Last updated** | Relative time since the last fetch |
+| **Timezone** | Changes the reference timezone for time-based charts. Does not trigger a new API call. |
+| **Full Screen** | Fills the browser window with the dashboard — surrounding UI is hidden |
+| **Export** | Opens a dropdown with three export options |
 
-- **Qualitative Summary**: Identify recurring themes, issues, and keywords in the audios based on the qualitative analysis of textual fields.
+### Export options
+
+| Option | Format | How it works |
+|---|---|---|
+| **As HTML** | `.html` file | Renders all sections and packages them into a self-contained downloadable file |
+| **Nativa** | PDF via print | Renders all sections and opens the browser print dialog — choose "Save as PDF" |
+| **Ligera** | Structured PDF | Generates a lightweight PDF report directly, without rendering the live dashboard |
+
+<Note>
+  **Nativa** requires the browser to allow the print popup. If it is blocked, use **Ctrl+P** (Windows) / **Cmd+P** (Mac) as a fallback.
+</Note>
+
+---
+
+## Dashboard sections
+
+All sections are **collapsible cards**. The **Synthesis** section is expanded by default; all others start collapsed. A section is only rendered when the API returns data for it — sections with no data are hidden automatically.
+
+A sticky sub-menu in the dashboard header tracks which section is in view and lets you jump between sections without scrolling.
+
+---
+
+### Synthesis *(open by default)*
+
+AI-generated top-level analysis of the entire dataset.
+
+- **Executive Narrative** — prose summary describing the dataset's key patterns, notable findings, and overall trends
+- **Actionable Insights** — a prioritized list of specific recommendations derived from the data
 
 ---
 
 ### General Distribution
 
-Fundamental metrics about your audio files.
+Key metrics across all analyzed audios.
 
-<Tabs>
-  <Tab title="Duration">
-    #### Audio Duration Distribution
-    
-    **Displays:**
-    - **Min**: Shortest audio file length
-    - **Average**: Mean duration across all files
-    - **Max**: Longest audio file length
-    - **Bar chart**: Distribution histogram showing frequency of different duration ranges
-    
-    **Insights:**
-    - Identify typical conversation length
-    - Spot unusually long/short calls
-    - Understand variance in your data
-  </Tab>
-  
-  <Tab title="Speakers">
-    #### Speakers Distribution
-    
-    **Displays:**
-    - **Average speakers** per audio file
-    - **Donut chart**: Percentage breakdown by number of speakers
-    
-    **Insights:**
-    - Understand conversation complexity
-    - Identify one-on-one vs. group conversations
-    - Validate speaker detection accuracy
-    
-  </Tab>
-  
-  <Tab title="Languages">
-    #### Language Distribution
-    
-    **Displays:**
-    - **Pie chart**: Percentage of transcriptions by detected language
-    
-    **Insights:**
-    - Understand your customer base geographic distribution
-    - Plan multilingual support strategies
-  </Tab>
-</Tabs>
+| Sub-section | Content |
+|---|---|
+| **Duration** | Minimum, average, and maximum audio duration across all transcriptions |
+| **Speakers** | Average speakers per audio · Distribution of audios by speaker count (1, 2, 3… N) |
+| **Languages** | Count and percentage breakdown of each detected language |
 
 ---
 
-### Quality & Confidence
+### Quality and Confidence
 
-Assess the completeness and reliability of your extracted data.
+Measures the completeness and reliability of the extracted data.
 
-<Tabs>
-  <Tab title="Completeness">
-    #### Data Completeness
-    
-    For each `extraction_field`, a progress bar shows the percentage of transcriptions where a valid (non-null) value was successfully extracted.
-    
-    **Use this to:**
-    - Identify which fields are reliably extracted
-    - Find fields that need description improvements
-    - Understand data gaps in your conversations
-  </Tab>
-  
-  <Tab title="Audios to Review">
-    #### Transcriptions Requiring Review
-    
-    A table listing transcriptions with a high number of missing extraction fields.
-    
-  </Tab>
-  
-  <Tab title="Anomalies">
-    #### Anomaly Detection
-    
-    Highlights transcriptions where an extracted value significantly deviates from the average.
-    
-   
-    **Use cases:**
-    - **Fraud detection**: Unusually high transaction amounts
-    - **Quality issues**: Extremely low ratings requiring investigation
-    - **Outlier analysis**: Edge cases for special handling
-    
-    <Warning>
-      Anomalies aren't always errors. They might represent legitimate edge cases that need attention and review.
-    </Warning>
-  </Tab>
-</Tabs>
+**Completeness** — a horizontal progress bar for each extraction field defined in the configuration, showing what percentage of audios had that field successfully populated (`validCount / totalCount valid`).
+
+**Audios to Review** — a paginated table of audios with an unusually high number of missing extraction fields:
+
+| Column | Detail |
+|---|---|
+| **Missing Fields** | Count of missing fields, e.g. "3 of 5 missing" |
+| **ID** | Transcription ID with a copy button |
+| **Group** | Group badge + **Change Group** button — update the group directly from this table |
+| **Date** | Creation date |
+| **Details** | Link to the full transcription detail view |
 
 ---
 
-#### Extraction Fields Analysis
+### Anomalies
 
-Detailed, field-by-field breakdown of your extracted data.
-Each extraction field gets its own card with visualizations tailored to its data type.
+Detects audios with values that deviate significantly from the normal pattern using the **IQR (Interquartile Range) method**.
 
+Three categories are analyzed:
 
-<Tabs>
-  <Tab title="String & Array Fields">
-    #### Text and List Fields
-    
-    For `string` and `array` type fields (e.g., "Category", "Mentioned Products").
-    
-    **Value Frequency Chart**
-    
-    A bar chart showing the most common values and their counts.
-    
-    **Insights:**
-    - Identify most common categories/topics
-    - Prioritize product features to develop
-    - Understand customer pain points
-    - Track trends in conversation topics
-  </Tab>
-  
-  <Tab title="Number Fields">
-    #### Numerical Fields
-    
-    For `number` type fields (e.g., "Rating", "Price", "Age").
-    
-    **Distribution Histogram**
-    
-    A bar chart showing the frequency of values in different ranges.
-    
-    **Insights:**
-    - Understand value distribution (normal, skewed, bimodal)
-    - Identify common ranges
-    - Spot outliers visually
-    - Track central tendency
-    
-    **Use cases:**
-    - Pricing analysis
-    - Quality score tracking
-    - Customer age demographics
-    - Transaction value patterns
-  </Tab>
-  
-  <Tab title="Boolean Fields">
-    #### True/False Fields
-    
-    For `boolean` type fields (e.g., "Issue Resolved", "Recommended").
-    
-    **Displays**
-    
-    **Donut Chart** showing the proportion of `True` vs. `False` values.
-    
-    **Insights:**
-    - Track success rates
-    - Monitor KPIs (resolution rate, satisfaction, etc.)
-    - Identify improvement opportunities
-    
-    **Use cases:**
-    - Support ticket resolution rates
-    - Customer satisfaction (yes/no)
-    - Product recommendation likelihood
-    - Compliance (terms accepted yes/no)
-  </Tab>
-</Tabs>
+| Category | What is analyzed |
+|---|---|
+| **Daily Volume** | Days with an abnormally high or low number of submitted audios |
+| **Metadata** | Metadata fields (e.g. duration) with outlier values |
+| **Extracted Data** | Extracted fields with values outside the expected range |
+
+Each category shows the expected normal range and a paginated table of outliers. Each outlier row has a **High** or **Low** badge, the transcription ID, its group (with a **Change Group** button), and a link to the detail view.
+
+<Tip>
+  Anomalies are not always errors — they may represent legitimate edge cases worth reviewing. Use the **Change Group** button to tag them for follow-up without leaving the analysis.
+</Tip>
+
+---
+
+### Extraction Fields
+
+A dedicated card for each extraction field defined in the configuration. The card header shows the field name, completeness percentage, and valid count.
+
+The card body varies by field type:
+
+| Field type | Visualizations shown |
+|---|---|
+| **Number** | Average · Median · Sum · Min · Max · Distribution histogram |
+| **String** | Total unique values · Frequency chart of top N most common values |
+| **Boolean** | Positive rate (large display) · True/False proportional bar |
 
 ---
 
 ### Temporal Analysis
 
-Understand how your data evolves over time.
+Two sub-sections separated by a divider.
 
-<Tabs>
-  <Tab title="Trend Chart">
-    #### Time-Based Trends
-    
-    A multi-axis chart plotting the evolution of metrics over time.
-    
-    **Displays:**
-    - **Line charts**: Numerical field averages over time
-    - **Bar chart**: Volume of transcriptions per time period
-    - **Multiple Y-axes**: Different scales for different numerical extraction fields metrics
-    
-    **Customization:**
-    - Select which fields to display
-    - Choose time granularity (daily, weekly, monthly)
-    - Filter date range
-    
-    **Insights:**
-    - Track improvement over time
-    - Correlate volume with quality
-    - Identify seasonal patterns
-    - Measure impact of changes (new features, policy updates)
-    
-    **Use cases:**
-    - Monitor customer satisfaction trends
-    - Track support quality improvements
-    - Seasonal demand analysis
-    - A/B testing results validation
-  </Tab>
-  
-  <Tab title="Activity Heatmap">
-    #### Time-of-Day & Day-of-Week Patterns
-    
-    A visual grid showing the volume of transcriptions by:
-    - **Rows**: Days of the week (Monday-Sunday)
-    - **Columns**: Hours of the day (0-23)
-    - **Color intensity**: Number of transcriptions
-    
-    **Insights:**
-    - Identify peak hours for customer interactions
-    - Optimize staff scheduling
-    - Understand customer behavior patterns
-    - Plan maintenance windows for low-traffic times
-    
-    **Use cases:**
-    - **Support teams**: Schedule more agents during peak hours
-    - **Sales**: Know when leads are most active
-    - **Operations**: Plan system updates during low-traffic periods
-  </Tab>
-  
-</Tabs>
+**Temporal Evolution** — a multi-line time-series chart:
+- **Volume line** — daily count of submitted audios
+- **Metric lines** — one line per extracted numeric field (daily average)
+- Lines are interpolated and remain continuous even on days with no data
+- Use the metric checkboxes to show or hide individual lines
+- **Reset zoom** button restores the default chart view after zooming in
+
+Below the chart, a summary table shows for each metric: Max · Min · Average · Trend direction (improving / degrading / stable).
+
+**Activity Heatmap** — a day-of-week × hour-of-day grid:
+- X-axis: hours of the day (0–23)
+- Y-axis: days of the week (Monday–Sunday)
+- Color intensity: light = low activity, dark = high activity
+
+Auto-generated insights below the heatmap:
+
+| Insight | Content |
+|---|---|
+| **Peak Time** | The specific day and hour with the highest audio count |
+| **Busiest Day** | The weekday with the most audios across all hours |
+| **Most Frequent Hour Range** | The hour-of-day with the most accumulated audios |
+
+<Note>
+  The **Timezone** selector in the dashboard header affects both Temporal Evolution and Activity Heatmap. Changing the timezone does not reload data from the API.
+</Note>
 
 ---
 
-### Relationships & Patterns
+### Relationships and Patterns
 
-Discover hidden connections between data points.
+Two advanced analyses separated by a divider.
 
-<Tabs>
-  <Tab title="Correlations">
-    #### Numerical Field Correlations
-    
-    A heatmap matrix visualizing the correlation between all numerical extraction fields.
-    
-    **Heatmap colors:**
-    - **Strong positive** (blue): Values move together (0.7 to 1.0)
-    - **Weak/no correlation** (white): No relationship (-0.3 to 0.3)
-    - **Strong negative** (red): Values move oppositely (-1.0 to -0.7)
-    
-    
-    **Interpretation:**
-    - `Price ↔ Duration`: 0.68 = Strong positive correlation
-      - Longer conversations → Higher prices
-    - `Rating ↔ Duration`: -0.05 = No correlation
-      - Conversation length doesn't affect rating
-    
-    
-   **Use cases:**
-    - Identify factors that impact key metrics
-    - Understand causation vs. correlation
-    - Validate hypotheses
-  </Tab>
-  
-  <Tab title="Co-occurrence">
-    #### Array Field Co-occurrence
-    
-    For `array` type fields (e.g., "Pros", "Cons", "Features Mentioned"), this shows how frequently two items appear together.
-    
-    **Heatmap matrix:**
-    
-    Shows the number or percentage of transcriptions where both items were mentioned.
-    
-    **Use cases:**
-    - **Product bundling**: Package frequently co-occurring features
-    - **Marketing**: Create messaging around common pairs
-    - **Sales training**: Educate reps on related features
-    - **Development**: Prioritize integrated feature development
-  </Tab>
-</Tabs>
+**Correlations** — a matrix comparing all numerical extraction fields:
+- Each cell shows a correlation coefficient (−1 to +1)
+- **Blue** = positive correlation · **Red** = negative correlation · **Grey** = weak or no correlation
+- Tooltip shows the number of data pairs used per cell
+- Requires at least **2 numerical fields** with data
+
+Auto-generated insights: Strongest Positive Correlation · Strongest Negative Correlation · Weakest Association.
+
+**Co-occurrence** — one matrix per array or categorical field, showing how often two values appear together in the same audio:
+- 4 color intensity levels: Very Low → Low → Medium → High
+- Tooltip shows total appearances and co-occurrence count
+
+Auto-generated insights: Most Frequent Pair · Most Common Item.
 
 ---
-
-## Need Help?
 
 <CardGroup cols={2}>
-  <Card
-    title="Support"
-    icon="life-ring"
-    href="https://www.heify.com/contact.html"
-  >
-    Contact with us
+  <Card title="Configurations" icon="gear" href="/sandbox/configurations">
+    Manage your configurations
   </Card>
-  <Card
-    title="Documentation"
-    icon="book"
-    href="/sandbox"
-  >
-    Explore the Sandbox guide
+  <Card title="Transcriptions" icon="file-lines" href="/sandbox/transcriptions">
+    Browse individual transcription results
   </Card>
 </CardGroup>

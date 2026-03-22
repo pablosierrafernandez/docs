@@ -1,0 +1,189 @@
+---
+title: "Rate Limits & Quotas"
+description: "Per-endpoint request limits, burst allowances, and resource quotas for the Heify API."
+icon: "gauge"
+---
+
+## Rate Limits
+
+Rate limits are applied per **account** and enforced at the API gateway level. All limits are measured in **requests per minute** with an additional burst capacity for short spikes.
+
+<Note>
+  **Burst capacity** allows you to exceed the steady-state rate limit for a short period. For example, an endpoint with 50 req/min and burst 3 means you can fire up to 3 requests in rapid succession before the 50 req/min cap is enforced.
+</Note>
+
+### Configurations
+
+| Endpoint | Requests/min | Burst |
+| :--- | :---: | :---: |
+| `POST /create-configuration` | 10 | 2 |
+| `POST /list-configurations` | 50 | 3 |
+| `POST /get-configuration` | 500 | 17 |
+| `POST /update-configuration` | 50 | 3 |
+| `POST /delete-configuration` | 50 | 3 |
+
+### Evaluators
+
+| Endpoint | Requests/min | Burst |
+| :--- | :---: | :---: |
+| `POST /create-evaluator` | 10 | 2 |
+| `POST /list-evaluators` | 50 | 3 |
+| `POST /get-evaluator` | 500 | 17 |
+| `POST /update-evaluator` | 500 | 17 |
+| `POST /delete-evaluator` | 500 | 17 |
+
+### Participants
+
+| Endpoint | Requests/min | Burst |
+| :--- | :---: | :---: |
+| `POST /create-participant` | 10 | 2 |
+| `POST /list-participants` | 50 | 3 |
+| `POST /get-participant` | 500 | 17 |
+| `POST /update-participant` | 500 | 17 |
+| `POST /delete-participant` | 500 | 17 |
+
+### Transcriptions
+
+| Endpoint | Requests/min | Burst |
+| :--- | :---: | :---: |
+| `POST /submit` | 500 | 17 |
+| `POST /request-upload-url` | 500 | 17 |
+| `POST /list-transcriptions` | 500 | 17 |
+| `POST /get-transcription` | 500 | 17 |
+| `POST /update-transcription-group` | 500 | 17 |
+| `POST /delete-transcription` | 500 | 17 |
+
+### Analytics
+
+| Endpoint | Requests/min | Burst |
+| :--- | :---: | :---: |
+| `POST /analytics` | 5 | 2 |
+| `POST /analytics-evaluator` | 50 | 3 |
+| `POST /analytics-participant` | 50 | 3 |
+
+---
+
+## Quotas
+
+### Monthly Analytics Quotas
+
+Analytics endpoints are subject to a **monthly call quota** in addition to the per-minute rate limit. Quotas reset automatically on the 1st of each calendar month.
+
+| Endpoint | Monthly limit |
+| :--- | :---: |
+| `POST /analytics` | 30 calls |
+| `POST /analytics-evaluator` | 500 calls |
+| `POST /analytics-participant` | 500 calls |
+
+<Tip>
+  Your current usage and remaining calls are visible in the Sandbox from the user menu (top right).
+</Tip>
+
+### Resource Limits
+
+The following limits apply to the number of objects you can create per account.
+
+| Resource | Limit |
+| :--- | :---: |
+| Configurations per account | 20 |
+| Extraction fields per configuration | 10 |
+| Evaluators per account | 20 |
+| Criteria per evaluator | 10 |
+| Participants per account | 200 |
+| Team members (sub-users) | 10 |
+| Transcriptions returned by `/list-transcriptions` | 20,000 |
+| Transcriptions analyzed by `/analytics` | 20,000 |
+| Max audio duration | 2 hours (7,200 s) |
+| Max audio file size | 200 MB |
+| Transcriptions in queue | 100 |
+| Concurrent processing | 25 |
+| Transcription data retention (TTL) | 1 year |
+
+### Supported Audio & Video Formats
+
+| Format | Extension | Description |
+| :--- | :---: | :--- |
+| AAC | `.aac` | Advanced Audio Coding |
+| AIFF | `.aiff` | Audio Interchange File Format |
+| AMR | `.amr` | Adaptive Multi-Rate |
+| ASF | `.asf` | Advanced Systems Format |
+| FLAC | `.flac` | Free Lossless Audio Codec |
+| MP3 | `.mp3` | MPEG Audio Layer 3 |
+| OGG | `.ogg` | Ogg Vorbis |
+| WAV | `.wav` | Waveform Audio File Format |
+| WebM | `.webm` | WebM Audio |
+| M4A | `.m4a` | MPEG-4 Audio |
+| MP4 | `.mp4` | MPEG-4 Video Container |
+
+### Need higher limits?
+
+Default limits work for most use cases, but if your project requires more — more analytics calls, more participants, or a larger team — we can adjust them for you.
+
+<Card
+  title="Contact us to increase your limits"
+  icon="envelope"
+  href="mailto:hola@heify.com"
+>
+  Reach out to **hola@heify.com** and tell us what you need. We'll get back to you quickly.
+</Card>
+
+---
+
+## Handling 429 Errors
+
+A `429 Too Many Requests` response means either a per-minute rate limit or a monthly quota has been exceeded. Implement exponential backoff to retry gracefully:
+
+<CodeGroup>
+
+```python Python
+import requests
+import time
+
+def request_with_backoff(url, headers, payload, max_retries=5):
+    delay = 1
+    for attempt in range(max_retries):
+        response = requests.post(url, headers=headers, json=payload)
+        if response.status_code != 429:
+            return response
+        print(f"Rate limited. Retrying in {delay}s...")
+        time.sleep(delay)
+        delay *= 2
+    return response
+
+headers = {
+    "Content-Type": "application/json",
+    "x-api-key": "YOUR_API_KEY"
+}
+
+result = request_with_backoff(
+    "https://api.heify.com/list-configurations",
+    headers,
+    {}
+)
+print(result.json())
+```
+
+```bash cURL
+#!/bin/bash
+MAX_RETRIES=5
+DELAY=1
+
+for i in $(seq 1 $MAX_RETRIES); do
+  RESPONSE=$(curl -s -o /tmp/response.json -w "%{http_code}" \
+    -X POST https://api.heify.com/list-configurations \
+    -H "Content-Type: application/json" \
+    -H "x-api-key: YOUR_API_KEY" \
+    -d '{}')
+
+  if [ "$RESPONSE" != "429" ]; then
+    cat /tmp/response.json
+    exit 0
+  fi
+
+  echo "Rate limited. Retrying in ${DELAY}s..."
+  sleep $DELAY
+  DELAY=$((DELAY * 2))
+done
+```
+
+</CodeGroup>

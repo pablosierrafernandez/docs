@@ -1,0 +1,29 @@
+---
+title: "Evaluator Analysis"
+description: "Generate a performance dashboard for a specific evaluator across all its evaluations."
+openapi: 'api-reference/openapi-evaluators.json POST /analytics-evaluator'
+---
+
+<Warning>
+  This endpoint counts against your monthly analytics quota. Each call is counted even if no data is returned. Returns `429` when the limit is reached. See [Rate Limits & Quotas](/platform/rate-limits).
+</Warning>
+
+<Note>
+  Only **COMPLETED** transcriptions with a non-null evaluation score are included. IN_PROGRESS and FAILED transcriptions are excluded.
+</Note>
+
+<Note>
+  Results are capped at **20,000 transcriptions**. If `data.metadata.query_limit_reached` is `true`, the report is based on a partial dataset.
+</Note>
+
+<Tip>
+  Use `data.charts.heatmap` to identify which days and hours show the lowest performance — useful for targeting training or adjusting scheduling.
+</Tip>
+
+<Note>
+  `data.comparison.delta` may be an empty object `{}` when either the current or previous period has no calls.
+</Note>
+
+<Note>
+  `data.criteria_breakdown` only includes criteria that still exist on the evaluator. Deleted criteria are excluded.
+</Note>

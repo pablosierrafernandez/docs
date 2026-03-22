@@ -1,0 +1,311 @@
+---
+title: "Transcription"
+description: "Reference for the Transcription object — the result of a single audio or video processing job."
+icon: "microphone"
+---
+
+A **Transcription** represents a single audio or video processing job. Its fields evolve as the job moves through its lifecycle.
+
+## Fields
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `transcription_id` | `string` | Unique identifier (UUID) |
+| `status` | `string` | Current status: `IN_PROGRESS`, `COMPLETED`, `FAILED` — see [Status Lifecycle](#status-lifecycle) |
+| `configuration_id` | `string` | ID of the configuration used |
+| `configuration_tag` | `string` | Tag of the configuration used |
+| `evaluator_id` | `string` | ID of the evaluator used (`null` if none) |
+| `evaluator_tag` | `string` | Tag of the evaluator used (`null` if none) |
+| `participant_id` | `string` | ID of the participant associated (`null` if none) |
+| `participant_tag` | `string` | Tag of the participant associated (`null` if none) |
+| `name` | `string` | Custom name (`null` if not set) — normalized to ASCII on creation |
+| `group` | `string` | Review group (`null` if not set) — see [Groups](#groups) |
+| `duration` | `number` | Duration in seconds |
+| `details` | `object` | Full results — see [Details Object](#details-object) |
+
+## Status Lifecycle
+
+<Steps>
+  <Step title="IN_PROGRESS">
+    The audio is being transcribed and analyzed.
+  </Step>
+  <Step title="COMPLETED">
+    Processing finished. The `details` object contains all results.
+  </Step>
+  <Step title="FAILED">
+    Processing failed. The `details` object contains `message`, `code`, and `failed_at`.
+  </Step>
+</Steps>
+
+## Groups
+
+Use `group` to manage the review workflow for each transcription.
+
+| Value | Description |
+| :--- | :--- |
+| `PENDING_REVIEW` | Needs manual review |
+| `UNDER_REVIEW` | Currently being reviewed |
+| `ARCHIVED` | Completed and archived |
+| `null` | No group assigned |
+
+<Note>
+  New transcriptions start with `group = null`. The typical workflow progression is: `null` → `PENDING_REVIEW` → `UNDER_REVIEW` → `ARCHIVED`.
+</Note>
+
+<Note>
+  To remove a group, pass `""` (empty string) as the `group` value when calling `/update-transcription-group`.
+</Note>
+
+## Details Object
+
+The `details` object is always present but its structure depends on `status`.
+
+### When COMPLETED
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `language` | `string` | Detected language code (see [Supported Languages](#supported-languages)) |
+| `num_speakers` | `number` | Number of unique speakers identified |
+| `created_at` | `string` | ISO 8601 — submission timestamp |
+| `completed_at` | `string` | ISO 8601 — when processing finished |
+| `summary` | `object` | AI-generated summary (`null` if disabled in the configuration) — see [Summary](#summary) |
+| `conversation` | `object` | Full transcript split into speaker segments — see [Conversation](#conversation) |
+| `fields` | `object` | Extracted structured data (`null` if no extraction fields configured) — see [Fields (Extraction)](#fields-extraction) |
+| `evaluation` | `object` | Quality evaluation result (`null` if no evaluator was used) — see [Evaluation](#evaluation) |
+
+### When FAILED
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `message` | `string` | Human-readable error description |
+| `code` | `number` | Internal error code |
+| `failed_at` | `string` | ISO 8601 — when the failure occurred |
+
+### Conversation
+
+`details.conversation.segments` is an array of speaker-separated transcript segments.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `text` | `string` | Transcribed text for this segment |
+| `speaker` | `string` | Speaker label (e.g. `SPEAKER_00`, `SPEAKER_01`) |
+
+### Summary
+
+`details.summary` is an object with the following field.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `summary` | `string` | AI-generated summary text |
+
+### Fields (Extraction)
+
+`details.fields.fields` is an array of extracted values corresponding to the configuration's `extraction_fields`.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `name` | `string` | Field name matching the configured extraction field |
+| `value` | `any` | Extracted value — type matches the field's configured type (`string`, `number`, `boolean`, `array`) |
+
+### Evaluation
+
+`details.evaluation` is present when an evaluator was used.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `score` | `number` | Overall quality score (0–100) |
+| `critical_fail` | `boolean` | Whether a `strict` criterion was triggered |
+| `status` | `string` | `PENDING`, `COMPLETED`, or `FAILED` |
+| `breakdown` | `object` | Detailed per-criterion analysis — see [Breakdown](#breakdown) |
+
+#### Breakdown
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `evaluator_id` | `string` | ID of the evaluator used |
+| `evaluator_tag` | `string` | Tag of the evaluator used |
+| `generated_at` | `string` | ISO 8601 — when the evaluation was generated |
+| `language_used` | `string` | Language used for evaluation |
+| `final_score` | `number` | Final score (same as `score`) |
+| `critical_fail_triggered` | `boolean` | Whether a `strict` criterion was triggered |
+| `summary_feedback` | `string` | Overall narrative feedback (markdown) |
+| `results` | `array` | Per-criterion results — see below |
+
+#### Criterion Results (`breakdown.results`)
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `criteria_id` | `string` | ID of the criterion |
+| `name` | `string` | Name of the criterion |
+| `type` | `string` | Criterion type: `boolean`, `scale`, or `strict` |
+| `max_weight` | `number` | Maximum score this criterion can contribute |
+| `score_raw_ai` | `number` | Raw AI score (0 or 1 for `boolean`; 1–5 for `scale`) |
+| `score_obtained` | `number` | Actual score contribution to the total |
+| `status` | `string` | `PASS` or `FAIL` |
+| `reasoning` | `string` | AI's reasoning for this result |
+| `quote` | `string` | Relevant excerpt from the transcript (`null` if not applicable) |
+| `feedback` | `string` | Actionable improvement feedback (`null` if not applicable) |
+
+## Example
+
+```json
+{
+  "transcription_id": "926f3be9-143e-4df6-8b10-64e4d781e203",
+  "status": "COMPLETED",
+  "configuration_id": "3b8006ad-b1a2-464b-9a6b-79dcd45c9433",
+  "configuration_tag": "Pitch Analysis DEMO",
+  "name": null,
+  "group": null,
+  "duration": 609.2,
+  "participant_id": "580cc0e1-3a60-49d9-8e20-1745252f0aae",
+  "evaluator_id": "2abb5563-dd64-47bb-bb17-94252e168b06",
+  "participant_tag": "Sarah Johnson",
+  "evaluator_tag": "Customer Service Standard",
+  "details": {
+    "language": "en",
+    "num_speakers": 2,
+    "created_at": "2025-01-15T10:00:00.123Z",
+    "completed_at": "2025-01-15T10:03:45.789Z",
+    "summary": {
+      "summary": "A support call where the customer reported a billing issue that was resolved by the agent."
+    },
+    "conversation": {
+      "segments": [
+        { "text": "Good morning, this is Sarah from support.", "speaker": "SPEAKER_00" },
+        { "text": "Hi, I have an issue with my subscription.", "speaker": "SPEAKER_01" }
+      ]
+    },
+    "fields": {
+      "fields": [
+        { "name": "sentiment", "value": "POSITIVE" },
+        { "name": "next_action", "value": "Send confirmation email" }
+      ]
+    },
+    "evaluation": {
+      "score": 90,
+      "critical_fail": false,
+      "status": "COMPLETED",
+      "breakdown": {
+        "evaluator_id": "2abb5563-dd64-47bb-bb17-94252e168b06",
+        "evaluator_tag": "Customer Service Standard",
+        "generated_at": "2025-01-15T10:03:44.000Z",
+        "language_used": "en",
+        "final_score": 90.0,
+        "critical_fail_triggered": false,
+        "summary_feedback": "Overall strong performance. The agent greeted the customer correctly and resolved the issue.",
+        "results": [
+          {
+            "criteria_id": "c1d2e3f4-...",
+            "name": "Greeting",
+            "type": "boolean",
+            "max_weight": 20.0,
+            "score_raw_ai": 1,
+            "score_obtained": 20.0,
+            "status": "PASS",
+            "reasoning": "The agent opened with the standard greeting phrase.",
+            "quote": "SPEAKER_00: Good morning, this is Sarah from support.",
+            "feedback": null
+          },
+          {
+            "criteria_id": "d2e3f4g5-...",
+            "name": "No offensive language",
+            "type": "strict",
+            "max_weight": 0.0,
+            "score_raw_ai": 1,
+            "score_obtained": 0.0,
+            "status": "PASS",
+            "reasoning": "No inappropriate language was detected throughout the call.",
+            "quote": null,
+            "feedback": null
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+---
+
+## Supported Languages
+
+The following languages are supported for **transcriptions**, **summaries** (`summary_language`), and **analytics reports** (`analytics_language`).
+
+<Info>
+  Use `"df"` for automatic language detection. For `summary_language`, the summary is generated in the detected language of each individual file. For `analytics_language`, the report uses the majority language across all files in the configuration.
+</Info>
+
+<Tabs>
+  <Tab title="A-G">
+    | Language | ISO Code |
+    | :--- | :--- |
+    | Afrikaans | `af` |
+    | Albanian | `sq` |
+    | Arabic | `ar` |
+    | Azerbaijani | `az` |
+    | Basque | `eu` |
+    | Belarusian | `be` |
+    | Bengali | `bn` |
+    | Bosnian | `bs` |
+    | Bulgarian | `bg` |
+    | Catalan | `ca` |
+    | Chinese | `zh` |
+    | Croatian | `hr` |
+    | Czech | `cs` |
+    | Danish | `da` |
+    | Dutch | `nl` |
+    | English | `en` |
+    | Estonian | `et` |
+    | Finnish | `fi` |
+    | French | `fr` |
+    | Galician | `gl` |
+    | German | `de` |
+    | Greek | `el` |
+    | Gujarati | `gu` |
+  </Tab>
+  <Tab title="H-P">
+    | Language | ISO Code |
+    | :--- | :--- |
+    | Hebrew | `he` |
+    | Hindi | `hi` |
+    | Hungarian | `hu` |
+    | Indonesian | `id` |
+    | Italian | `it` |
+    | Japanese | `ja` |
+    | Kannada | `kn` |
+    | Kazakh | `kk` |
+    | Korean | `ko` |
+    | Latvian | `lv` |
+    | Lithuanian | `lt` |
+    | Macedonian | `mk` |
+    | Malay | `ms` |
+    | Malayalam | `ml` |
+    | Marathi | `mr` |
+    | Norwegian | `no` |
+    | Persian | `fa` |
+    | Polish | `pl` |
+    | Portuguese | `pt` |
+    | Punjabi | `pa` |
+  </Tab>
+  <Tab title="R-Z">
+    | Language | ISO Code |
+    | :--- | :--- |
+    | Romanian | `ro` |
+    | Russian | `ru` |
+    | Serbian | `sr` |
+    | Slovak | `sk` |
+    | Slovenian | `sl` |
+    | Spanish | `es` |
+    | Swahili | `sw` |
+    | Swedish | `sv` |
+    | Tagalog | `tl` |
+    | Tamil | `ta` |
+    | Telugu | `te` |
+    | Thai | `th` |
+    | Turkish | `tr` |
+    | Ukrainian | `uk` |
+    | Urdu | `ur` |
+    | Vietnamese | `vi` |
+    | Welsh | `cy` |
+  </Tab>
+</Tabs>

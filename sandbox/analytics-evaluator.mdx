@@ -1,0 +1,257 @@
+---
+title: "Evaluator Analysis"
+description: "Generate a performance dashboard for an evaluator — KPIs, timeline trends, quality heatmap, top failed criteria, participant rankings, and a filterable transcription table."
+icon: "chart-bar"
+---
+
+The Evaluator Analysis page aggregates all transcriptions processed with a selected evaluator and organizes the results into KPI summaries, trend charts, a weekly quality heatmap, criteria failure breakdowns, participant rankings, and a filterable transcription detail table.
+
+<Warning>
+  Each analysis generation consumes **one unit** of your account's `analytics_evaluator` quota. Loading a previously cached result for the same evaluator ID does not consume quota.
+</Warning>
+
+---
+
+## Generating an analysis
+
+Select an evaluator from the searchable selector at the top of the page and click **Generate Analysis**. The selector shows each evaluator's name, ID, and criteria count.
+
+<Note>
+  Navigating directly to a URL that includes an evaluator ID (e.g. from a bookmark or shared link) auto-loads the last cached result — no quota consumed.
+</Note>
+
+<Note>
+  The **Generate Analysis** button is disabled when no evaluator is selected or when your quota is exhausted. If you click it without a selection, a warning is shown: *"You must select an evaluator to generate the analysis."*
+</Note>
+
+---
+
+## Dashboard header
+
+Once data is loaded, the dashboard header shows:
+
+| Control | Behavior |
+|---|---|
+| **Evaluator name** | Displayed below the title once an evaluator is active |
+| **Last updated** | Relative time since the last fetch |
+| **Download PDF** | Generates and downloads a structured PDF report. Only visible when data is loaded. |
+| **Refresh** | Re-fetches the analysis for the current evaluator |
+
+---
+
+## KPI Grid
+
+Four metric cards summarize the overall state of the evaluator's dataset.
+
+| KPI | Description |
+|---|---|
+| **Total Calls** | Count of all transcriptions evaluated with this evaluator |
+| **Average Score** | Overall score out of 100. Color: Emerald ≥91 · Green 71–90 · Amber 51–70 · Orange 31–50 · Red &#60;31 |
+| **Pass Rate** | Percentage of calls that passed. Badge: **Excellent** ≥80% · **Good** 60–79% · **Fair** 40–59% · **Low** &#60;40% |
+| **Criticals** | Calls where a Strict criterion failed. Red badge if >0; *"No critical incidents"* if 0 |
+
+### Critical alert banner
+
+If any pending critical calls exist, a clickable red banner appears above the KPI grid:
+
+> *"N pending critical calls — Pending review · Click for details"*
+
+Clicking it jumps directly to the [Transcription Details](#transcription-details) table with the *Pending Critical* filter pre-applied.
+
+---
+
+## Charts
+
+### Monthly Comparison
+
+Two side-by-side period cards — **This Month** and **Previous Month** — each showing:
+
+- **Calls** — total count
+- **Average Score** — numeric
+- **Pass Rate** — percentage
+
+A delta summary below the cards shows the score change (green upward arrow for improvement, red downward for decline) and the pass rate change between periods.
+
+| State | Display |
+|---|---|
+| One period has no data | Amber warning on that card |
+| Both periods have no data | *"Data in both months is needed to show the comparison"* |
+
+### Duration Analysis
+
+Three tiles grouping calls by duration using thresholds dynamically calculated from the dataset:
+
+| Tier | Threshold |
+|---|---|
+| **Short** | Below p25 |
+| **Medium** | Between p25 and p75 |
+| **Long** | Above p75 |
+
+Each tile shows the call count and average score for that tier.
+
+<Note>
+  Duration thresholds are dynamically calculated using the p25 and p75 percentiles of your dataset — they adapt to the actual distribution of your calls, not a fixed value.
+</Note>
+
+### Timeline Evolution
+
+A dual-axis chart overlaying two series:
+
+- **Left Y-axis** — Average Score (line)
+- **Right Y-axis** — Call Volume (bars)
+
+Hover over any point to see both metrics simultaneously.
+
+### Score Distribution
+
+A bar chart grouping all transcriptions into 20-point score ranges: **0–20 · 20–40 · 40–60 · 60–80 · 80–100**. Shows how scores are distributed across the full dataset.
+
+---
+
+## Weekly Heatmap and Top Failed Criteria
+
+### Weekly Heatmap
+
+A day-of-week × hour-of-day grid showing the **average quality score** for each time slot across all evaluated calls.
+
+| Color | Score range |
+|---|---|
+| Grey | No data |
+| Emerald | ≥ 80 |
+| Green | 60–79 |
+| Amber | 40–59 |
+| Red | < 40 |
+
+Two auto-generated insights are shown above the grid:
+
+| Insight | Content |
+|---|---|
+| **Best Performing Hour** | The day and hour with the highest average score |
+| **Worst Performing Hour** | The day and hour with the lowest average score |
+
+Hover over any cell to see the exact average score for that time slot.
+
+### Top Failed Criteria
+
+A ranked list of the **5 most frequently failing criteria** across all evaluated transcriptions.
+
+| Column | Detail |
+|---|---|
+| **Rank** | 1–5 with a gradient badge |
+| **Criterion** | Name — truncated with a tooltip showing the full text |
+| **Evaluator** | Color-coded tag |
+| **Fail count** | Absolute number of failures |
+| **Fail rate** | Percentage of calls where this criterion failed, with a progress bar |
+
+<Tip>
+  These are the highest-priority areas for coaching and training. Use this list to identify where your team or candidates need the most focused improvement.
+</Tip>
+
+This section is only rendered when criteria failure data is present.
+
+---
+
+## Participants Ranking
+
+A table of the **top 8 participants** evaluated under this evaluator, sorted by average score.
+
+| Column | Detail |
+|---|---|
+| **#** | Rank number. Top 3 show Trophy / Medal / Award icons. Rows where the critical fail rate exceeds 30% have a red-tinted background. |
+| **Participant** | Name + ID (monospace) + link to their [Participant Analysis](/sandbox/analytics-participant) |
+| **Calls** | Total calls evaluated for this participant |
+| **Score** | Average score — color-coded badge |
+| **Criticals** | Critical fail count. Red badge if >0; *"—"* if none. |
+| **Failed** | Failed criteria count. Tooltip lists the names of all failing criteria. |
+| **Consistency** | Standard deviation of scores as a badge |
+
+**Consistency thresholds:**
+
+| Badge | Threshold |
+|---|---|
+| Very consistent | σ ≤ 5 |
+| Consistent | 6 < σ ≤ 10 |
+| Variable | 11 < σ ≤ 15 |
+| Very variable | σ > 15 |
+
+<Note>
+  A low standard deviation means predictable, stable performance. A high value means the participant's scores vary significantly from call to call.
+</Note>
+
+This section is only shown when participant data is present.
+
+---
+
+## Transcription Details
+
+A full paginated table of every transcription included in the analysis (10 records per page).
+
+### Group tabs
+
+Filter the table by workflow group with a single click:
+
+| Tab | Color |
+|---|---|
+| **All** | Default |
+| **No Group** | Grey |
+| **Pending Review** | Amber |
+| **Under Review** | Blue |
+| **Archived** | Purple |
+
+Each tab shows a count badge.
+
+### Filters
+
+Click **Filters** to open the filter panel:
+
+| Filter | Type |
+|---|---|
+| **Search** | Text — matches by transcription ID or participant name |
+| **Critical only** | Checkbox — shows only calls where a Strict criterion failed |
+| **Min Score** | Number input |
+| **Max Score** | Number input |
+
+### Table columns
+
+| Column | Detail |
+|---|---|
+| **Date** | Full date and time |
+| **Score** | Color-coded badge (same thresholds as KPI grid) |
+| **Duration** | `MM:SS` formatted |
+| **Participant** | Name + ID (monospace) |
+| **Critical** | Red alert icon if a Strict criterion failed |
+| **Failed** | Failure count. Tooltip lists the names of all failed criteria. |
+| **Group** | Group badge + pencil icon to update the group inline |
+
+Click any row to open the full transcription detail in a new tab.
+
+<Note>
+  Group changes made from this table are applied immediately and reflected without requiring a full page re-fetch.
+</Note>
+
+---
+
+## PDF Export
+
+The **Download PDF** button in the header is available once analysis data is loaded.
+
+Report filename: `Evaluator_Report_[name]_[date].pdf`
+
+**Report contents:**
+- Evaluator name and evaluation date
+- KPIs: Total Calls · Average Score · Pass Rate · Critical Fails
+- Critical fails warning (if applicable)
+- Top failed criteria table
+- Participants ranking table
+- Transcription detail table (ID · Date · Score · Duration · Participant · Critical · Group)
+
+---
+
+<CardGroup cols={2}>
+  <Card title="Evaluators" icon="clipboard-check" href="/sandbox/evaluators">
+    Manage your evaluators
+  </Card>
+  <Card title="Transcriptions" icon="file-lines" href="/sandbox/transcriptions">
+    Browse individual transcription results
+  </Card>
+</CardGroup>

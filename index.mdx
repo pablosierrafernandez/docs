@@ -1,186 +1,103 @@
 ---
 title: "Introduction"
-description: "Welcome to Heify - powerful audio/video transcription with AI-powered data extraction"
+description: "Heify is an AI-powered audio intelligence platform. Turn voice recordings into structured data, quality scores, and deep analytics — automatically."
+icon: "house"
 ---
 
-# Heify Documentation
+Heify processes voice recordings — calls, meetings, interviews, training sessions — and converts them into structured data, quality metrics, and actionable insights. It's not just a transcription tool: it's a full conversation analysis system that listens, understands, extracts, evaluates, and reports — all configurable without code.
 
-Welcome to the official Heify documentation. Heify is a powerful transcription platform that converts audio and video files into accurate transcripts with AI-powered data extraction and analysis.
+## The Heify Pipeline
 
-## What is Heify?
+Every recording flows through a modular pipeline. Each component is independent and optional — combine them as your use case requires.
 
-Heify offers two ways to access powerful transcription capabilities:
+<CardGroup cols={2}>
+  <Card title="Configurations" icon="gear" href="/api-reference/configuration/create">
+    The core template. Defines what to extract from audio: structured fields, AI summary, custom vocabulary, language, and webhooks. Required for every transcription.
+  </Card>
+  <Card title="Evaluators" icon="clipboard-check" href="/api-reference/evaluators/create">
+    Quality-scoring rubrics. Define weighted criteria — Heify scores every conversation against them automatically and flags critical failures.
+  </Card>
+  <Card title="Participants" icon="user" href="/api-reference/participants/create">
+    Person profiles — support agents, job candidates, salespeople, or any individual. Attach a participant to track their performance across transcriptions over time.
+  </Card>
+  <Card title="Transcriptions" icon="microphone" href="/api-reference/transcription/submit">
+    The result. Full transcript with speaker labels, extracted fields, AI summary, evaluation score — all in one object.
+  </Card>
+</CardGroup>
+
+<Note>
+  Only a **Configuration** is required. Evaluators and Participants are optional layers you activate when you need quality scoring or per-person performance tracking.
+</Note>
+
+---
+
+## Two Ways to Use Heify
 
 ### Heify API
 
-A REST API for developers to integrate transcription into their applications programmatically.
+A programmatic interface for developers. Integrate transcription, extraction, quality scoring, and analytics directly into your applications and workflows.
 
 **Key capabilities:**
-- **Transcribe audio/video files** with high accuracy in multiple languages
-- **Extract structured data** from conversations using AI
-- **Generate summaries** automatically
-- **Identify speakers** with automatic diarization
-- **Webhook notifications** for real-time updates
+- **Manage all modules** — create, update, and delete Configurations, Evaluators, and Participants programmatically
+- **Submit audio via URL or direct upload** — public URL or presigned S3 upload
+- **Extract structured fields** from conversations using AI — define any schema you need
+- **Automatic AI summaries** with custom instructions per configuration
+- **Quality scoring** — attach an Evaluator to score every call automatically
+- **Per-person tracking** — attach a Participant (agent, candidate, salesperson) to build individual performance analytics
+- **Webhooks** — get notified the moment a transcription completes or fails
+- **Analytics endpoints** — AI-powered corpus analysis across configurations, evaluators, and participants
 
 ### Heify Sandbox
 
-A visual, browser-based interface for testing and managing transcriptions without writing code.
+A browser-based interface for business teams, QA analysts, and anyone who wants to explore Heify without writing code.
 
 **Key features:**
-- **No-code testing environment** for configurations
-- **Visual analytics dashboard** with AI-powered insights
-- **Workflow management** to organize transcriptions
-- **API key management** in one place
-- **Real-time previews** of transcription results
-
-## Key Features
-
-<CardGroup cols={2}>
-  <Card
-    title="High Accuracy Transcription"
-    icon="microphone"
-  >
-    State-of-the-art speech recognition with support for 11+ audio formats
-  </Card>
-  <Card
-    title="Data Extraction"
-    icon="database"
-  >
-    Extract structured fields from conversations using AI-powered analysis
-  </Card>
-  <Card
-    title="Multi-speaker Detection"
-    icon="users"
-  >
-    Automatic speaker identification and diarization
-  </Card>
-  <Card
-    title="Webhook Notifications"
-    icon="bell"
-  >
-    Real-time notifications when transcriptions complete or fail
-  </Card>
-</CardGroup>
-
-## Choose Your Path
-
-<CardGroup cols={2}>
-  <Card
-    title="API Documentation"
-    icon="code"
-    href="/quickstart"
-  >
-    **For Developers**: Integrate Heify programmatically with our REST API
-  </Card>
-  <Card
-    title="Sandbox Guide"
-    icon="flask"
-    href="/sandbox"
-  >
-    **Visual Interface**: Test configurations and manage transcriptions in your browser
-  </Card>
-</CardGroup>
+- **No-code configuration builder** with extraction field templates and quick-action shortcuts
+- **Drag & drop audio upload** or paste a URL — results appear in minutes
+- **Evaluator designer** — build quality rubrics with weighted criteria visually
+- **Participant management** — register agents, candidates, or any person and track their performance over time
+- **AI Analytics dashboards** — patterns, anomalies, correlations, and rankings across your entire call corpus
+- **Workflow groups** — organize transcriptions into Pending Review, Under Review, or Archived
+- **Team access** — admins can invite collaborators who access the same workspace via OTP
+- **PDF export** — download full transcription reports and analytics dashboards
 
 ---
 
 ## API Overview
 
-The Heify API is organized around REST principles:
+The Heify API is organized around these principles:
 
 - **JSON-based**: All requests and responses use JSON format
-- **HTTP methods**: Standard POST methods for all endpoints
-- **API Key authentication**: Secure access with API keys
-- **Rate limiting**: Fair usage policies to ensure service stability
+- **HTTP methods**: All endpoints use `POST`
+- **API Key authentication**: Secure access with API keys via the `x-api-key` header
+- **Rate limiting**: Fair usage policies applied per endpoint to ensure service stability
 
 <Note>
   **Base URL**: `https://api.heify.com`
 </Note>
 
-## Getting Started
+
+---
+
+## Explore the Docs
 
 <CardGroup cols={2}>
-  <Card
-    title="Quickstart Guide"
-    icon="rocket"
-    href="/quickstart"
-  >
-    Get up and running with your first transcription in minutes
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Your first transcription in minutes — Sandbox or API, your choice
   </Card>
-  <Card
-    title="Authentication"
-    icon="key"
-    href="/authentication"
-  >
-    Learn how to authenticate your API requests
+  <Card title="Authentication" icon="key" href="/authentication">
+    API Keys, passwordless login, and session management
   </Card>
-  <Card
-    title="Core Objects"
-    icon="cube"
-    href="/core/objects"
-  >
-    Understand Configurations and Transcriptions
+  <Card title="Configurations API" icon="gear" href="/api-reference/configuration/create">
+    Create and manage reusable processing templates
   </Card>
-  <Card
-    title="Common Workflows"
-    icon="diagram-project"
-    href="/core/workflows"
-  >
-    Learn common integration patterns
+  <Card title="Transcriptions API" icon="microphone" href="/api-reference/transcription/submit">
+    Submit audio and retrieve full results
   </Card>
-</CardGroup>
-
-## API Reference
-
-Explore our comprehensive API endpoint documentation:
-
-<CardGroup cols={2}>
-  <Card
-    title="Configuration Endpoints"
-    icon="gear"
-    href="/api-reference/configuration/create"
-  >
-    Create and manage reusable transcription templates
+  <Card title="Evaluators API" icon="clipboard-check" href="/api-reference/evaluators/create">
+    Build quality-scoring rubrics and audit conversations at scale
   </Card>
-  <Card
-    title="Transcription Endpoints"
-    icon="file-audio"
-    href="/api-reference/transcription/submit"
-  >
-    Submit audio files and retrieve transcription results
-  </Card>
-</CardGroup>
-
-## Supported Media Formats
-
-Heify supports both audio and video files in the following formats:
-
-**Audio formats:** `aac`, `aiff`, `amr`, `asf`, `flac`, `mp3`, `ogg`, `wav`, `webm`, `m4a`
-
-**Video formats:** `mp4`, `webm`
-
-<Info>
-  **Max file size**: 200 MB | **Max duration**: 2 hours (7200 seconds)
-</Info>
-
-<Tip>
-  For video files, only the audio track is processed for transcription.
-</Tip>
-
-## Need Help?
-
-<CardGroup cols={2}>
-  <Card
-    title="Support"
-    icon="headset"
-    href="mailto:hola@heify.com"
-  >
-    Contact our support team for assistance
-  </Card>
-  <Card
-    title="Sandbox Dashboard"
-    icon="chart-line"
-    href="/sandbox"
-  >
-    Access the Sandbox to manage API keys and test configurations
+  <Card title="Participants API" icon="user" href="/api-reference/participants/create">
+    Track individual performance (agents, candidates, salespeople) across transcriptions and evaluators
   </Card>
 </CardGroup>

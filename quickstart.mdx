@@ -1,337 +1,432 @@
 ---
 title: "Quickstart"
-description: "Get started with Heify API in minutes"
+description: "From zero to your first transcription in minutes — no matter how you want to use Heify."
 icon: "rocket"
 ---
 
-# Quickstart Guide
+Heify turns voice recordings into structured data. You define what to extract, Heify does the rest: transcription, field extraction, AI summaries, quality scoring, and analytics — all through a pipeline you control.
 
-This guide will walk you through making your first transcription request with the Heify API. In just a few minutes, you'll be able to transcribe audio files and retrieve results.
+## How the Pipeline Works
 
-## Prerequisites
-
-Before you begin, you'll need:
-
-- **An audio or video file** to transcribe (see [supported formats](/index#supported-media-formats))
-- **A Heify API key** ([manage keys here](/sandbox/api-keys))
-- **A configuration ID** (you can create one in the Sandbox or via the API)
-
-<CodeGroup>
-
-```bash cURL
-curl -X POST https://api.heify.com/create-configuration \
-  -H "Content-Type: application/json" \
-  -H "x-api-key: YOUR_API_KEY" \
-  -d '{
-    "tag": "My First Configuration",
-    "summary": true,
-    "summary_language": "en"
-  }'
-```
-
-```python Python
-import requests
-
-url = "https://api.heify.com/create-configuration"
-headers = {
-    "Content-Type": "application/json",
-    "x-api-key": "YOUR_API_KEY"
-}
-payload = {
-    "tag": "My First Configuration",
-    "summary": True,
-    "summary_language": "en"
-}
-
-response = requests.post(url, headers=headers, json=payload)
-data = response.json()
-configuration_id = data["data"]["configuration_id"]
-print(f"Configuration created: {configuration_id}")
-```
-
-</CodeGroup>
-
-**Response:**
-
-```json
-{
-  "data": {
-    "message": "Configuration created successfully",
-    "configuration_id": "a1b2c3d4..."
-  }
-}
-```
-
-<Note>
-  Save the `configuration_id` - you'll need it for the next step!
-</Note>
-
-## Step 2: Submit Audio for Transcription
-
-Now submit an audio file using one of two methods:
-
-### Option A: From a Public URL
-
-If your audio is already hosted online:
-
-<CodeGroup>
-
-```bash cURL
-curl -X POST https://api.heify.com/submit \
-  -H "Content-Type: application/json" \
-  -H "x-api-key: YOUR_API_KEY" \
-  -d '{
-    "configuration_id": "YOUR_CONFIGURATION_ID",
-    "url": "https://example.com/audio.mp3",
-    "name": "My First Transcription"
-  }'
-```
-
-```python Python
-import requests
-
-url = "https://api.heify.com/submit"
-headers = {
-    "Content-Type": "application/json",
-    "x-api-key": "YOUR_API_KEY"
-}
-payload = {
-    "configuration_id": "YOUR_CONFIGURATION_ID",
-    "url": "https://example.com/audio.mp3",
-    "name": "My First Transcription"
-}
-
-response = requests.post(url, headers=headers, json=payload)
-data = response.json()
-transcription_id = data["data"]["transcription_id"]
-print(f"Transcription started: {transcription_id}")
-```
-
-</CodeGroup>
-
-### Option B: Upload a Local File
-
-For files on your computer, use the two-step upload process:
-
-<Steps>
-  <Step title="Request an upload URL">
-    First, request a secure, pre-signed URL to upload your file.
-
-    <CodeGroup>
-
-```bash cURL
-curl -X POST https://api.heify.com/request-upload-url \
-  -H "Content-Type: application/json" \
-  -H "x-api-key: YOUR_API_KEY" \
-  -d '{
-    "configuration_id": "YOUR_CONFIGURATION_ID",
-    "name": "My First Transcription"
-  }'
-```
-
-```python Python
-import requests
-
-url = "https://api.heify.com/request-upload-url"
-headers = {
-    "Content-Type": "application/json",
-    "x-api-key": "YOUR_API_KEY"
-}
-payload = {
-    "configuration_id": "YOUR_CONFIGURATION_ID",
-    "name": "My First Transcription"
-}
-
-response = requests.post(url, headers=headers, json=payload)
-data = response.json()
-
-# Extract data needed for the next step
-upload_data = data["data"]
-upload_url = upload_data["upload_url"]
-transcription_id = upload_data["transcription_id"]
-meta_config_id = upload_data["configuration_id"]
-meta_name = upload_data.get("name")
-```
-
-</CodeGroup>
-    
-    **Response:**
-    
-    The API will return the pre-signed `upload_url` and the metadata needed for the upload headers.
-    
-    ```json
-    {
-      "data": {
-        "upload_url": "https://s3.amazonaws.com/...",
-        "transcription_id": "1a2b3c4d...",
-        "configuration_id": "a1b2c3d4...",
-        "name": "My First Transcription"
-      }
-    }
-    ```
-    
-    <Note>
-      Save all the values from the `data` object for the next step.
-    </Note>
-
-  </Step>
-
-  <Step title="Upload your audio file">
-    Now, use the `upload_url` and metadata from the previous response to upload the file with a PUT request.
-
-    <CodeGroup>
-
-```bash cURL
-# Use the 'upload_url', 'configuration_id', and 'name' from the Step 1 response
-curl -X PUT --upload-file "path/to/audio.mp3" \
-  -H "x-amz-meta-configuration_id: YOUR_CONFIGURATION_ID" \
-  -H "x-amz-meta-name: My First Transcription" \
-  "https://s3.amazonaws.com/..."
-```
-
-```python Python
-import requests
-
-# Use the variables extracted in the previous step
-upload_headers = {
-    'x-amz-meta-configuration_id': meta_config_id
-}
-if meta_name:
-    upload_headers['x-amz-meta-name'] = meta_name
-
-# Upload the file
-with open("path/to/audio.mp3", "rb") as audio_file:
-    response = requests.put(upload_url, data=audio_file, headers=upload_headers)
-
-if response.status_code == 200:
-    print(f"Upload successful! Transcription ID: {transcription_id}")
-else:
-    print(f"Upload failed: {response.text}")
-```
-
-</CodeGroup>
-  </Step>
-</Steps>
-
-**Response (after a successful upload):**
-
-A successful `PUT` request will return an HTTP `200 OK` status with an empty body. The transcription process has now started.
-
-## Step 3: Check the Status
-
-Monitor your transcription progress:
-
-<CodeGroup>
-
-```bash cURL
-curl -X POST https://api.heify.com/details \
-  -H "Content-Type: application/json" \
-  -H "x-api-key: YOUR_API_KEY" \
-  -d '{
-    "transcription_id": "YOUR_TRANSCRIPTION_ID"
-  }'
-```
-
-```python Python
-import requests
-import time
-
-url = "https://api.heify.com/details"
-headers = {
-    "Content-Type": "application/json",
-    "x-api-key": "YOUR_API_KEY"
-}
-payload = {
-    # Use the transcription_id from either submission method
-    "transcription_id": "YOUR_TRANSCRIPTION_ID"
-}
-
-# Poll until complete
-while True:
-    response = requests.post(url, headers=headers, json=payload)
-    data = response.json()
-    status = data["data"]["status"]
-    
-    print(f"Status: {status}")
-    
-    if status == "COMPLETED":
-        print("Transcription complete!")
-        print(data) # Print the full response data
-        break
-    elif status == "FAILED":
-        print("Transcription failed:", data["data"]["error"])
-        break
-    
-    time.sleep(5)  # Wait 5 seconds before checking again
-```
-
-</CodeGroup>
-
-## Step 4: Retrieve Results
-
-Once the status is `COMPLETED`, the response includes full transcription details:
-
-```json
-{
-  "data": {
-    "transcription_id": "1a2b3c4d...",
-    "status": "COMPLETED",
-    "configuration_id": "a1b2c3d4...",
-    "configuration_tag": "My First Configuration",
-    "name": "My First Transcription",
-    "group": null,
-    "duration": 98.89,
-    "details": {
-      "language": "en",
-      "num_speakers": 2,
-      "created_at": "2025-10-04T22:23:05.611Z",
-      "completed_at": "2025-10-04T22:23:19.363Z",
-      "conversation": {
-        "segments": [
-          {
-            "text": "Hello, Lorena. Are you going to Hugo's birthday party? He called me yesterday to invite me, but now I'm having second thoughts.",
-            "speaker": "SPEAKER_00"
-          },
-          {
-            "text": "Why is that? What doubts can you have about going to a party? You just go, period.",
-            "speaker": "SPEAKER_01"
-          }
-        ]
-      },
-      "summary": {
-        "summary": "The conversation is between two friends. One is hesitant to attend a birthday party because they believe the host, Hugo, brings them bad luck, recounting several past unfortunate incidents."
-      },
-      "fields": null
-    }
-  }
-}
-```
-
-## 🎉 Success!
-
-You've successfully transcribed your first audio file with Heify! 
-
-## Next Steps
+Every transcription in Heify flows through the same building blocks:
 
 <CardGroup cols={2}>
-  <Card
-    title="Core Objects"
-    icon="cube"
-    href="/core/objects"
-  >
-    Learn about Configurations and Transcriptions
+  <Card title="Configuration" icon="gear">
+    The template that defines **how** to process audio: what fields to extract, whether to summarize, which language, custom vocabulary, and webhooks.
   </Card>
-  
-  <Card
-    title="Data Extraction"
-    icon="database"
-    href="/core/objects#extraction-fields"
-  >
-    Extract structured data from conversations
+  <Card title="Evaluator" icon="clipboard-check">
+    An optional quality-scoring rubric. Define criteria with weights that sum to 100 — Heify scores every call against them automatically.
   </Card>
- 
+  <Card title="Participant" icon="user">
+    An optional person profile — a support agent, job candidate, salesperson, or any individual. Attach a participant to a transcription to track their performance over time.
+  </Card>
+  <Card title="Transcription" icon="microphone">
+    The result: full transcript, extracted fields, AI summary, evaluation score, and more — ready to query or export.
+  </Card>
 </CardGroup>
 
-<Tip>
-  **Pro tip**: Use webhooks to get notified automatically when transcriptions complete, instead of polling the status endpoint.
-</Tip>
+<Note>
+  Only a **Configuration** is required. Evaluators and Participants are optional modules you can add when you need quality scoring or per-person performance tracking.
+</Note>
+
+---
+
+## Choose Your Path
+
+<Tabs>
+  <Tab title="Use the Sandbox">
+
+    The Sandbox is Heify's browser-based interface. No code required — create configurations, upload audio, and explore results in minutes.
+
+    <Steps>
+      <Step title="Sign in">
+        Go to [sandbox.heify.com](https://sandbox.heify.com) and enter your email address.
+
+        Heify uses **passwordless authentication** — no passwords to set or remember. After you submit your email:
+        1. A 6-digit OTP code is sent to your inbox
+        2. Enter the code in the Sandbox (you have 3 minutes before it expires)
+        3. You're in — your session lasts **30 days**
+
+        <Tip>
+          You can paste the full 6-digit code directly into the first field and it fills in automatically.
+        </Tip>
+      </Step>
+
+      <Step title="Configure your API key">
+        Before you can transcribe, the Sandbox needs an API key linked to your account.
+
+        Open **API Keys & Sandbox** from the top-left menu (or follow the yellow banner on the Dashboard). Your sandbox key auto-provisions and auto-configures — no manual steps needed. The status indicator turns green: **Ready**.
+
+        <Note>
+          Your sandbox key is automatically shared across devices. Log in from any browser and it's already configured.
+        </Note>
+      </Step>
+
+      <Step title="Create a Configuration">
+        A Configuration tells Heify what to do with each audio file.
+
+        1. Go to **Configurations** → **Create Configuration**
+        2. Give it a **Tag** (a name, e.g. `support-calls-v1`)
+        3. Toggle **Automatic Summary** on if you want an AI-generated executive summary per call
+        4. Add **Extraction Fields** to pull structured data from conversations:
+
+        | Field name | Type | Description |
+        |---|---|---|
+        | `customer_sentiment` | string | Overall sentiment: POSITIVE, NEGATIVE, or NEUTRAL |
+        | `call_reason` | string | Main reason the customer called |
+        | `resolved` | boolean | Whether the issue was resolved during the call |
+
+        5. (Optional) Add **custom vocabulary** — product names, internal terms, abbreviations — to improve transcription accuracy
+        6. Click **Create Configuration**
+
+        <Tip>
+          Use the **Quick Actions** shortcuts to add common fields (sentiment analysis, quality rating, next action) with a single click.
+        </Tip>
+      </Step>
+
+      <Step title="Transcribe your first audio">
+        1. Go to **Transcribe** in the sidebar
+        2. Select your Configuration from the dropdown
+        3. (Optional) Select an **Evaluator** and/or a **Participant** if you have them
+        4. Choose how to submit:
+           - **Upload file** — drag & drop or click to browse (MP3, WAV, MP4, WebM, AAC, and more)
+           - **URL** — paste a public link to an audio file
+        5. Click **Process**
+
+        Once submitted, a link appears to open the transcription detail directly. The transcription is processed asynchronously — if you see a `Processing` status, wait a moment and click the **Refresh** button to check for updates.
+      </Step>
+
+      <Step title="Review your results">
+        Once processing is complete (status: **Completed**), click the transcription to open the detail view:
+
+        - **Full transcript** with speaker labels and timestamps
+        - **Extracted fields** — the structured data you defined (e.g. `resolved: true`, `call_reason: "billing issue"`)
+        - **AI Summary** — if you enabled it in the configuration
+        - **Evaluation** — score, pass/fail status, and per-criterion feedback (if you used an evaluator)
+        - **Export to PDF** — the full report in one click
+      </Step>
+    </Steps>
+
+  </Tab>
+
+  <Tab title="Integrate the API">
+
+    The Heify API lets you submit audio, retrieve results, and query analytics programmatically. All endpoints use `POST` and return a standard JSON envelope.
+
+    <Note>
+      **All requests require:**
+      - `Content-Type: application/json`
+      - `x-api-key: <YOUR_API_KEY>` header
+
+      **All responses follow this shape:**
+      ```json
+      // Success
+      { "data": { ... } }
+
+      // Error
+      { "error": { "message": "...", "code": 400 } }
+      ```
+    </Note>
+
+    <Steps>
+      <Step title="Get your API key">
+        Log in to [sandbox.heify.com](https://sandbox.heify.com), navigate to **API Keys**, and either:
+        - Click **Auto-provision** to create a sandbox key instantly, or
+        - Click **Add new key** to create a named production key
+
+        Copy the key — you'll use it as the `x-api-key` header on every request.
+      </Step>
+
+      <Step title="Create a Configuration">
+        A Configuration is the reusable template that tells Heify what to extract from audio.
+
+        <CodeGroup>
+
+        ```bash cURL
+        curl -X POST https://api.heify.com/create-configuration \
+          -H "Content-Type: application/json" \
+          -H "x-api-key: YOUR_API_KEY" \
+          -d '{
+            "tag": "support-calls-v1",
+            "summary": true,
+            "summary_language": "en",
+            "extraction_fields": [
+              {
+                "name": "customer_sentiment",
+                "type": "string",
+                "description": "Overall sentiment of the customer: POSITIVE, NEGATIVE, or NEUTRAL"
+              },
+              {
+                "name": "resolved",
+                "type": "boolean",
+                "description": "Whether the customer issue was resolved during the call"
+              }
+            ]
+          }'
+        ```
+
+        ```python Python
+        import requests
+
+        response = requests.post(
+            "https://api.heify.com/create-configuration",
+            headers={
+                "Content-Type": "application/json",
+                "x-api-key": "YOUR_API_KEY"
+            },
+            json={
+                "tag": "support-calls-v1",
+                "summary": True,
+                "summary_language": "en",
+                "extraction_fields": [
+                    {
+                        "name": "customer_sentiment",
+                        "type": "string",
+                        "description": "Overall sentiment of the customer: POSITIVE, NEGATIVE, or NEUTRAL"
+                    },
+                    {
+                        "name": "resolved",
+                        "type": "boolean",
+                        "description": "Whether the customer issue was resolved during the call"
+                    }
+                ]
+            }
+        )
+
+        configuration_id = response.json()["data"]["configuration_id"]
+        print(f"Configuration created: {configuration_id}")
+        ```
+
+        </CodeGroup>
+
+        ```json Response (201)
+        {
+          "data": {
+            "message": "Configuration created successfully",
+            "configuration_id": "550e8400-e29b-41d4-a716-446655440000"
+          }
+        }
+        ```
+
+        <Tip>
+          Save the `configuration_id` — you'll use it every time you submit a transcription.
+        </Tip>
+      </Step>
+
+      <Step title="Submit audio for transcription">
+        Choose the submission method that fits your use case:
+
+        <Tabs>
+          <Tab title="From a URL">
+            If your audio is hosted online (S3, CDN, etc.), submit it directly:
+
+            <CodeGroup>
+
+            ```bash cURL
+            curl -X POST https://api.heify.com/submit \
+              -H "Content-Type: application/json" \
+              -H "x-api-key: YOUR_API_KEY" \
+              -d '{
+                "configuration_id": "550e8400-e29b-41d4-a716-446655440000",
+                "url": "https://example.com/call-recording.mp3",
+                "name": "Support call 2024-01-15"
+              }'
+            ```
+
+            ```python Python
+            import requests
+
+            response = requests.post(
+                "https://api.heify.com/submit",
+                headers={
+                    "Content-Type": "application/json",
+                    "x-api-key": "YOUR_API_KEY"
+                },
+                json={
+                    "configuration_id": "550e8400-e29b-41d4-a716-446655440000",
+                    "url": "https://example.com/call-recording.mp3",
+                    "name": "Support call 2024-01-15"
+                }
+            )
+
+            transcription_id = response.json()["data"]["transcription_id"]
+            print(f"Transcription started: {transcription_id}")
+            ```
+
+            </CodeGroup>
+
+            ```json Response (201)
+            {
+              "data": {
+                "message": "Transcription created successfully",
+                "transcription_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+              }
+            }
+            ```
+          </Tab>
+
+          <Tab title="Upload a local file">
+            For local files, use the two-step presigned upload:
+
+            **Step 1 — Request an upload URL:**
+
+            <CodeGroup>
+
+            ```bash cURL
+            curl -X POST https://api.heify.com/request-upload-url \
+              -H "Content-Type: application/json" \
+              -H "x-api-key: YOUR_API_KEY" \
+              -d '{
+                "configuration_id": "550e8400-e29b-41d4-a716-446655440000",
+                "name": "Support call 2024-01-15"
+              }'
+            ```
+
+            ```python Python
+            import requests
+
+            response = requests.post(
+                "https://api.heify.com/request-upload-url",
+                headers={
+                    "Content-Type": "application/json",
+                    "x-api-key": "YOUR_API_KEY"
+                },
+                json={
+                    "configuration_id": "550e8400-e29b-41d4-a716-446655440000",
+                    "name": "Support call 2024-01-15"
+                }
+            )
+
+            result = response.json()["data"]
+            upload_url = result["upload_url"]
+            transcription_id = result["transcription_id"]
+            ```
+
+            </CodeGroup>
+
+            **Step 2 — Upload the file directly to S3:**
+
+            <CodeGroup>
+
+            ```bash cURL
+            curl -X PUT "UPLOAD_URL_FROM_PREVIOUS_STEP" \
+              --upload-file "./call-recording.mp3"
+            ```
+
+            ```python Python
+            with open("call-recording.mp3", "rb") as f:
+                requests.put(upload_url, data=f)
+
+            print(f"Uploaded. Transcription ID: {transcription_id}")
+            ```
+
+            </CodeGroup>
+
+            <Warning>
+              The presigned URL expires in **5 minutes**. Upload the file immediately after requesting the URL.
+            </Warning>
+          </Tab>
+        </Tabs>
+
+        **Supported formats:** `aac`, `aiff`, `amr`, `asf`, `flac`, `mp3`, `ogg`, `wav`, `webm`, `m4a`, `mp4`
+      </Step>
+
+      <Step title="Retrieve the result">
+        Transcription is asynchronous. Poll `/get-transcription` until `status` is `COMPLETED` or `FAILED`.
+
+        <CodeGroup>
+
+        ```bash cURL
+        curl -X POST https://api.heify.com/get-transcription \
+          -H "Content-Type: application/json" \
+          -H "x-api-key: YOUR_API_KEY" \
+          -d '{
+            "transcription_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+          }'
+        ```
+
+        ```python Python
+        import requests, time
+
+        def wait_for_transcription(transcription_id, api_key):
+            while True:
+                response = requests.post(
+                    "https://api.heify.com/get-transcription",
+                    headers={
+                        "Content-Type": "application/json",
+                        "x-api-key": api_key
+                    },
+                    json={"transcription_id": transcription_id}
+                )
+                result = response.json()["data"]
+                status = result["status"]
+
+                if status == "COMPLETED":
+                    return result
+                elif status == "FAILED":
+                    raise Exception(result.get("error_message", "Transcription failed"))
+
+                print(f"Status: {status} — waiting...")
+                time.sleep(5)
+
+        result = wait_for_transcription(transcription_id, "YOUR_API_KEY")
+        ```
+
+        </CodeGroup>
+
+        A completed transcription returns:
+
+        ```json Response (200)
+        {
+          "data": {
+            "transcription_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+            "status": "COMPLETED",
+            "configuration_tag": "support-calls-v1",
+            "name": "Support call 2024-01-15",
+            "duration": 312.4,
+            "language": "en",
+            "transcript": "Agent: Thank you for calling. How can I help you today? Customer: Hi, I have an issue with my invoice...",
+            "summary": "The customer called regarding a billing discrepancy on their January invoice. The agent resolved the issue by applying a correction credit.",
+            "extraction": {
+              "customer_sentiment": "NEGATIVE",
+              "resolved": true
+            },
+            "evaluation_score": null,
+            "critical_fail_triggered": false,
+            "group": null,
+            "created_at": "2024-01-15T10:30:00.000000"
+          }
+        }
+        ```
+
+        <Tip>
+          Instead of polling, configure a **webhook** on your Configuration (`webhooks.success_url`) to receive a POST notification the moment processing completes.
+        </Tip>
+      </Step>
+    </Steps>
+
+    ### What's next from the API?
+
+    <CardGroup cols={2}>
+      <Card title="Add Quality Scoring" icon="clipboard-check" href="/api-reference/evaluators/create">
+        Create an Evaluator and pass `evaluator_id` when submitting — every transcription gets auto-scored
+      </Card>
+      <Card title="Track Participants" icon="user" href="/api-reference/participants/create">
+        Create Participants and pass `participant_id` to build performance analytics per agent
+      </Card>
+      <Card title="Run Analytics" icon="chart-bar" href="/api-reference/transcriptions/analytics">
+        Call `/analytics` on any Configuration to analyze your full corpus with AI
+      </Card>
+      <Card title="Manage API Keys" icon="key" href="/authentication">
+        Learn about key rotation, rate limits, and best practices
+      </Card>
+    </CardGroup>
+
+  </Tab>
+</Tabs>
+
+---
+
+## Success!
+
+You've successfully transcribed your first audio/video file with Heify!

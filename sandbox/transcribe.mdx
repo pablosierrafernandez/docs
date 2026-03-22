@@ -1,160 +1,161 @@
 ---
-title: "Transcribe Audio"
-description: "Upload and process audio files for transcription"
+title: "Transcribe"
+description: "Submit audio and video files for transcription and AI quality scoring."
 icon: "microphone"
 ---
 
-<Card
-  title="Transcribe Audio Files"
-  icon="microphone"
-  href="https://sandbox.heify.com/sandbox/create-transcription"
->
-  Access to Transcribe Audio Files at: **https://sandbox.heify.com/sandbox/create-transcription**
-</Card>
-
-# Transcribe Audio Files
-
-The [Transcribe page](https://sandbox.heify.com/sandbox/create-transcription) is where you upload audio or video files and initiate the transcription process. Whether you have local files or public URLs, this interface makes it simple to start processing.
-
-For a detailed technical breakdown of the `Transcription` object and all its attributes, please see the [Transcription Object Reference](/core/objects#transcription-object).
+The Transcribe page is where you submit audio or video content for processing. Select a **Configuration** (required) that defines how the content will be handled, optionally attach an **Evaluator** to score the transcript against quality criteria, optionally link a **Participant** to attribute the result to a specific person, then provide the media as a local file upload or a public URL.
 
 ---
 
-## How It Works
+## Transcription parameters
 
-<Steps>
-  <Step title="Select a Configuration">
-    Choose which transcription template to apply to your files.
-    <Info>
-  Don't have a Configuration yet? [Create one first →](/sandbox/configurations)
+The three parameters are arranged as a tree to communicate their relationship:
+
+```mermaid
+flowchart TD
+    A[Configuration\nRequired]
+    B[Evaluator\nOptional]
+    C[Participant\nOptional]
+    A --> B
+    A --> C
+```
+
+### Configuration *(required)*
+
+A searchable dropdown listing all your configurations. Selecting one associates all of its settings — language, summary, extraction fields, and webhooks — with this transcription job.
+
+<Info>
+  Don't have a configuration yet? [Create one first →](/sandbox/configurations)
 </Info>
-  </Step>
-  
-  <Step title="Provide Audio Files">
-    Upload local files or enter public URLs.
-      <Warning>
-      If enter public URL, make sure the URL is publicly accessible **at the time of processing**. If the file becomes unavailable later, the transcription will fail.
-    </Warning>
-  </Step>
-  
-  <Step title="Process">
-    Click the button to start transcription.
-  </Step>
-  
-</Steps>
+
+### Evaluator *(optional)*
+
+Opens a selector modal listing your evaluators with name, ID, and criteria count. Selecting one causes the AI to score the transcript against that evaluator's criteria once processing completes.
+
+### Participant *(optional)*
+
+Opens a selector modal listing your participants with name, ID, and department (if set). Selecting one links the transcription result to that person for analytics and performance reporting.
+
+<Tip>
+  Selecting both an **Evaluator** and a **Participant** gives you quality scores attributed to a specific person — the foundation of individual performance tracking.
+</Tip>
 
 ---
 
-## Supported Formats
-    
-    | Audio Formats | Video Formats |
-    | :--- | :--- |
-    | `aac` | `mp4` |
-    | `aiff` | `webm` |
-    | `amr` | |
-    | `asf` | |
-    | `flac` | |
-    | `mp3` | |
-    | `ogg` | |
-    | `wav` | |
-    | `m4a` | |
-    
-    
-    ## File Limits
-    
-    | Limit | Value |
-    | :--- | :--- |
-    | **Max file size** | 200 MB |
-    | **Max duration** | 7200 seconds (2 hours) |
-    
-    [View all limits →](/core/limits)
-    
+## Upload method
+
+A toggle below the parameter selectors switches between two modes:
+
+| Mode | Use when |
+|---|---|
+| **Local File(s)** | You have files on your device to upload |
+| **Public URL** | The file is already hosted at a publicly accessible URL |
 
 ---
 
-## Best Practices
+## Local File(s) mode
+
+### Drop zone
+
+Drag & drop files onto the zone or click anywhere on it to open a file picker.
+
+**Supported formats:** `aac` · `aiff` · `amr` · `asf` · `flac` · `mp3` · `ogg` · `wav` · `webm` · `m4a` · `mp4`
+
+For file size and duration limits, see [Rate Limits & Quotas](/platform/rate-limits).
+
+Files with unsupported formats are automatically filtered out and a warning shows how many were rejected. You can add up to **25 files** per submission.
+
+### Processing Queue
+
+The queue appears as soon as files are added. Each item shows:
+
+| Element | Description |
+|---|---|
+| **Status icon** | Queued · Uploading · Success · Error |
+| **File name & size** | Truncated filename and size in MB |
+| **Name** | Optional free-text label for the transcription (e.g. `Q3 team meeting`) |
+| **Status pill** | **Queued** · **Uploading...** · **Started** · **Error** |
+| **Transcription ID** | Shown after success — monospace with copy button and link to the detail view |
+
+<Note>
+  Files are processed **sequentially** with a short pause between each. This is intentional and prevents API rate issues — parallel uploads are not supported.
+</Note>
+
+<Note>
+  Re-submitting a batch only retries files in **Queued** or **Error** state. Files that already completed successfully are not re-processed.
+</Note>
+
+---
+
+## Public URL mode
+
+| Field | Required | Notes |
+|---|---|---|
+| **File URL** | Yes | Direct public link to the audio/video file (e.g. `https://my-server.com/recording.mp3`) |
+| **Transcription Name** | No | Optional human-readable label |
+
+After successful submission, a result card appears showing the transcription ID with a copy button and a link to the detail view.
+
+<Warning>
+  The URL must be **publicly accessible** with no authentication required. The file must be reachable at the time the pipeline processes it — the download has a **60-second timeout**. Use a stable, fast URL.
+</Warning>
+
+---
+
+## After submission
+
+Once a batch finishes or a URL submission succeeds, the submit button changes to **Process More Files**. Clicking it clears the file queue (or URL fields) so you can start a new batch — your **Configuration, Evaluator, and Participant selections are retained**.
+
+---
+
+## Best practices
 
 <AccordionGroup>
-  <Accordion title="Audio Quality Tips" icon="volume">
-    Better audio quality = better transcription accuracy.
-    
-    **Optimize your audio:**
-    
-    - **Clear recording** - Minimize background noise
-    - **Good microphone** - Use quality recording equipment
-    - **Proper levels** - Not too quiet, not too loud
-    - **Mono or stereo** - Either works, mono is smaller
-    - **16kHz+ sample rate** - Higher is better for quality
-    
+  <Accordion title="Audio quality tips" icon="volume">
+    Better audio quality produces more accurate transcriptions.
+
+    **Recommended:**
+    - Minimize background noise
+    - Use quality recording equipment
+    - Keep audio levels consistent — not too quiet, not too loud
+    - 16 kHz+ sample rate (higher is better)
+    - Mono or stereo both work; mono files are smaller
+
     **Avoid:**
-    - Heavy background music
-    - Multiple overlapping speakers
+    - Heavy background music or ambient noise
+    - Multiple speakers talking over each other
     - Very low bitrate compression
-    - Heavily processed audio (lots of effects)
+    - Heavily processed audio with effects
   </Accordion>
-  
-</AccordionGroup>
 
----
+  <Accordion title="Public URL checklist" icon="link">
+    Before submitting a URL, verify that:
 
-## Troubleshooting
+    - The URL opens directly in an **incognito browser window** (no login required)
+    - It is a **direct link to the file**, not a media player page
+    - The file format is one of the supported extensions
+    - The URL uses **HTTPS** (HTTP also accepted)
+    - The server can respond within **60 seconds**
 
-<AccordionGroup>
-  <Accordion title="File Upload Fails" icon="cloud-exclamation">
-    **Issue**: Upload progress stops or shows an error.
-    
-    **Common Causes:**
-    
-    **1. File Too Large**
-    - Max size is 200 MB
-    - Compress the audio file
-    - Use a lower bitrate
-    
-    **2. Unsupported Format**
-    - Convert to a supported format (MP3, WAV, etc.)
-    - Check the file extension matches the actual format
-    
-  </Accordion>
-  
-  <Accordion title="URL Not Recognized" icon="link-slash">
-    **Issue**: Public URL shows as invalid.
-    
-    **Checklist:**
-    
-    - URL is **publicly accessible** (try opening in incognito mode)
-    - URL is a **direct link** to the file, not a player page
-    - File format is **supported**
-    - URL uses **HTTPS** (or HTTP)
-    - No **authentication** required
-    - **CORS headers** allow external access (for some platforms)
-    
-    **Test the URL:**
+    You can test the URL quickly with:
     ```bash
     curl -I https://your-url.com/audio.mp3
     ```
-    
-    Should return `200 OK` and `Content-Type: audio/...`
+    Expect a `200 OK` response with `Content-Type: audio/...`.
   </Accordion>
-
-
 </AccordionGroup>
 
 ---
-## Need Help?
 
-<CardGroup cols={2}>
-  <Card
-    title="Support"
-    icon="life-ring"
-    href="https://www.heify.com/contact.html"
-  >
-    Contact with us
+<CardGroup cols={3}>
+  <Card title="Configurations" icon="gear" href="/sandbox/configurations">
+    Set up your processing templates
   </Card>
-  <Card
-    title="Documentation"
-    icon="book"
-    href="/sandbox"
-  >
-    Explore the Sandbox guide
+  <Card title="Evaluators" icon="clipboard-check" href="/sandbox/evaluators">
+    Create quality scoring rubrics
+  </Card>
+  <Card title="Participants" icon="user" href="/sandbox/participants">
+    Manage agent profiles
   </Card>
 </CardGroup>

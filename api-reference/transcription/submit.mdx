@@ -1,11 +1,25 @@
 ---
 title: "Submit from public URL"
-description: "Submit audio or video files from public URLs"
-openapi: 'POST /submit'
+description: "Submit an audio or video file for transcription using a publicly accessible URL."
+openapi: 'api-reference/openapi-transcriptions.json POST /submit'
 ---
 
-Submits a publicly accessible audio or video file URL for transcription.
+<Info>
+  Use this endpoint when your media file is already hosted at a public URL. For local files, use [Submit from local file](/api-reference/transcription/request-upload-url) instead.
+</Info>
 
 <Info>
-  Use this endpoint when your media file is already hosted on a public URL. For local files, use [Submit from local file](/api-reference/transcription/request-upload-url) instead.
+  Processing is **asynchronous** — the API returns a `transcription_id` immediately. Use [Get Transcription Details](/api-reference/transcription/details) or webhooks to track completion.
 </Info>
+
+<Note>
+  The `url` must be publicly accessible with no authentication required. The download has a **60-second timeout** — use a fast, stable URL.
+</Note>
+
+<Note>
+  For supported formats, file size limits, and duration limits, see [Rate Limits & Quotas](/platform/rate-limits).
+</Note>
+
+<Note>
+  `participant_id` and `evaluator_id` are optional. If provided, they must exist and belong to your account.
+</Note>

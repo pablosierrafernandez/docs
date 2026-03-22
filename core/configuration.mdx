@@ -1,0 +1,140 @@
+---
+title: "Configuration"
+description: "Reference for the Configuration object — the reusable template that drives every transcription."
+icon: "gear"
+---
+
+A **Configuration** is a reusable template that defines how audio/video files are processed. It sets the language, vocabulary, extraction fields, and optional features like summaries or webhooks. Every transcription requires a configuration.
+
+## Fields
+
+| Field | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `configuration_id` | `string` | Auto-generated | Unique identifier (UUID) |
+| `client_id` | `string` | Auto-assigned | Your account identifier |
+| `tag` | `string` | **Yes** | Descriptive name (max 255 characters) |
+| `vocabulary` | `array<string>` | No | Custom terms to improve recognition accuracy — fully replaced when updated |
+| `extraction_fields` | `array<object>` | No | Structured data fields to extract via AI (max 10) — see [Extraction Fields](#extraction-fields) |
+| `summary` | `boolean` | No | Generate an AI summary (default: `false`) |
+| `custom_summary` | `string` | No | Custom prompt to guide the AI summary (max 300 chars) |
+| `summary_language` | `string` | No | Language for the summary (`"df"` = auto-detect) |
+| `analytics_language` | `string` | No | Language for analytics reports (`"df"` = auto-detect) |
+| `webhooks` | `object` | No | URLs to notify on completion or failure — see [Webhooks](#webhooks) |
+| `created_at` | `string` | Auto-generated | ISO 8601 creation timestamp |
+
+<Note>
+  `tag` cannot be changed after the configuration is created.
+</Note>
+
+## Extraction Fields
+
+Each item in `extraction_fields` tells the AI what structured data to extract from the transcript.
+
+| Field | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `name` | `string` | **Yes** | Field identifier (e.g. `"sentiment"`, `"ticket_id"`) — 1–50 chars |
+| `type` | `string` | **Yes** | Data type: `string`, `number`, `boolean`, `array` |
+| `description` | `string` | **Yes** | Instructions for the AI — the more specific, the more accurate — 1–1000 chars |
+
+<Note>
+  Field names are normalized on creation: converted to lowercase and special characters replaced with `_`. For example, `"My Field!"` becomes `"my_field_"`.
+</Note>
+
+<Note>
+  Once a field is created, its `type` is immutable. Only `description` can be updated.
+</Note>
+
+<Warning>
+  When updating `extraction_fields`, the submitted list uses a **merge-by-name** strategy: any field **not included** in the update is **permanently removed**. Always include all the fields you want to keep, even if you're only changing one of them.
+</Warning>
+
+## Best Practices for Extraction Fields
+
+<AccordionGroup>
+  <Accordion title="Use bounded responses" icon="list-check">
+    Define a clear, limited set of possible values to improve consistency and accuracy.
+
+    ```json
+    {
+      "name": "sentiment",
+      "type": "string",
+      "description": "Classify the overall sentiment of the conversation. Must be one of: POSITIVE, NEGATIVE, or NEUTRAL."
+    }
+    ```
+
+    This ensures the AI returns predictable, standardized values instead of open-ended descriptions.
+  </Accordion>
+
+  <Accordion title="Provide specific context" icon="magnifying-glass">
+    Give detailed descriptions and concrete examples to guide the AI toward more accurate results.
+
+    **Poor description:**
+
+    ```json
+    {
+      "name": "classification",
+      "type": "string",
+      "description": "Classifies the conversation"
+    }
+    ```
+
+    **Good description:**
+
+    ```json
+    {
+      "name": "issue",
+      "type": "string",
+      "description": "Classifies the conversation into one of: \"BILLING\", \"TECHNICAL\", \"GENERAL\". BILLING covers payment or invoice questions. TECHNICAL covers product bugs or setup issues. GENERAL covers all other topics."
+    }
+    ```
+
+    The more context you provide, the better the extraction quality.
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+  Provide clear, detailed descriptions for extraction fields. The more context you give, the more accurate the extraction will be.
+</Tip>
+
+## Webhooks
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `success_url` | `string` | POST notification when the transcription completes |
+| `error_url` | `string` | POST notification when the transcription fails |
+
+<Note>
+  When updating a configuration, pass `"webhooks": null` to remove all webhook URLs.
+</Note>
+
+## Example
+
+```json
+{
+  "configuration_id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+  "client_id": "client-uuid",
+  "tag": "Sales Call Analysis",
+  "vocabulary": ["CRM", "upsell", "churn"],
+  "extraction_fields": [
+    {
+      "name": "sentiment",
+      "type": "string",
+      "description": "Overall sentiment of the conversation: POSITIVE, NEGATIVE, or NEUTRAL."
+    },
+    {
+      "name": "next_action",
+      "type": "string",
+      "description": "The agreed next action with the customer, if any."
+    }
+  ],
+  "summary": true,
+  "custom_summary": "Focus on action items and next steps agreed by both parties.",
+  "summary_language": "en",
+  "analytics_language": "en",
+  "webhooks": {
+    "success_url": "https://example.com/webhooks/success",
+    "error_url": "https://example.com/webhooks/error"
+  },
+  "created_at": "2025-01-15T10:00:00.000000+00:00"
+}
+```
