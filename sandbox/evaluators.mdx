@@ -172,6 +172,26 @@ To delete an evaluator, use the trash icon in the detail view header. **This can
 
 ---
 
+## Cloning an evaluator
+
+Click the **Clone** button (copy icon, in the detail view header alongside Edit and Delete) to duplicate an existing evaluator.
+
+You are taken directly to the creation form with all fields pre-filled:
+
+| Field | Pre-filled value |
+|---|---|
+| **Name** | Original name + `(Copy)` suffix — truncated if over the 100-character limit |
+| **Feedback Language** | Copied from original |
+| **Description** | Copied from original |
+| **Evaluation Context** | Copied from original |
+| **Criteria** | All criteria copied — names, types, weights, and AI instructions |
+
+<Note>
+  The clone is a new draft — nothing is saved until you click **Create Evaluator**. Edit any field before saving, or save immediately to create an exact copy.
+</Note>
+
+---
+
 <CardGroup cols={2}>
   <Card title="Evaluator" icon="clipboard-check" href="/core/evaluator">
     Full data model and criteria reference

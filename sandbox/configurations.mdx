@@ -189,6 +189,28 @@ To delete a configuration, use the trash icon in the detail view header. **This 
 
 ---
 
+## Cloning a configuration
+
+Click the **Clone** button (copy icon, in the detail view header alongside Edit and Delete) to duplicate an existing configuration.
+
+You are taken directly to the creation form with all fields pre-filled:
+
+| Field | Pre-filled value |
+|---|---|
+| **Tag** | Original tag + `(Copy)` suffix — truncated if over the 100-character limit |
+| **AI Summary** toggle | Copied from original |
+| **Summary & Analytics Languages** | Copied from original |
+| **Custom Summary Instructions** | Copied from original — the `Custom` preset is automatically selected |
+| **Custom Vocabulary** | All words copied |
+| **Extraction Fields** | All fields copied with their names, types, and descriptions |
+| **Webhooks** | Copied from original |
+
+<Note>
+  The clone is a new draft — nothing is saved until you click **Create Configuration**. Edit any field before saving, or save immediately to create an exact copy.
+</Note>
+
+---
+
 <CardGroup cols={2}>
   <Card title="Configuration" icon="gear" href="/core/configuration">
     Full data model and field reference

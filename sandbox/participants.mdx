@@ -18,6 +18,20 @@ For the full data model, see [Participant](/core/participant).
 
 Search, sort, and filter in real time by **name** or **participant ID**. Sort by name or last updated date (ascending/descending). Toggle between card grid and table layout.
 
+### Metadata filters
+
+Click the **sliders icon** (to the right of the search bar) to expand the metadata filter panel. The panel generates filter dropdowns **dynamically** from the actual metadata keys present in your participants — no pre-configuration needed.
+
+Each dropdown shows all values found for that key across your participants. Selecting a value narrows results to participants that have that exact value for that key.
+
+| Behavior | Detail |
+|---|---|
+| **Active filter badge** | A number bubble on the sliders icon shows how many filters are currently active — no need to open the panel to check |
+| **AND logic** | All filters are combined as an intersection — results must match every active filter simultaneously |
+| **Cross-filter with search** | Text search and metadata filters apply together — type a name and set a role filter at the same time |
+| **Clear filters** | A *"Clear filters"* link appears in the panel header when any filter is active |
+| **No results state** | When no participants match the active combination, a *"No results"* message includes a button to clear all filters and the search text at once |
+
 Each participant has a **gradient avatar** showing their initials. The color is determined by their name — the same name always produces the same gradient.
 
 Metadata is shown as **pills** directly on each card: grid view shows the first 4 entries, table view shows the first 2, with a **+N more** badge when there are additional fields.
