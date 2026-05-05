@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Allow: /_next/image
+Disallow: /_next/
+Disallow: /mintlify-assets/_next/
+Disallow: /cdn-cgi/
+
+Sitemap: https://docs.heify.com/sitemap.xml
